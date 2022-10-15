@@ -4,6 +4,15 @@ local Private = oUF.Private
 
 local frame_metatable = Private.frame_metatable
 
+function oUF:CreateColor(r, g, b, a, atlas)
+	local color = CreateColor(r, g, b, a)
+
+	color[1], color[2], color[3] = r, g, b
+	color.atlas = atlas
+
+	return color
+end
+
 local colors = {
 	smooth = {
 		1, 0, 0,
