@@ -1,4 +1,4 @@
-package-as: UICore
+package-as: AzeriteUI
 enable-nolib-creation: no
 
 embedded-libraries:
@@ -15,7 +15,7 @@ tools-used:
     - ouf
 
 move-folders:
-    UICore/UICore: UICore
+    AzeriteUI/AzeriteUI: AzeriteUI
 
 manual-changelog:
     filename: CHANGELOG.md
