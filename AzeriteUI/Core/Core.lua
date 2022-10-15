@@ -129,8 +129,7 @@ ns.SwitchUI = function(self, input)
 		-- Create a list of currently installed UIs.
 		self._ui_list = {}
 		for ui,cmds in next,{
-			["AzeriteUI"] 	= { "azerite1", "az1", "azerite", "azui" },
-			["AzeriteUI2"] 	= { "azerite2", "az2", "azerite", "azui" },
+			["AzeriteUI"] 	= { "azerite", "azui" },
 			["DiabolicUI2"] = { "diabolic", "diablo", "dui" },
 			["GoldpawUI"] 	= { "goldpaw", "gui" },
 			["JourneyUI"] 	= { "journey", "jui" }
