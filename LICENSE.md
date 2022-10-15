@@ -1,6 +1,6 @@
-# MIT License
+# Custom License
 
-Copyright (c) 2022 Lars Norberg
+Copyright (c) 2022 Daniel Troconis, Lars Norberg
 
 This document and the software here mentioned refers to any and all code of this project, but none of the artwork and media assets.
 
