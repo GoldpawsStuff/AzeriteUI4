@@ -47,7 +47,7 @@ local Button_MT = {__index = Button}
 ns.StanceButtons = {}
 ns.StanceButton = Button
 
-Button.Create = function(self, id, parent)
+Button.Create = function(self, id, name, parent)
 
 	local name = ns.Prefix.."StanceButton"..id
 	local button = setmetatable(CreateFrame("CheckButton", name, parent, "StanceButtonTemplate"), Button_MT)
@@ -58,6 +58,7 @@ Button.Create = function(self, id, parent)
 	button.parent = parent
 
 	button.icon = button.icon
+	button.autoCastable = button.AutoCastable
 	button.autoCastShine = button.AutoCastShine
 	button.border = button.Border
 	button.cooldown = button.cooldown
@@ -149,9 +150,6 @@ Button.Update = function(self)
 
 	self:UpdateHotkeys()
 
-end
-
-Button.UpdateHotkeys = function(self)
 end
 
 Button.UpdateHotkeys = function(self)

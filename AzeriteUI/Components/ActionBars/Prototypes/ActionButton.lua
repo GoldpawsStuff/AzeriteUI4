@@ -44,6 +44,7 @@ ActionButton.Create = function(self, id, name, header, config)
 
 	local button = LAB10GE:CreateButton(id, name, header, config)
 	button.icon = button.icon
+	button.autoCastable = button.AutoCastable
 	button.autoCastShine = button.AutoCastShine
 	button.border = button.Border
 	button.cooldown = button.cooldown

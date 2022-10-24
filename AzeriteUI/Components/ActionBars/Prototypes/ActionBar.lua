@@ -89,6 +89,18 @@ ActionBar.CreateButton = function(self, id)
 	return button
 end
 
+ActionBar.ForAll = function(self, method, ...)
+	if (not self.buttons) then
+		return
+	end
+	for _,button in self:GetAll() do
+		local func = button[method]
+		if (func) then
+			func(button, ...)
+		end
+	end
+end
+
 ActionBar.GetAll = function(self)
 	return pairs(self.buttons)
 end
@@ -160,22 +172,18 @@ ActionBar.UpdateVisibilityDriver = function(self)
 		return
 	end
 
+	local visdriver
 	if (self.enabled) then
-		local visdriver
 		if (self.id == 1) then
 			visdriver = "[petbattle]hide;show"
 		else
 			visdriver = "[petbattle][possessbar][overridebar][vehicleui][target=vehicle,exists]hide;show"
 		end
-
-		UnregisterStateDriver(self, "state-vis")
-		self:SetAttribute("state-vis", "0")
-		RegisterStateDriver(self, "vis", visdriver)
-	else
-		UnregisterStateDriver(self, "state-vis")
-		self:SetAttribute("state-vis", "0")
-		RegisterStateDriver(self, "vis", "hide")
 	end
+
+	UnregisterStateDriver(self, "state-vis")
+	self:SetAttribute("state-vis", "0")
+	RegisterStateDriver(self, "vis", visdriver or "hide")
 end
 
 ActionBar.Enable = function(self)

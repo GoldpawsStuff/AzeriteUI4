@@ -36,6 +36,7 @@ local string_format = string.format
 local AutoCastShine_AutoCastStart = AutoCastShine_AutoCastStart
 local AutoCastShine_AutoCastStop = AutoCastShine_AutoCastStop
 local CooldownFrame_Set = CooldownFrame_Set
+local GameTooltip_SetDefaultAnchor = GameTooltip_SetDefaultAnchor
 local GetBindingKey = GetBindingKey
 local GetBindingText = GetBindingText
 local GetPetActionInfo = GetPetActionInfo
@@ -52,37 +53,104 @@ local SetDesaturation = SetDesaturation
 
 ns.PetButtons = {}
 
-local OnEnter = function(self, ...)
-	self:OnEnter(...)
-end
-
-local OnDragStart = function(self)
-	if InCombatLockdown() then
+local UpdateTooltip = function(self)
+	if (GameTooltip:IsForbidden()) then
 		return
 	end
-	if (IsAltKeyDown() and IsControlKeyDown() or IsShiftKeyDown()) or (IsModifiedClick("PICKUPACTION")) then
-		self:SetChecked(false)
-		PickupPetAction(self.id)
-		self:Update()
-	end
-end
-
-local OnReceiveDrag = function(self)
-	if InCombatLockdown() then return end
-	self:SetChecked(false)
-	PickupPetAction(self.id)
-	self:Update()
+	GameTooltip_SetDefaultAnchor(GameTooltip, self)
+	GameTooltip:SetPetAction(self.id)
 end
 
 local PetButton = CreateFrame("CheckButton")
 local PetButton_MT = { __index = PetButton }
+ns.PetButton = PetButton
+
+PetButton.Create = function(self, id, name, parent)
+
+	local button = setmetatable(CreateFrame("CheckButton", name, parent, "PetActionButtonTemplate"), PetButton_MT)
+	button.showgrid = 0
+	button.id = id
+	button.parent = parent
+
+	button.icon = button.icon
+	button.autoCastable = button.AutoCastable
+	button.autoCastShine = button.AutoCastShine
+	button.border = button.Border
+	button.cooldown = button.cooldown
+	button.count = button.Count
+	button.flash = button.Flash
+	button.flyoutArrowContainer = button.FlyoutArrowContainer -- WoW10
+	button.flyoutBorder = button.FlyoutBorder
+	button.flyoutBorderShadow = button.FlyoutBorderShadow
+	button.hotkey = button.HotKey
+	button.levelLinkLockIcon = button.LevelLinkLockIcon -- Retail
+	button.macro = button.Name
+	button.newActionTexture = button.NewActionTexture
+	button.normalTexture = button.NormalTexture
+	button.spellHighlightAnim = button.SpellHighlightAnim
+	button.spellHighlightTexture = button.SpellHighlightTexture
+
+	if (ns.WoW10) then
+		button.checkedTexture = button.CheckedTexture
+		button.highlightTexture = button.HighlightTexture
+		button.pushedTexture = button.PushedTexture
+	else
+		button.checkedTexture = button:GetCheckedTexture()
+		button.highlightTexture = button:GetHighlightTexture()
+		button.pushedTexture = button:GetPushedTexture()
+	end
+
+	if (ns.WoW10) then
+		button.bottomDivider = button.BottomDivider
+		button.rightDivider = button.RightDivider
+		button.slotArt = button.SlotArt
+		button.slotBackground = button.SlotBackground
+	end
+
+	-- Classic overwrites the default texture
+	if (not ns.WoW10) then
+		if (ns.IsWrath) then
+			button.autoCastable = _G[name.."AutoCastable"]
+		end
+		button.autoCastShine = _G[name.."Shine"]
+	end
+
+	button.pushedTexture = button:GetPushedTexture()
+	button.highlightTexture = button:GetHighlightTexture()
+
+	button.textureCache = {}
+	button.textureCache.pushed = button.pushedTexture:GetTexture()
+	button.textureCache.highlight = button.highlightTexture:GetTexture()
+
+	--button:SetFrameStrata("MEDIUM")
+
+	button:SetID(id)
+	button:SetAttribute("type", "pet")
+	button:SetAttribute("action", id)
+	button:SetAttribute("buttonLock", true)
+
+	button:RegisterForDrag("LeftButton", "RightButton")
+	button:RegisterForClicks("AnyUp", ns.WoW10 and "AnyDown")
+
+	button:UnregisterAllEvents()
+	button:SetScript("OnEvent", nil)
+
+	button:SetScript("OnEnter", PetButton.OnEnter)
+	button:SetScript("OnLeave", PetButton.OnLeave)
+	button:SetScript("OnDragStart", PetButton.OnDragStart)
+	button:SetScript("OnReceiveDrag", PetButton.OnReceiveDrag)
+
+	ns.PetButtons[#ns.PetButtons + 1] = button
+
+	return button
+end
 
 PetButton.Update = function(self)
 	local name, texture, isToken, isActive, autoCastAllowed, autoCastEnabled, spellID = GetPetActionInfo(self.id)
 
-	if not isToken then
+	if (not isToken) then
 		self.icon:SetTexture(texture)
-		self.tooltipName = name;
+		self.tooltipName = name
 	else
 		self.icon:SetTexture(_G[texture])
 		self.tooltipName = _G[name]
@@ -90,10 +158,11 @@ PetButton.Update = function(self)
 
 	self.isToken = isToken
 	self:SetChecked(isActive)
-	if autoCastAllowed and not autoCastEnabled then
+
+	if (autoCastAllowed and not autoCastEnabled) then
 		self.AutoCastable:Show()
 		AutoCastShine_AutoCastStop(self.AutoCastShine)
-	elseif autoCastAllowed then
+	elseif (autoCastAllowed) then
 		self.AutoCastable:Hide()
 		AutoCastShine_AutoCastStart(self.AutoCastShine)
 	else
@@ -101,41 +170,34 @@ PetButton.Update = function(self)
 		AutoCastShine_AutoCastStop(self.AutoCastShine)
 	end
 
-	if texture then
-		if GetPetActionsUsable() then
+	if (texture) then
+		if (GetPetActionsUsable()) then
 			SetDesaturation(self.icon, nil)
 		else
 			SetDesaturation(self.icon, 1)
 		end
 		self.icon:Show()
-		--self.normalTexture:SetTexture("Interface\\Buttons\\UI-Quickslot2")
-		--self.normalTexture:SetTexCoord(0, 0, 0, 0)
 		self:ShowButton()
-		--self.normalTexture:Show()
-		if self.overlay then
-			self.overlay:Show()
-		end
 	else
 		self.icon:Hide()
-		--.normalTexture:SetTexture("Interface\\Buttons\\UI-Quickslot")
-		--self.normalTexture:SetTexCoord(-0.1, 1.1, -0.1, 1.12)
 		self:HideButton()
-		if self.showgrid == 0 and not self.parent.config.showgrid then
-			--self.normalTexture:Hide()
-			if self.overlay then
-				self.overlay:Hide()
-			end
+		if (self.showgrid == 0) then
+
 		end
 	end
 	self:UpdateCooldown()
 	self:UpdateHotkeys()
 end
 
+PetButton.UpdateCooldown = function(self)
+	local start, duration, enable = GetPetActionCooldown(self.id)
+	CooldownFrame_Set(self.cooldown, start, duration, enable)
+end
+
 PetButton.UpdateHotkeys = function(self)
 	local key = self:GetHotkey() or ""
 	local hotkey = self.HotKey
-
-	if key == "" or self.parent.config.hidehotkey then
+	if (key == "" or self.parent.config.hidehotkey) then
 		hotkey:Hide()
 	else
 		hotkey:SetText(key)
@@ -146,7 +208,7 @@ end
 PetButton.ShowButton = function(self)
 	self.pushedTexture:SetTexture(self.textureCache.pushed)
 	self.highlightTexture:SetTexture(self.textureCache.highlight)
-	self:SetAlpha(1.0)
+	self:SetAlpha(1)
 end
 
 PetButton.HideButton = function(self)
@@ -156,28 +218,23 @@ PetButton.HideButton = function(self)
 	self.pushedTexture:SetTexture("")
 	self.highlightTexture:SetTexture("")
 
-	if self.showgrid == 0 and not self.parent.config.showgrid then
-		self:SetAlpha(0.0)
+	if (self.showgrid == 0 and not self.parent.config.showgrid) then
+		self:SetAlpha(0)
 	end
 end
 
 PetButton.ShowGrid = function(self)
 	self.showgrid = self.showgrid + 1
-	--self.normalTexture:Show()
-	self:SetAlpha(1.0)
+	self:SetAlpha(1)
 end
 
 PetButton.HideGrid = function(self)
-	if self.showgrid > 0 then self.showgrid = self.showgrid - 1 end
-	if self.showgrid == 0  and not (GetPetActionInfo(self.id)) and not self.parent.config.showgrid then
-		--self.normalTexture:Hide()
-		self:SetAlpha(0.0)
+	if (self.showgrid > 0) then
+		self.showgrid = self.showgrid - 1
 	end
-end
-
-PetButton.UpdateCooldown = function(self)
-	local start, duration, enable = GetPetActionCooldown(self.id)
-	CooldownFrame_Set(self.cooldown, start, duration, enable)
+	if (self.showgrid == 0) and not (GetPetActionInfo(self.id)) and (not self.parent.config.showgrid) then
+		self:SetAlpha(0)
+	end
 end
 
 PetButton.GetHotkey = function(self)
@@ -225,33 +282,34 @@ PetButton.ClearBindings = function(self)
 	end
 end
 
-ActionBars.CreatePetButton = function(self, id, name, parent)
+PetButton.OnEnter = function(self)
+	self.UpdateTooltip = UpdateTooltip
+	self:UpdateTooltip()
+end
 
-	local button = setmetatable(CreateFrame("CheckButton", name, parent, "PetActionButtonTemplate"), PetButton_MT)
-	button.showgrid = 0
-	button.id = id
-	button.parent = parent
+PetButton.OnLeave = function(self)
+	if (GameTooltip:IsForbidden()) then
+		return
+	end
+	GameTooltip:Hide()
+end
 
-	button:SetFrameStrata("MEDIUM")
-	button:SetID(id)
+PetButton.OnDragStart = function(self)
+	if InCombatLockdown() then
+		return
+	end
+	if (IsAltKeyDown() and IsControlKeyDown() or IsShiftKeyDown()) or (IsModifiedClick("PICKUPACTION")) then
+		self:SetChecked(false)
+		PickupPetAction(self.id)
+		self:Update()
+	end
+end
 
-	button:UnregisterAllEvents()
-	button:SetScript("OnEvent", nil)
-
-	button.OnEnter = button:GetScript("OnEnter")
-	button:SetScript("OnEnter", OnEnter)
-	button:SetScript("OnDragStart", OnDragStart)
-	button:SetScript("OnReceiveDrag", OnReceiveDrag)
-
-	button:SetNormalTexture("")
-
-	button.pushedTexture = button:GetPushedTexture()
-	button.highlightTexture = button:GetHighlightTexture()
-
-	button.textureCache = {}
-	button.textureCache.pushed = button.pushedTexture:GetTexture()
-	button.textureCache.highlight = button.highlightTexture:GetTexture()
-
-	return button
-
+PetButton.OnReceiveDrag = function(self)
+	if InCombatLockdown() then
+		return
+	end
+	self:SetChecked(false)
+	PickupPetAction(self.id)
+	self:Update()
 end

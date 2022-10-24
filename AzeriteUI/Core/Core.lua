@@ -40,9 +40,27 @@ local defaults = {
 			enableDevelopmentMode = false,
 			relativeScale = 1
 		},
+		actionbars = {
+			enableBar1 = true,
+			enablePetBar = true,
+			enableStanceBar = true
+		},
+		chat = {
+			storedFrames = {}
+		},
 		minimap = {
 			useServerTime = false,
 			useHalfClock = true
+		},
+		unitframes = {
+			enablePlayer = true,
+			enablePlayerHUD = true,
+			enableTarget = true,
+			enableToT = true,
+			enableFocus = true,
+			enablePet = true,
+			enableParty = true,
+			enableRaid = true
 		}
 	}
 }
