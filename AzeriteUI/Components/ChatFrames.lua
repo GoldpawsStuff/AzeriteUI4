@@ -54,6 +54,7 @@ local UIFrameFadeRemoveFrame = UIFrameFadeRemoveFrame
 
 -- Addon API
 local GetFont = ns.API.GetFont
+local GetPosition = ns.API.GetPosition
 local SetObjectScale = ns.API.SetObjectScale
 local UIHider = ns.Hider
 
@@ -95,11 +96,12 @@ local TEXTURES = {
 	}
 }
 
+-- Local element cache for lookups without member properties
 local Elements = setmetatable({}, { __index = function(t,k) rawset(t,k,{}) return rawget(t,k) end })
 
-----------------------------------------
+-------------------------------------------------------
 -- Rewritten Blizzard API
-----------------------------------------
+-------------------------------------------------------
 local Tab_OnDragStop = function(tab, dragButton)
 
 	local id = tab:GetID()
@@ -222,9 +224,8 @@ local Tab_PostLeave = function()
 	ChatFrames:UpdateClutter()
 end
 
-
--- Custom ChatFrame API
 -------------------------------------------------------
+-- Custom ChatFrame API
 -------------------------------------------------------
 local ChatFrame = {}
 
@@ -421,8 +422,8 @@ ChatFrame.PostUpdateFont = function(self)
 	self._templock = nil
 end
 
--- Module API
 -------------------------------------------------------
+-- Module API
 -------------------------------------------------------
 ChatFrames.StyleChat = function(self, frame)
 	local name = frame:GetName()
