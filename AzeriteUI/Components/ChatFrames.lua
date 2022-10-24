@@ -24,7 +24,7 @@
 
 --]]
 local Addon, ns = ...
-local ChatFrames = ns:NewModule("ChatFrames", "LibMoreEvents-1.0", "AceHook-3.0")
+local ChatFrames = ns:NewModule("ChatFrames", "LibMoreEvents-1.0", "AceHook-3.0", "AceConsole-3.0")
 
 -- Lua API
 local _G = _G
@@ -214,12 +214,14 @@ local Tab_OnDragStart = function(tab, button)
 
 end
 
-local Tab_PostEnter = function()
+local Tab_PostEnter = function(tab)
+	local frame = _G["ChatFrame"..tab:GetID()]
 	Elements[frame].isMouseOverTab = true
 	ChatFrames:UpdateClutter()
 end
 
-local Tab_PostLeave = function()
+local Tab_PostLeave = function(tab)
+	local frame = _G["ChatFrame"..tab:GetID()]
 	Elements[frame].isMouseOverTab = false
 	ChatFrames:UpdateClutter()
 end

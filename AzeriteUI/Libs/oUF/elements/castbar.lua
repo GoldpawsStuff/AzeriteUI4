@@ -109,10 +109,6 @@ local function resetAttributes(self)
 end
 
 local function CreatePip(element)
-<<<<<<< HEAD:AzeriteUI/Libs/oUF/elements/castbar.lua
-	-- TODO
-=======
->>>>>>> 5268bf39ea965da0f17930ac0ea40c493050a675:UICore/Libs/oUF/elements/castbar.lua
 	return CreateFrame('Frame', nil, element, 'CastingBarFrameStagePipTemplate')
 end
 
@@ -138,10 +134,6 @@ local function UpdatePips(element, numStages)
 
 			local pip = element.Pips[stage]
 			if(not pip) then
-<<<<<<< HEAD:AzeriteUI/Libs/oUF/elements/castbar.lua
-				--[[ Override: Castbar:CreatePip(index)
-				TODO
-=======
 				--[[ Override: Castbar:CreatePip(stage)
 				Creates a "pip" for the given stage, used for empowered casts.
 
@@ -150,7 +142,6 @@ local function UpdatePips(element, numStages)
 				## Returns
 
 				* pip - a frame used to depict an empowered stage boundary, typically with a line texture (frame)
->>>>>>> 5268bf39ea965da0f17930ac0ea40c493050a675:UICore/Libs/oUF/elements/castbar.lua
 				--]]
 				pip = (element.CreatePip or CreatePip) (element, stage)
 				element.Pips[stage] = pip
@@ -262,14 +253,10 @@ local function CastStart(self, event, unit)
 
 	if(element.empowering) then
 		--[[ Override: Castbar:UpdatePips(numStages)
-<<<<<<< HEAD:AzeriteUI/Libs/oUF/elements/castbar.lua
-		TODO
-=======
 		Handles updates for stage separators (pips) in an empowered cast.
 
 		* self      - the Castbar widget
 		* numStages - the number of stages in the current cast (number)
->>>>>>> 5268bf39ea965da0f17930ac0ea40c493050a675:UICore/Libs/oUF/elements/castbar.lua
 		--]]
 		(element.UpdatePips or UpdatePips) (element, numStages)
 	end

@@ -50,6 +50,9 @@ local SetObjectScale = ns.API.SetObjectScale
 local SetEffectiveObjectScale = ns.API.SetEffectiveObjectScale
 local IsAddOnEnabled = ns.API.IsAddOnEnabled
 
+-- Custom Color Tables
+-----------------------------------------------------------------
+
 -- NamePlates
 -----------------------------------------------------
 local cvars = {
@@ -293,9 +296,9 @@ UnitFrames.SpawnUnitFrames = function(self)
 			hud:SetAttribute("toggleForVehicle", false)
 			RegisterAttributeDriver(hud, "unit", "[vehicleui] vehicle; player")
 
-			local pet = _G[prefix.."Pet"]
-			pet:SetAttribute("toggleForVehicle", false)
-			RegisterAttributeDriver(pet, "unit", "[vehicleui] player; pet")
+			--local pet = _G[prefix.."Pet"]
+			--pet:SetAttribute("toggleForVehicle", false)
+			--RegisterAttributeDriver(pet, "unit", "[vehicleui] player; pet")
 		end
 
 

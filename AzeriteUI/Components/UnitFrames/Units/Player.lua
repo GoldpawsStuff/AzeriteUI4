@@ -37,12 +37,9 @@ local table_sort = table.sort
 local unpack = unpack
 
 -- WoW API
-local CancelUnitBuff = CancelUnitBuff
-local CreateFrame = CreateFrame
-local HasPetUI = HasPetUI
-local InCombatLockdown = InCombatLockdown
-local UnitExists = UnitExists
-local UnitIsUnit = UnitIsUnit
+local IsPlayerAtEffectiveMaxLevel = IsPlayerAtEffectiveMaxLevel
+local IsXPUserDisabled = IsXPUserDisabled
+local UnitLevel = UnitLevel
 
 -- Addon API
 local Colors = ns.Colors
@@ -52,29 +49,91 @@ local GetMedia = ns.API.GetMedia
 local IsAddOnEnabled = ns.API.IsAddOnEnabled
 
 -- Constants
-local _, PlayerClass = UnitClass("player")
+local playerClass = select(2, UnitClass("player"))
+local playerLevel = UnitLevel("player")
+local playerXPDisabled = IsXPUserDisabled()
+local hardenedLevel = ns.IsRetail and 10 or ns.IsClassic and 40 or 30
 
 -- Utility Functions
 --------------------------------------------
 
-
 -- Element Callbacks
 --------------------------------------------
-
 
 -- Frame Script Handlers
 --------------------------------------------
 
-
 -- Callbacks
 --------------------------------------------
+local OnEvent = function(self, event, unit, ...)
 
+	if (event == "PLAYER_ENTERING_WORLD") then
+		playerXPDisabled = IsXPUserDisabled()
+
+	elseif (event == "ENABLE_XP_GAIN") then
+		playerXPDisabled = nil
+
+	elseif (event == "DISABLE_XP_GAIN") then
+		playerXPDisabled = true
+
+	elseif (event == "PLAYER_LEVEL_UP") then
+		local level = ...
+		if (level and (level ~= playerLevel)) then
+			playerLevel = level
+		else
+			local level = UnitLevel("player")
+			if (level ~= self.playerLevel) then
+				playerLevel = level
+			end
+		end
+	end
+
+	local db = ns.Config.Player[(playerXPDisabled or IsPlayerAtEffectiveMaxLevel()) and "Seasoned" or playerLevel < hardenedLevel and "Novice" or "Hardened"]
+
+	local health = self.Health
+	health:ClearAllPoints()
+	health:SetPoint(unpack(db.HealthBarPosition))
+	health:SetSize(unpack(db.HealthBarSize))
+	health:SetStatusBarTexture(db.HealthBarTexture)
+	health:SetStatusBarColor(unpack(db.HealthBarColor))
+	health:SetOrientation(db.HealthBarOrientation)
+	health:SetSparkMap(db.HealthBarSparkMap)
+
+	local backdrop = self.Health.Backdrop
+	backdrop:ClearAllPoints()
+	backdrop:SetPoint(unpack(db.HealthBackdropPosition))
+	backdrop:SetSize(unpack(db.HealthBackdropSize))
+	backdrop:SetTexture(db.HealthBackdropTexture)
+	backdrop:SetVertexColor(unpack(db.HealthBackdropColor))
+
+	local cast = self.Cast
+	cast:ClearAllPoints()
+	cast:SetPoint(unpack(db.HealthBarPosition))
+	cast:SetSize(db.HealthBarSize)
+	cast:SetStatusBarTexture(db.HealthBarTexture)
+	cast:SetStatusBarColor(unpack(db.CastBarColor))
+	cast:SetOrientation(db.HealthBarOrientation)
+	cast:SetSparkMap(db.HealthBarSparkMap)
+
+end
 
 UnitStyles["Player"] = function(self, unit, id)
 
-	self:SetSize(unpack(ns.Config.Player.Default.Size))
-	self:SetPoint(unpack(ns.Config.Player.Default.Position))
+	self:SetSize(unpack(ns.Config.Player.Size))
+	self:SetPoint(unpack(ns.Config.Player.Position))
 
+	self.Health = self:CreateBar()
+	self.Health.Backdrop = self:CreateTexture(nil, "BACKGROUND", nil, -1)
+	self.Health.Override = ns.API.UpdateHealth
 
+	self.Cast = self:CreateBar()
+	self.Cast:DisableSmoothing()
+
+	self:RegisterEvent("PLAYER_ALIVE", OnEvent, true)
+	self:RegisterEvent("PLAYER_ENTERING_WORLD", OnEvent, true)
+	self:RegisterEvent("DISABLE_XP_GAIN", OnEvent, true)
+	self:RegisterEvent("ENABLE_XP_GAIN", OnEvent, true)
+	self:RegisterEvent("PLAYER_LEVEL_UP", OnEvent, true)
+	self:RegisterEvent("PLAYER_XP_UPDATE", OnEvent, true)
 
 end

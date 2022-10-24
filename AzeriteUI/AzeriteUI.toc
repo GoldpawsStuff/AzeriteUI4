@@ -26,5 +26,8 @@ Locale\Locale.xml
 # Addon core
 Core\Core.xml
 
+# Addon config
+Config\Config.xml
+
 # Addon components
 Components\Components.xml

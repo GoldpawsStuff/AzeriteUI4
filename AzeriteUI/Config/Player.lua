@@ -27,9 +27,85 @@ local Addon, ns = ...
 local Config = ns.Config or {}
 ns.Config = Config
 
+local Colors = ns.Colors
+local GetFont = ns.API.GetFont
+local GetMedia = ns.API.GetMedia
+
 Config.Player = {
-	Default = {
-		Size = { 439, 93 },
-		Position = { "BOTTOMLEFT", 167, 100 }
+
+	Size = { 439, 93 },
+	Position = { "BOTTOMLEFT", 167, 100 },
+	Novice = {
+
+		HealthBarSize = { 385, 37 },
+		HealthBarPosition = { "BOTTOMLEFT", 27, 27 },
+		HealthBarTexture = GetMedia("hp_lowmid_bar"),
+		HealthBarColor = { Colors.health[1], Colors.health[2], Colors.health[3] },
+		HealthBarOrientation = "RIGHT",
+		HealthBarSparkMap = {
+			{ ["keyPercent"] =   0/512, ["topOffset"] = -24/64, ["bottomOffset"] = -39/64 },
+			{ ["keyPercent"] =   9/512, ["topOffset"] =   0/64, ["bottomOffset"] = -16/64 },
+			{ ["keyPercent"] = 460/512, ["topOffset"] =   0/64, ["bottomOffset"] = -16/64 },
+			{ ["keyPercent"] = 478/512, ["topOffset"] =   0/64, ["bottomOffset"] =   0/64 },
+			{ ["keyPercent"] = 483/512, ["topOffset"] =   0/64, ["bottomOffset"] =  -3/64 },
+			{ ["keyPercent"] = 507/512, ["topOffset"] =   0/64, ["bottomOffset"] = -46/64 },
+			{ ["keyPercent"] = 512/512, ["topOffset"] = -11/64, ["bottomOffset"] = -54/64 }
+		},
+		HealthBackdropSize = { 716, 188 },
+		HealthBackdropPosition = { "CENTER", 1, -.5 },
+		HealthBackdropTexture = GetMedia("hp_low_case"),
+		HealthBackdropColor = { Colors.ui[1], Colors.ui[2], Colors.ui[3] },
+		HealthCastOverlayColor = { 1, 1, 1, .25 },
+		HealthThreatTexture = GetMedia("hp_low_case_glow"),
+
+
+	},
+	Hardened = {
+
+		HealthBarSize = { 385, 37 },
+		HealthBarPosition = { "BOTTOMLEFT", 27, 27 },
+		HealthBarTexture = GetMedia("hp_lowmid_bar"),
+		HealthBarColor = { Colors.health[1], Colors.health[2], Colors.health[3] },
+		HealthBarOrientation = "RIGHT",
+		HealthBarSparkMap = {
+			{ ["keyPercent"] =   0/512, ["topOffset"] = -24/64, ["bottomOffset"] = -39/64 },
+			{ ["keyPercent"] =   9/512, ["topOffset"] =   0/64, ["bottomOffset"] = -16/64 },
+			{ ["keyPercent"] = 460/512, ["topOffset"] =   0/64, ["bottomOffset"] = -16/64 },
+			{ ["keyPercent"] = 478/512, ["topOffset"] =   0/64, ["bottomOffset"] =   0/64 },
+			{ ["keyPercent"] = 483/512, ["topOffset"] =   0/64, ["bottomOffset"] =  -3/64 },
+			{ ["keyPercent"] = 507/512, ["topOffset"] =   0/64, ["bottomOffset"] = -46/64 },
+			{ ["keyPercent"] = 512/512, ["topOffset"] = -11/64, ["bottomOffset"] = -54/64 }
+		},
+		HealthBackdropSize = { 716, 188 },
+		HealthBackdropPosition = { "CENTER", 1, -.5 },
+		HealthBackdropTexture = GetMedia("hp_mid_case"),
+		HealthBackdropColor = { Colors.ui[1], Colors.ui[2], Colors.ui[3] },
+		HealthCastOverlayColor = { 1, 1, 1, .25 },
+		HealthThreatTexture = GetMedia("hp_mid_case_glow"),
+
+	},
+	Seasoned = {
+
+		HealthBarSize = { 385, 40 },
+		HealthBarPosition = { "BOTTOMLEFT", 27, 27 },
+		HealthBarTexture = GetMedia("hp_cap_bar"),
+		HealthBarColor = { Colors.health[1], Colors.health[2], Colors.health[3] },
+		HealthBarOrientation = "RIGHT",
+		HealthBarSparkMap = {
+			{ ["keyPercent"] =   0/512, ["topOffset"] = -24/64, ["bottomOffset"] = -39/64 },
+			{ ["keyPercent"] =   9/512, ["topOffset"] =   0/64, ["bottomOffset"] = -16/64 },
+			{ ["keyPercent"] = 460/512, ["topOffset"] =   0/64, ["bottomOffset"] = -16/64 },
+			{ ["keyPercent"] = 478/512, ["topOffset"] =   0/64, ["bottomOffset"] =   0/64 },
+			{ ["keyPercent"] = 483/512, ["topOffset"] =   0/64, ["bottomOffset"] =  -3/64 },
+			{ ["keyPercent"] = 507/512, ["topOffset"] =   0/64, ["bottomOffset"] = -46/64 },
+			{ ["keyPercent"] = 512/512, ["topOffset"] = -11/64, ["bottomOffset"] = -54/64 }
+		},
+		HealthBackdropSize = { 716, 188 },
+		HealthBackdropPosition = { "CENTER", 1, -.5 },
+		HealthBackdropTexture = GetMedia("hp_cap_case"),
+		HealthBackdropColor = { Colors.ui[1], Colors.ui[2], Colors.ui[3] },
+		HealthCastOverlayColor = { 1, 1, 1, .25 },
+		HealthThreatTexture = GetMedia("hp_cap_case_glow"),
+
 	}
 }

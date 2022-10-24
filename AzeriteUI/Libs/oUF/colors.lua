@@ -17,13 +17,9 @@ local colorMixin = {
 		self.b = b
 		self[3] = b
 		self.a = a
-<<<<<<< HEAD:AzeriteUI/Libs/oUF/colors.lua
-		self.hex = string.format('ff%02x%02x%02x', r * 255, g * 255, b * 255)
-=======
 
 		-- pre-generate the hex color, there's no point to this being generated on the fly
 		self.hex = string.format('ff%02x%02x%02x', self:GetRGBAsBytes())
->>>>>>> 5268bf39ea965da0f17930ac0ea40c493050a675:UICore/Libs/oUF/colors.lua
 	end,
 	SetAtlas = function(self, atlas)
 		self.atlas = atlas
@@ -31,10 +27,6 @@ local colorMixin = {
 	GetAtlas = function(self)
 		return self.atlas
 	end,
-<<<<<<< HEAD:AzeriteUI/Libs/oUF/colors.lua
-}
-
-=======
 	GenerateHexColor = function(self)
 		return self.hex
 	end,
@@ -56,7 +48,6 @@ The rgb values can be either normalized (0-1) or bytes (0-255).
 
 * color - the ColorMixin-based object
 --]]
->>>>>>> 5268bf39ea965da0f17930ac0ea40c493050a675:UICore/Libs/oUF/colors.lua
 function oUF:CreateColor(r, g, b, a)
 	local color = Mixin({}, ColorMixin, colorMixin)
 	color:SetRGBA(r, g, b, a)

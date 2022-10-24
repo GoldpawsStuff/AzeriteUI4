@@ -47,23 +47,10 @@ local function Update(self, event)
 	-- own groups via UnitIsGroupLeader(unit, LE_PARTY_CATEGORY_HOME) or by members of other groups via
 	-- UnitLeadsAnyGroup(unit). Inside the group formed by the dungeon finder UnitIsGroupLeader(unit) will only return
 	-- true for the instance leader.
-<<<<<<< HEAD:AzeriteUI/Libs/oUF/elements/leaderindicator.lua
-=======
-<<<<<<< HEAD
->>>>>>> 5268bf39ea965da0f17930ac0ea40c493050a675:UICore/Libs/oUF/elements/leaderindicator.lua
 	local isRestricted = HasLFGRestrictions and HasLFGRestrictions()
 	local isLeader = UnitIsGroupLeader(unit)
 	if(isLeader) then
 		if(isRestricted) then
-<<<<<<< HEAD:AzeriteUI/Libs/oUF/elements/leaderindicator.lua
-=======
-=======
-	local isInLFGInstance = HasLFGRestrictions()
-	local isLeader = UnitIsGroupLeader(unit)
-	if(isLeader) then
-		if(isInLFGInstance) then
->>>>>>> 67520dc5a53824da3b78446828c38d3a138c61d7
->>>>>>> 5268bf39ea965da0f17930ac0ea40c493050a675:UICore/Libs/oUF/elements/leaderindicator.lua
 			element:SetTexture([[Interface\LFGFrame\UI-LFG-ICON-PORTRAITROLES]])
 			element:SetTexCoord(0, 0.296875, 0.015625, 0.3125)
 		else
@@ -79,27 +66,12 @@ local function Update(self, event)
 	--[[ Callback: LeaderIndicator:PostUpdate(isLeader)
 	Called after the element has been updated.
 
-<<<<<<< HEAD:AzeriteUI/Libs/oUF/elements/leaderindicator.lua
-=======
-<<<<<<< HEAD
->>>>>>> 5268bf39ea965da0f17930ac0ea40c493050a675:UICore/Libs/oUF/elements/leaderindicator.lua
-	* self         - the LeaderIndicator element
-	* isLeader     - indicates whether the unit is the leader of the group (boolean)
-	* isRestricted - indicates whether the current party is subject to LFG restrictions (boolean)
-	--]]
-	if(element.PostUpdate) then
-		return element:PostUpdate(isLeader, isRestricted)
-<<<<<<< HEAD:AzeriteUI/Libs/oUF/elements/leaderindicator.lua
-=======
-=======
 	* self            - the LeaderIndicator element
 	* isLeader        - indicates whether the unit is the leader of the group (boolean)
 	* isInLFGInstance - indicates whether the current party is subject to LFG restrictions (boolean)
 	--]]
 	if(element.PostUpdate) then
 		return element:PostUpdate(isLeader, isInLFGInstance)
->>>>>>> 67520dc5a53824da3b78446828c38d3a138c61d7
->>>>>>> 5268bf39ea965da0f17930ac0ea40c493050a675:UICore/Libs/oUF/elements/leaderindicator.lua
 	end
 end
 
@@ -127,16 +99,10 @@ local function Enable(self)
 		self:RegisterEvent('PARTY_LEADER_CHANGED', Path, true)
 		self:RegisterEvent('GROUP_ROSTER_UPDATE', Path, true)
 
-<<<<<<< HEAD:AzeriteUI/Libs/oUF/elements/leaderindicator.lua
-=======
-<<<<<<< HEAD
->>>>>>> 5268bf39ea965da0f17930ac0ea40c493050a675:UICore/Libs/oUF/elements/leaderindicator.lua
 		if(not HasLFGRestrictions) and (element:IsObjectType('Texture') and not element:GetTexture()) then
 			element:SetTexture([[Interface\GroupFrame\UI-Group-LeaderIcon]])
 		end
 
-=======
->>>>>>> 67520dc5a53824da3b78446828c38d3a138c61d7
 		return true
 	end
 end
