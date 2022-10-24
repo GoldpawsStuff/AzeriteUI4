@@ -27,6 +27,7 @@
 
 	<!-- Unitframe specific libraries -->
 	<Include file="oUF\oUF_Vanilla.xml"/>
+	<Include file="oUF_Plugins\oUF_Plugins.xml"/>
 
 	<!-- Goldpaw's libraries -->
 	<Script file="LibMoreEvents-1.0\LibMoreEvents-1.0.lua"/>
