@@ -9,6 +9,7 @@
 ## X-Curse-Project-ID: 298648
 ## X-Wago-ID: R4N2PZKL
 ## X-License: Custom
+## X-SavedVariables: AzeriteUI4_DB
 
 ## SavedVariables: AzeriteUI4_DB
 ## OptionalDeps: Ace3, Clique, LibKeyBound-1.0

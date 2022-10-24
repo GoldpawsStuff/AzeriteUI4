@@ -27,9 +27,6 @@ local Addon, ns = ...
 local Config = ns.Config or {}
 ns.Config = Config
 
-Config.PlayerHUD = {
-	Default = {
-		Size = {},
-		Position = {}
-	}
+Config.MicroMenu = {
+
 }

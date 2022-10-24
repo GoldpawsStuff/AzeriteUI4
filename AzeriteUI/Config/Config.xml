@@ -1,7 +1,7 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/">
 
-	<Script file="Chat.lua"/>
-	<Script file="Player.lua"/>
-	<Script file="PlayerHUD.lua"/>
+	<Include file="Blizzard\Blizzard.xml"/>
+	<Include file="ActionBars\ActionBars.xml"/>
+	<Include file="UnitFrames\UnitFrames.xml"/>
 
 </Ui>

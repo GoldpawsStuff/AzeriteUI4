@@ -67,8 +67,6 @@ local hardenedLevel = ns.IsRetail and 10 or ns.IsClassic and 40 or 30
 --------------------------------------------
 local OnEvent = function(self, event, unit, ...)
 
-	print("player event", event, unit, ...)
-
 	if (event == "PLAYER_ENTERING_WORLD") then
 		playerXPDisabled = IsXPUserDisabled()
 
@@ -93,8 +91,6 @@ local OnEvent = function(self, event, unit, ...)
 	local key = (playerXPDisabled or IsPlayerAtEffectiveMaxLevel()) and "Seasoned" or playerLevel < hardenedLevel and "Novice" or "Hardened"
 	local db = ns.Config.Player[key]
 
-	print("player decided on", key)
-
 	local health = self.Health
 	health:ClearAllPoints()
 	health:SetPoint(unpack(db.HealthBarPosition))
@@ -111,20 +107,18 @@ local OnEvent = function(self, event, unit, ...)
 	backdrop:SetTexture(db.HealthBackdropTexture)
 	backdrop:SetVertexColor(unpack(db.HealthBackdropColor))
 
-	local cast = self.Cast
+	local cast = self.Castbar
 	cast:ClearAllPoints()
 	cast:SetPoint(unpack(db.HealthBarPosition))
-	cast:SetSize(db.HealthBarSize)
+	cast:SetSize(unpack(db.HealthBarSize))
 	cast:SetStatusBarTexture(db.HealthBarTexture)
-	cast:SetStatusBarColor(unpack(db.CastBarColor))
+	cast:SetStatusBarColor(unpack(db.HealthCastOverlayColor))
 	cast:SetOrientation(db.HealthBarOrientation)
 	cast:SetSparkMap(db.HealthBarSparkMap)
 
 end
 
 UnitStyles["Player"] = function(self, unit, id)
-
-	print("creating player style")
 
 	self:SetSize(unpack(ns.Config.Player.Size))
 	self:SetPoint(unpack(ns.Config.Player.Position))
@@ -133,8 +127,9 @@ UnitStyles["Player"] = function(self, unit, id)
 	self.Health.Backdrop = self:CreateTexture(nil, "BACKGROUND", nil, -1)
 	self.Health.Override = ns.API.UpdateHealth
 
-	self.Cast = self:CreateBar()
-	self.Cast:DisableSmoothing()
+	self.Castbar = self:CreateBar()
+	self.Castbar:SetFrameLevel(self.Health:GetFrameLevel() + 1)
+	self.Castbar:DisableSmoothing()
 
 	self:RegisterEvent("PLAYER_ALIVE", OnEvent, true)
 	self:RegisterEvent("PLAYER_ENTERING_WORLD", OnEvent, true)

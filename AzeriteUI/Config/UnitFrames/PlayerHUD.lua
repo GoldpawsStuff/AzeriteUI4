@@ -27,10 +27,9 @@ local Addon, ns = ...
 local Config = ns.Config or {}
 ns.Config = Config
 
-Config.Chat = {
+Config.PlayerHUD = {
 	Default = {
-		Size = { 499, 176 },
-		Position = { "BOTTOMLEFT", 85, 350 },
-		PositionWhenFaded = { "BOTTOMLEFT", 85, 64 }
+		Size = {},
+		Position = {}
 	}
 }

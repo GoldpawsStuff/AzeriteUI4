@@ -203,7 +203,7 @@ end
 
 -- Allow other modules and addons to use this.
 ns.GetSettings = function(self)
-	return self.db or SanitizeSettings(LibStub("AceDB-3.0"):New(Addon.."_DB", defaults, true))
+	return self.db or SanitizeSettings(LibStub("AceDB-3.0"):New(Addon.."4_DB", defaults, true))
 end
 
 ns.OnInitialize = function(self)
