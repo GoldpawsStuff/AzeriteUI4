@@ -17,7 +17,13 @@ local colorMixin = {
 		self.b = b
 		self[3] = b
 		self.a = a
+<<<<<<< HEAD:AzeriteUI/Libs/oUF/colors.lua
 		self.hex = string.format('ff%02x%02x%02x', r * 255, g * 255, b * 255)
+=======
+
+		-- pre-generate the hex color, there's no point to this being generated on the fly
+		self.hex = string.format('ff%02x%02x%02x', self:GetRGBAsBytes())
+>>>>>>> 5268bf39ea965da0f17930ac0ea40c493050a675:UICore/Libs/oUF/colors.lua
 	end,
 	SetAtlas = function(self, atlas)
 		self.atlas = atlas
@@ -25,8 +31,32 @@ local colorMixin = {
 	GetAtlas = function(self)
 		return self.atlas
 	end,
+<<<<<<< HEAD:AzeriteUI/Libs/oUF/colors.lua
 }
 
+=======
+	GenerateHexColor = function(self)
+		return self.hex
+	end,
+}
+
+--[[ Colors: oUF:CreateColor(r, g, b[, a])
+Wrapper for [SharedXML\Color.lua's ColorMixin](https://wowpedia.fandom.com/wiki/ColorMixin), extended to support indexed colors used in oUF, as
+well as extra methods for dealing with atlases.
+
+The rgb values can be either normalized (0-1) or bytes (0-255).
+
+* self - the global oUF object
+* r    - value used as represent the red color (number)
+* g    - value used to represent the green color (number)
+* b    - value used to represent the blue color (number)
+* a    - value used to represent the opacity (number, optional)
+
+## Returns
+
+* color - the ColorMixin-based object
+--]]
+>>>>>>> 5268bf39ea965da0f17930ac0ea40c493050a675:UICore/Libs/oUF/colors.lua
 function oUF:CreateColor(r, g, b, a)
 	local color = Mixin({}, ColorMixin, colorMixin)
 	color:SetRGBA(r, g, b, a)

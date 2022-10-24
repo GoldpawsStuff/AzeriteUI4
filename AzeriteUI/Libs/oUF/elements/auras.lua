@@ -1,7 +1,7 @@
 --[[
 # Element: Auras
 
-Handles creation and updating of aura icons.
+Handles creation and updating of aura buttons.
 
 ## Widget
 
@@ -17,17 +17,17 @@ At least one of the above widgets must be present for the element to work.
 
 .disableMouse       - Disables mouse events (boolean)
 .disableCooldown    - Disables the cooldown spiral (boolean)
-.size               - Aura icon size. Defaults to 16 (number)
-.width              - Aura icon width. Takes priority over `size` (number)
-.height             - Aura icon height. Takes priority over `size` (number)
+.size               - Aura button size. Defaults to 16 (number)
+.width              - Aura button width. Takes priority over `size` (number)
+.height             - Aura button height. Takes priority over `size` (number)
 .onlyShowPlayer     - Shows only auras created by player/vehicle (boolean)
 .showStealableBuffs - Displays the stealable texture on buffs that can be stolen (boolean)
-.spacing            - Spacing between each icon. Defaults to 0 (number)
-.['spacing-x']      - Horizontal spacing between each icon. Takes priority over `spacing` (number)
-.['spacing-y']      - Vertical spacing between each icon. Takes priority over `spacing` (number)
+.spacing            - Spacing between each button. Defaults to 0 (number)
+.['spacing-x']      - Horizontal spacing between each button. Takes priority over `spacing` (number)
+.['spacing-y']      - Vertical spacing between each button. Takes priority over `spacing` (number)
 .['growth-x']       - Horizontal growth direction. Defaults to 'RIGHT' (string)
 .['growth-y']       - Vertical growth direction. Defaults to 'UP' (string)
-.initialAnchor      - Anchor point for the icons. Defaults to 'BOTTOMLEFT' (string)
+.initialAnchor      - Anchor point for the aura buttons. Defaults to 'BOTTOMLEFT' (string)
 .filter             - Custom filter list for auras to display. Defaults to 'HELPFUL' for buffs and 'HARMFUL' for
                       debuffs (string)
 .tooltipAnchor      - Anchor point for the tooltip. Defaults to 'ANCHOR_BOTTOMRIGHT', however, if a frame has anchoring
@@ -39,7 +39,7 @@ At least one of the above widgets must be present for the element to work.
 .numDebuffs   - The maximum number of debuffs to display. Defaults to 40 (number)
 .numTotal     - The maximum number of auras to display. Prioritizes buffs over debuffs. Defaults to the sum of
                 .numBuffs and .numDebuffs (number)
-.gap          - Controls the creation of an invisible icon between buffs and debuffs. Defaults to false (boolean)
+.gap          - Controls the creation of an invisible button between buffs and debuffs. Defaults to false (boolean)
 .buffFilter   - Custom filter list for buffs to display. Takes priority over `filter` (string)
 .debuffFilter - Custom filter list for debuffs to display. Takes priority over `filter` (string)
 
@@ -53,10 +53,10 @@ At least one of the above widgets must be present for the element to work.
 
 ## Attributes
 
-button.caster   - the unit who cast the aura (string)
-button.filter   - the filter list used to determine the visibility of the aura (string)
-button.isDebuff - indicates if the button holds a debuff (boolean)
-button.isPlayer - indicates if the aura caster is the player or their vehicle (boolean)
+button.caster         - the unit who cast the aura (string)
+button.filter         - the filter list used to determine the visibility of the aura (string)
+button.isHarmful      - indicates if the button holds a debuff (boolean)
+button.auraInstanceID - unique ID for the current aura being tracked by the button (number)
 
 ## Examples
 
@@ -101,7 +101,7 @@ local function onLeave()
 	GameTooltip:Hide()
 end
 
-local function CreateIcon(element, index)
+local function CreateButton(element, index)
 	local button = CreateFrame('Button', element:GetDebugName() .. 'Button' .. index, element)
 
 	local cd = CreateFrame('Cooldown', '$parentCooldown', button, 'CooldownFrameTemplate')
@@ -137,13 +137,13 @@ local function CreateIcon(element, index)
 	button:SetScript('OnEnter', onEnter)
 	button:SetScript('OnLeave', onLeave)
 
-	--[[ Callback: Auras:PostCreateIcon(button)
+	--[[ Callback: Auras:PostCreateButton(button)
 	Called after a new aura button has been created.
 
 	* self   - the widget holding the aura buttons
 	* button - the newly created aura button (Button)
 	--]]
-	if(element.PostCreateIcon) then element:PostCreateIcon(button) end
+	if(element.PostCreateButton) then element:PostCreateButton(button) end
 
 	return button
 end
@@ -175,8 +175,8 @@ local function updateAura(element, unit, data, position)
 
 	local button = element[position]
 	if(not button) then
-		--[[ Override: Auras:CreateIcon(position)
-		Used to create the aura button at a given position.
+		--[[ Override: Auras:CreateButton(position)
+		Used to create an aura button at a given position.
 
 		* self     - the widget holding the aura buttons
 		* position - the position at which the aura button is to be created (number)
@@ -185,10 +185,10 @@ local function updateAura(element, unit, data, position)
 
 		* button - the button used to represent the aura (Button)
 		--]]
-		button = (element.CreateIcon or CreateIcon) (element, position)
+		button = (element.CreateButton or CreateButton) (element, position)
 
 		table.insert(element, button)
-		element.createdIcons = element.createdIcons + 1
+		element.createdButtons = element.createdButtons + 1
 	end
 
 	-- for tooltips
@@ -232,17 +232,17 @@ local function updateAura(element, unit, data, position)
 	button:EnableMouse(not element.disableMouse)
 	button:Show()
 
-	--[[ Callback: Auras:PostUpdateIcon(unit, button, index, position)
+	--[[ Callback: Auras:PostUpdateButton(unit, button, data, position)
 	Called after the aura button has been updated.
 
 	* self     - the widget holding the aura buttons
 	* button   - the updated aura button (Button)
 	* unit     - the unit on which the aura is cast (string)
-	* data     - the aura data (table)
+	* data     - the [UnitAuraInfo](https://wowpedia.fandom.com/wiki/Struct_UnitAuraInfo) object (table)
 	* position - the actual position of the aura button (number)
 	--]]
-	if(element.PostUpdateIcon) then
-		element:PostUpdateIcon(button, unit, data, position)
+	if(element.PostUpdateButton) then
+		element:PostUpdateButton(button, unit, data, position)
 	end
 end
 
@@ -257,7 +257,6 @@ local function SortAuras(a, b)
 	local aFromPlayer = a.sourceUnit and UnitIsUnit('player', a.sourceUnit)
 	local bFromPlayer = b.sourceUnit and UnitIsUnit('player', b.sourceUnit)
 	if(aFromPlayer ~= bFromPlayer) then
-
 		return aFromPlayer
 	end
 
@@ -318,6 +317,18 @@ local function UpdateAuras(self, event, unit, updateInfo)
 				for i = 2, #slots do
 					if count <= numBuffs then
 						local data = processData(C_UnitAuras.GetAuraDataBySlot(unit, slots[i]))
+
+						--[[ Override: Auras:FilterAura(unit, data)
+						Defines a custom filter that controls if the aura button should be shown.
+
+						* self - the widget holding the aura buttons
+						* unit - the unit on which the aura is cast (string)
+						* data - [UnitAuraInfo](https://wowpedia.fandom.com/wiki/Struct_UnitAuraInfo) object (table)
+
+						## Returns
+
+						* show - indicates whether the aura button should be shown (boolean)
+						--]]
 						if((auras.FilterAura or FilterAura) (auras, unit, data)) then
 							auras.activeBuffs[data.auraInstanceID] = data
 
@@ -420,6 +431,18 @@ local function UpdateAuras(self, event, unit, updateInfo)
 					table.insert(auras.sortedBuffs, data)
 				end
 
+				--[[ Override: Auras:SortBuffs(a, b)
+				Defines a custom sorting alorithm for ordering the auras.
+
+				Defaults to [AuraUtil.DefaultAuraCompare](https://github.com/Gethe/wow-ui-source/search?q=DefaultAuraCompare).
+				--]]
+				--[[ Override: Auras:SortAuras(a, b)
+				Defines a custom sorting alorithm for ordering the auras.
+
+				Defaults to [AuraUtil.DefaultAuraCompare](https://github.com/Gethe/wow-ui-source/search?q=DefaultAuraCompare).
+
+				Overridden by the more specific SortBuffs and/or SortDebuffs overrides if they are defined.
+				--]]
 				table.sort(auras.sortedBuffs, auras.SortBuffs or auras.SortAuras or SortAuras)
 
 				for i = 1, #auras.sortedBuffs do
@@ -434,9 +457,15 @@ local function UpdateAuras(self, event, unit, updateInfo)
 
 				local button = auras[offset]
 				if(not button) then
+<<<<<<< HEAD:AzeriteUI/Libs/oUF/elements/auras.lua
 					button = (auras.CreateIcon or CreateIcon) (auras, offset)
 					table.insert(auras, button)
 					auras.createdIcons = auras.createdIcons + 1
+=======
+					button = (auras.CreateButton or CreateButton) (auras, offset)
+					table.insert(auras, button)
+					auras.createdButtons = auras.createdButtons + 1
+>>>>>>> 5268bf39ea965da0f17930ac0ea40c493050a675:UICore/Libs/oUF/elements/auras.lua
 				end
 
 				-- prevent the button from displaying anything
@@ -449,7 +478,11 @@ local function UpdateAuras(self, event, unit, updateInfo)
 				button:EnableMouse(false)
 				button:Show()
 
+<<<<<<< HEAD:AzeriteUI/Libs/oUF/elements/auras.lua
 				--[[ Callback: Auras:PostUpdateGapIcon(unit, gapButton, offset)
+=======
+				--[[ Callback: Auras:PostUpdateGapButton(unit, gapButton, offset)
+>>>>>>> 5268bf39ea965da0f17930ac0ea40c493050a675:UICore/Libs/oUF/elements/auras.lua
 				Called after an invisible aura button has been created. Only used by Auras when the `gap` option is enabled.
 
 				* self      - the widget holding the aura buttons
@@ -457,8 +490,13 @@ local function UpdateAuras(self, event, unit, updateInfo)
 				* gapButton - the invisible aura button (Button)
 				* offset    - the position of the invisible aura button (number)
 				--]]
+<<<<<<< HEAD:AzeriteUI/Libs/oUF/elements/auras.lua
 				if(auras.PostUpdateGapIcon) then
 					auras:PostUpdateGapIcon(unit, button, offset)
+=======
+				if(auras.PostUpdateGapButton) then
+					auras:PostUpdateGapButton(unit, button, offset)
+>>>>>>> 5268bf39ea965da0f17930ac0ea40c493050a675:UICore/Libs/oUF/elements/auras.lua
 				end
 			end
 
@@ -469,6 +507,11 @@ local function UpdateAuras(self, event, unit, updateInfo)
 					table.insert(auras.sortedDebuffs, data)
 				end
 
+				--[[ Override: Auras:SortDebuffs(a, b)
+				Defines a custom sorting alorithm for ordering the auras.
+
+				Defaults to [AuraUtil.DefaultAuraCompare](https://github.com/Gethe/wow-ui-source/search?q=DefaultAuraCompare).
+				--]]
 				table.sort(auras.sortedDebuffs, auras.SortDebuffs or auras.SortAuras or SortAuras)
 			end
 
@@ -482,7 +525,11 @@ local function UpdateAuras(self, event, unit, updateInfo)
 				auras[i]:Hide()
 			end
 
+<<<<<<< HEAD:AzeriteUI/Libs/oUF/elements/auras.lua
 			if(auras.createdIcons > auras.anchoredIcons) then
+=======
+			if(auras.createdButtons > auras.anchoredButtons) then
+>>>>>>> 5268bf39ea965da0f17930ac0ea40c493050a675:UICore/Libs/oUF/elements/auras.lua
 				--[[ Override: Auras:SetPosition(from, to)
 				Used to (re-)anchor the aura buttons.
 				Called when new aura buttons have been created or if :PreSetPosition is defined.
@@ -491,8 +538,13 @@ local function UpdateAuras(self, event, unit, updateInfo)
 				* from - the offset of the first aura button to be (re-)anchored (number)
 				* to   - the offset of the last aura button to be (re-)anchored (number)
 				--]]
+<<<<<<< HEAD:AzeriteUI/Libs/oUF/elements/auras.lua
 				(auras.SetPosition or SetPosition) (auras, auras.anchoredIcons + 1, auras.createdIcons)
 				auras.anchoredIcons = auras.createdIcons
+=======
+				(auras.SetPosition or SetPosition) (auras, auras.anchoredButtons + 1, auras.createdButtons)
+				auras.anchoredButtons = auras.createdButtons
+>>>>>>> 5268bf39ea965da0f17930ac0ea40c493050a675:UICore/Libs/oUF/elements/auras.lua
 			end
 
 			--[[ Callback: Auras:PostUpdate(unit)
@@ -594,9 +646,15 @@ local function UpdateAuras(self, event, unit, updateInfo)
 				buffs[i]:Hide()
 			end
 
+<<<<<<< HEAD:AzeriteUI/Libs/oUF/elements/auras.lua
 			if(buffs.createdIcons > buffs.anchoredIcons) then
 				(buffs.SetPosition or SetPosition) (buffs, buffs.anchoredIcons + 1, buffs.createdIcons)
 				buffs.anchoredIcons = buffs.createdIcons
+=======
+			if(buffs.createdButtons > buffs.anchoredButtons) then
+				(buffs.SetPosition or SetPosition) (buffs, buffs.anchoredButtons + 1, buffs.createdButtons)
+				buffs.anchoredButtons = buffs.createdButtons
+>>>>>>> 5268bf39ea965da0f17930ac0ea40c493050a675:UICore/Libs/oUF/elements/auras.lua
 			end
 
 			if(buffs.PostUpdate) then buffs:PostUpdate(unit) end
@@ -692,9 +750,15 @@ local function UpdateAuras(self, event, unit, updateInfo)
 				debuffs[i]:Hide()
 			end
 
+<<<<<<< HEAD:AzeriteUI/Libs/oUF/elements/auras.lua
 			if(debuffs.createdIcons > debuffs.anchoredIcons) then
 				(debuffs.SetPosition or SetPosition) (debuffs, debuffs.anchoredIcons + 1, debuffs.createdIcons)
 				debuffs.anchoredIcons = debuffs.createdIcons
+=======
+			if(debuffs.createdButtons > debuffs.anchoredButtons) then
+				(debuffs.SetPosition or SetPosition) (debuffs, debuffs.anchoredButtons + 1, debuffs.createdButtons)
+				debuffs.anchoredButtons = debuffs.createdButtons
+>>>>>>> 5268bf39ea965da0f17930ac0ea40c493050a675:UICore/Libs/oUF/elements/auras.lua
 			end
 
 			if(debuffs.PostUpdate) then debuffs:PostUpdate(unit) end
@@ -712,17 +776,17 @@ local function Update(self, event, unit, updateInfo)
 	if(event == 'ForceUpdate' or not event) then
 		local auras = self.Auras
 		if(auras) then
-			(auras.SetPosition or SetPosition) (auras, 1, auras.createdIcons)
+			(auras.SetPosition or SetPosition) (auras, 1, auras.createdButtons)
 		end
 
 		local buffs = self.Buffs
 		if(buffs) then
-			(buffs.SetPosition or SetPosition) (buffs, 1, buffs.createdIcons)
+			(buffs.SetPosition or SetPosition) (buffs, 1, buffs.createdButtons)
 		end
 
 		local debuffs = self.Debuffs
 		if(debuffs) then
-			(debuffs.SetPosition or SetPosition) (debuffs, 1, debuffs.createdIcons)
+			(debuffs.SetPosition or SetPosition) (debuffs, 1, debuffs.createdButtons)
 		end
 	end
 end
@@ -742,8 +806,8 @@ local function Enable(self)
 			auras.__restricted = not pcall(self.GetCenter, self)
 			auras.ForceUpdate = ForceUpdate
 
-			auras.createdIcons = auras.createdIcons or 0
-			auras.anchoredIcons = 0
+			auras.createdButtons = auras.createdButtons or 0
+			auras.anchoredButtons = 0
 			auras.tooltipAnchor = auras.tooltipAnchor or 'ANCHOR_BOTTOMRIGHT'
 
 			auras:Show()
@@ -756,8 +820,8 @@ local function Enable(self)
 			buffs.__restricted = not pcall(self.GetCenter, self)
 			buffs.ForceUpdate = ForceUpdate
 
-			buffs.createdIcons = buffs.createdIcons or 0
-			buffs.anchoredIcons = 0
+			buffs.createdButtons = buffs.createdButtons or 0
+			buffs.anchoredButtons = 0
 			buffs.tooltipAnchor = buffs.tooltipAnchor or 'ANCHOR_BOTTOMRIGHT'
 
 			buffs:Show()
@@ -770,8 +834,8 @@ local function Enable(self)
 			debuffs.__restricted = not pcall(self.GetCenter, self)
 			debuffs.ForceUpdate = ForceUpdate
 
-			debuffs.createdIcons = debuffs.createdIcons or 0
-			debuffs.anchoredIcons = 0
+			debuffs.createdButtons = debuffs.createdButtons or 0
+			debuffs.anchoredButtons = 0
 			debuffs.tooltipAnchor = debuffs.tooltipAnchor or 'ANCHOR_BOTTOMRIGHT'
 
 			debuffs:Show()

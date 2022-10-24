@@ -17,6 +17,7 @@
 	<Script file="API\Addons.lua"/>
 	<Script file="API\Assets.lua"/>
 	<Script file="API\Colors.lua"/>
+	<Script file="API\Positions.lua"/>
 	<Script file="API\Scale.lua"/>
 	<Script file="API\Time.lua"/>
 
