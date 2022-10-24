@@ -30,16 +30,15 @@ if (not UnitStyles) then
 end
 
 -- Lua API
-local getmetatable = getmetatable
-local math_huge = math.huge
-local pairs = pairs
-local table_sort = table.sort
+local next = next
 local unpack = unpack
 
 -- WoW API
 local IsPlayerAtEffectiveMaxLevel = IsPlayerAtEffectiveMaxLevel
 local IsXPUserDisabled = IsXPUserDisabled
+local UnitHasVehicleUI = UnitHasVehicleUI
 local UnitLevel = UnitLevel
+local UnitPowerType = UnitPowerType
 
 -- Addon API
 local Colors = ns.Colors
@@ -54,11 +53,75 @@ local playerLevel = UnitLevel("player")
 local playerXPDisabled = IsXPUserDisabled()
 local hardenedLevel = ns.IsRetail and 10 or ns.IsClassic and 40 or 30
 
+-- sourced from FrameXML/AlternatePowerBar.lua
+local ADDITIONAL_POWER_BAR_NAME = ADDITIONAL_POWER_BAR_NAME or "MANA"
+local ADDITIONAL_POWER_BAR_INDEX = ADDITIONAL_POWER_BAR_INDEX or 0
+local ALT_MANA_BAR_PAIR_DISPLAY_INFO = ALT_MANA_BAR_PAIR_DISPLAY_INFO
+
 -- Utility Functions
 --------------------------------------------
 
 -- Element Callbacks
 --------------------------------------------
+local Mana_UpdateVisibility = function(self, event, unit)
+	local element = self.AdditionalPower
+
+	local shouldEnable = not UnitHasVehicleUI("player") and UnitPowerType(unit) == Enum.PowerType.Mana
+	local isEnabled = element.__isEnabled
+
+	if (shouldEnable and not isEnabled) then
+
+		if (element.frequentUpdates) then
+			self:RegisterEvent("UNIT_POWER_FREQUENT", Path)
+		else
+			self:RegisterEvent("UNIT_POWER_UPDATE", Path)
+		end
+
+		self:RegisterEvent("UNIT_MAXPOWER", Path)
+
+		element:Show()
+
+		element.__isEnabled = true
+		element.Override(self, "ElementEnable", "player", ADDITIONAL_POWER_BAR_NAME)
+
+		--[[ Callback: AdditionalPower:PostVisibility(isVisible)
+		Called after the element's visibility has been changed.
+
+		* self      - the AdditionalPower element
+		* isVisible - the current visibility state of the element (boolean)
+		--]]
+		if (element.PostVisibility) then
+			element:PostVisibility(true)
+		end
+
+	elseif (not shouldEnable and (isEnabled or isEnabled == nil)) then
+
+		self:UnregisterEvent("UNIT_MAXPOWER", Path)
+		self:UnregisterEvent("UNIT_POWER_FREQUENT", Path)
+		self:UnregisterEvent("UNIT_POWER_UPDATE", Path)
+
+		element:Hide()
+
+		element.__isEnabled = false
+		element.Override(self, "ElementDisable", "player", ADDITIONAL_POWER_BAR_NAME)
+
+		if (element.PostVisibility) then
+			element:PostVisibility(false)
+		end
+
+	elseif (shouldEnable and isEnabled) then
+		element.Override(self, event, unit, ADDITIONAL_POWER_BAR_NAME)
+	end
+end
+
+local Power_UpdateVisibility = function(element, unit, cur, min, max)
+	local powerType = UnitPowerType(unit)
+	if (powerType == Enum.PowerType.Mana) then
+		element:Hide()
+	else
+		element:Show()
+	end
+end
 
 -- Frame Script Handlers
 --------------------------------------------
@@ -123,13 +186,50 @@ UnitStyles["Player"] = function(self, unit, id)
 	self:SetSize(unpack(ns.Config.Player.Size))
 	self:SetPoint(unpack(ns.Config.Player.Position))
 
-	self.Health = self:CreateBar()
-	self.Health.Backdrop = self:CreateTexture(nil, "BACKGROUND", nil, -1)
+	-- Health Bar
+	--------------------------------------------
+	local health = self:CreateBar()
+	health.Backdrop = self:CreateTexture(nil, "BACKGROUND", nil, -1)
+
+	self.Health = health
 	self.Health.Override = ns.API.UpdateHealth
 
-	self.Castbar = self:CreateBar()
-	self.Castbar:SetFrameLevel(self.Health:GetFrameLevel() + 1)
-	self.Castbar:DisableSmoothing()
+	-- Health Bar Cast Overlay
+	--------------------------------------------
+	local castbar = self:CreateBar()
+	castbar:SetFrameLevel(self.Health:GetFrameLevel() + 1)
+	castbar:DisableSmoothing()
+
+	self.Castbar = castbar
+
+	-- Power Crystal
+	--------------------------------------------
+	local power = self:CreateBar()
+	power.frequentUpdates = true
+	power.displayAltPower = true
+
+	self.Power = power
+	self.Power.Override = ns.API.UpdatePower
+	self.Power.PostUpdate = Power_UpdateVisibility
+
+	-- Mana Orb
+	--------------------------------------------
+	local mana = self:CreateOrb()
+	mana:SetStatusBarColor(unpack(Colors.power.MANA_ORB))
+
+	self.AdditionalPower = mana
+	self.AdditionalPower.Override = ns.API.UpdatePower
+	self.AdditionalPower.OverrideVisibility = Mana_UpdateVisibility
+
+	-- CombatFeedback
+	--------------------------------------------
+	local feedbackText = overlay:CreateFontString(nil, "OVERLAY")
+	feedbackText:SetPoint("CENTER", health, "CENTER", 0, 0)
+	feedbackText.feedbackFont = GetFont(20, true)
+	feedbackText.feedbackFontLarge = GetFont(24, true)
+	feedbackText.feedbackFontSmall = GetFont(18, true)
+
+	self.CombatFeedback = feedbackText
 
 	self:RegisterEvent("PLAYER_ALIVE", OnEvent, true)
 	self:RegisterEvent("PLAYER_ENTERING_WORLD", OnEvent, true)
