@@ -162,13 +162,10 @@ local function Update(self, event, unit, ...)
 		return
 	end
 
-	local unitTarget, event, flagText, amount, schoolMask = ...
-	if(unitTarget ~= unit) then
-		return
-	end
-
 	local element = self.CombatFeedback
 	local colors = self.colors.feedback or colors
+
+	local event, flagText, amount, schoolMask = ...
 	local color, fontType, text, arg
 
 	if (event == 'IMMUNE') then
@@ -294,7 +291,7 @@ local function Enable(self)
 
 		createUpdateFrame()
 
-		self:RegisterEvent('UNIT_COMBAT', Path, true)
+		self:RegisterEvent('UNIT_COMBAT', Path)
 
 		return true
 	end
