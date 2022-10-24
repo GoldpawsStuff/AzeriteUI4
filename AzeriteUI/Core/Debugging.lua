@@ -36,7 +36,7 @@ local string_format = string.format
 local EnableAddOn = EnableAddOn
 local GetAddOnInfo = GetAddOnInfo
 
-local ADDONS = (ns.IsDragonflight) and {
+local ADDONS = (ns.WoW10) and {
 
 	"Blizzard_AchievementUI",
 	"Blizzard_AdventureMap",
@@ -157,7 +157,7 @@ local ADDONS = (ns.IsDragonflight) and {
 	"Blizzard_WorldMap",
 	"Blizzard_WowTokenUI"
 
-} or (ns.IsShadowlands) and {
+} or (not ns.IsWrath) and {
 
 	"Blizzard_AchievementUI",
 	"Blizzard_AdventureMap",

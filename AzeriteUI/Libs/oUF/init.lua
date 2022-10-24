@@ -17,5 +17,4 @@ ns.oUF.isClassic = (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC)
 ns.oUF.isTBC = (WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC)
 ns.oUF.isWrath = (WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC)
 
-ns.oUF.isShadowlands = ns.oUF.clientMajor == 9
-ns.oUF.isDragonflight = ns.oUF.clientMajor == 10
+ns.oUF.WoW10 = version >= 100000

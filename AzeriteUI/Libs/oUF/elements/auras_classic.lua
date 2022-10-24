@@ -71,7 +71,7 @@ button.isPlayer - indicates if the aura caster is the player or their vehicle (b
 
 local _, ns = ...
 local oUF = ns.oUF
-if (oUF.clientMajor >= 10) then
+if (ns.oUF.WoW10) then
 	return
 end
 
@@ -120,22 +120,22 @@ local function createAuraIcon(element, index)
 	overlay:SetTexture([[Interface\Buttons\UI-Debuff-Overlays]])
 	overlay:SetAllPoints()
 	overlay:SetTexCoord(.296875, .5703125, 0, .515625)
-	button.overlay = overlay
+	button.Overlay = overlay
 
 	local stealable = button:CreateTexture(nil, 'OVERLAY')
 	stealable:SetTexture([[Interface\TargetingFrame\UI-TargetingFrame-Stealable]])
 	stealable:SetPoint('TOPLEFT', -3, 3)
 	stealable:SetPoint('BOTTOMRIGHT', 3, -3)
 	stealable:SetBlendMode('ADD')
-	button.stealable = stealable
+	button.Stealable = stealable
 
 	button.UpdateTooltip = UpdateTooltip
 	button:SetScript('OnEnter', onEnter)
 	button:SetScript('OnLeave', onLeave)
 
-	button.icon = icon
-	button.count = count
-	button.cd = cd
+	button.Icon = icon
+	button.Count = count
+	button.Cooldown = cd
 
 	--[[ Callback: Auras:PostCreateIcon(button)
 	Called after a new aura button has been created.
@@ -204,36 +204,36 @@ local function updateIcon(element, unit, index, offset, filter, isDebuff, visibl
 			-- We might want to consider delaying the creation of an actual cooldown
 			-- object to this point, but I think that will just make things needlessly
 			-- complicated.
-			if(button.cd and not element.disableCooldown) then
+			if(button.Cooldown and not element.disableCooldown) then
 				if(duration and duration > 0) then
-					button.cd:SetCooldown(expiration - duration, duration)
-					button.cd:Show()
+					button.Cooldown:SetCooldown(expiration - duration, duration)
+					button.Cooldown:Show()
 				else
-					button.cd:Hide()
+					button.Cooldown:Hide()
 				end
 			end
 
-			if(button.overlay) then
+			if(button.Overlay) then
 				if((isDebuff and element.showDebuffType) or (not isDebuff and element.showBuffType) or element.showType) then
 					local color = element.__owner.colors.debuff[debuffType] or element.__owner.colors.debuff.none
 
-					button.overlay:SetVertexColor(color[1], color[2], color[3])
-					button.overlay:Show()
+					button.Overlay:SetVertexColor(color[1], color[2], color[3])
+					button.Overlay:Show()
 				else
-					button.overlay:Hide()
+					button.Overlay:Hide()
 				end
 			end
 
-			if(button.stealable) then
+			if(button.Stealable) then
 				if(not isDebuff and isStealable and element.showStealableBuffs and not UnitIsUnit('player', unit)) then
-					button.stealable:Show()
+					button.Stealable:Show()
 				else
-					button.stealable:Hide()
+					button.Stealable:Hide()
 				end
 			end
 
-			if(button.icon) then button.icon:SetTexture(texture) end
-			if(button.count) then button.count:SetText(count > 1 and count) end
+			if(button.Icon) then button.Icon:SetTexture(texture) end
+			if(button.Count) then button.Count:SetText(count > 1 and count) end
 
 			local width = element.width or element.size or 16
 			local height = element.height or element.size or 16
@@ -349,11 +349,11 @@ local function UpdateAuras(self, event, unit)
 			end
 
 			-- Prevent the button from displaying anything.
-			if(button.cd) then button.cd:Hide() end
-			if(button.icon) then button.icon:SetTexture() end
-			if(button.overlay) then button.overlay:Hide() end
-			if(button.stealable) then button.stealable:Hide() end
-			if(button.count) then button.count:SetText() end
+			if(button.Cooldown) then button.Cooldown:Hide() end
+			if(button.Icon) then button.Icon:SetTexture() end
+			if(button.Overlay) then button.Overlay:Hide() end
+			if(button.Stealable) then button.Stealable:Hide() end
+			if(button.Count) then button.Count:SetText() end
 
 			button:EnableMouse(false)
 			button:Show()

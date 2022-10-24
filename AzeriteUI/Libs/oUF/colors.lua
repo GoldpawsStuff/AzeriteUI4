@@ -4,11 +4,32 @@ local Private = oUF.Private
 
 local frame_metatable = Private.frame_metatable
 
-function oUF:CreateColor(r, g, b, a, atlas)
-	local color = CreateColor(r, g, b, a)
+local colorMixin = {
+	SetRGBA = function(self, r, g, b, a)
+		if(r > 1 or g > 1 or b > 1) then
+			r, g, b = r / 255, g / 255, b / 255
+		end
 
-	color[1], color[2], color[3] = r, g, b
-	color.atlas = atlas
+		self.r = r
+		self[1] = r
+		self.g = g
+		self[2] = g
+		self.b = b
+		self[3] = b
+		self.a = a
+		self.hex = string.format('ff%02x%02x%02x', r * 255, g * 255, b * 255)
+	end,
+	SetAtlas = function(self, atlas)
+		self.atlas = atlas
+	end,
+	GetAtlas = function(self)
+		return self.atlas
+	end,
+}
+
+function oUF:CreateColor(r, g, b, a)
+	local color = Mixin({}, ColorMixin, colorMixin)
+	color:SetRGBA(r, g, b, a)
 
 	return color
 end
@@ -20,34 +41,34 @@ local colors = {
 		0, 1, 0
 	},
 	happiness = {
-		[1] = {.69, .31, .31},
-		[2] = {.65, .63, .35},
-		[3] = {.33, .59, .33},
+		[1] = oUF:CreateColor(.69, .31, .31),
+		[2] = oUF:CreateColor(.65, .63, .35),
+		[3] = oUF:CreateColor(.33, .59, .33)
 	},
-	health = {49 / 255, 207 / 255, 37 / 255},
-	disconnected = {0.6, 0.6, 0.6},
-	tapped = {0.6, 0.6, 0.6},
+	health = oUF:CreateColor(49, 207, 37),
+	disconnected = oUF:CreateColor(0.6, 0.6, 0.6),
+	tapped = oUF:CreateColor(0.6, 0.6, 0.6),
 	runes = {
-		{247 / 255, 65 / 255, 57 / 255}, -- blood
-		{148 / 255, 203 / 255, 247 / 255}, -- frost
-		{173 / 255, 235 / 255, 66 / 255}, -- unholy
-		{247 / 255, 66 / 255, 247 / 255}, -- death
+		oUF:CreateColor(247, 65, 57), -- blood
+		oUF:CreateColor(148, 203, 247), -- frost
+		oUF:CreateColor(173, 235, 66), -- unholy
+		oUF:CreateColor(247, 66, 247) -- death
 	},
 	selection = {
-		[ 0] = {255 / 255, 0 / 255, 0 / 255}, -- HOSTILE
-		[ 1] = {255 / 255, 129 / 255, 0 / 255}, -- UNFRIENDLY
-		[ 2] = {255 / 255, 255 / 255, 0 / 255}, -- NEUTRAL
-		[ 3] = {0 / 255, 255 / 255, 0 / 255}, -- FRIENDLY
-		[ 4] = {0 / 255, 0 / 255, 255 / 255}, -- PLAYER_SIMPLE
-		[ 5] = {96 / 255, 96 / 255, 255 / 255}, -- PLAYER_EXTENDED
-		[ 6] = {170 / 255, 170 / 255, 255 / 255}, -- PARTY
-		[ 7] = {170 / 255, 255 / 255, 170 / 255}, -- PARTY_PVP
-		[ 8] = {83 / 255, 201 / 255, 255 / 255}, -- FRIEND
-		[ 9] = {128 / 255, 128 / 255, 128 / 255}, -- DEAD
+		[ 0] = oUF:CreateColor(255, 0, 0), -- HOSTILE
+		[ 1] = oUF:CreateColor(255, 129, 0), -- UNFRIENDLY
+		[ 2] = oUF:CreateColor(255, 255, 0), -- NEUTRAL
+		[ 3] = oUF:CreateColor(0, 255, 0), -- FRIENDLY
+		[ 4] = oUF:CreateColor(0, 0, 255), -- PLAYER_SIMPLE
+		[ 5] = oUF:CreateColor(96, 96, 255), -- PLAYER_EXTENDED
+		[ 6] = oUF:CreateColor(170, 170, 255), -- PARTY
+		[ 7] = oUF:CreateColor(170, 255, 170), -- PARTY_PVP
+		[ 8] = oUF:CreateColor(83, 201, 255), -- FRIEND
+		[ 9] = oUF:CreateColor(128, 128, 128), -- DEAD
 		-- [10] = {}, -- COMMENTATOR_TEAM_1, unavailable to players
 		-- [11] = {}, -- COMMENTATOR_TEAM_2, unavailable to players
-		[12] = {255 / 255, 255 / 255, 139 / 255}, -- SELF, buggy
-		[13] = {0 / 255, 153 / 255, 0 / 255}, -- BATTLEGROUND_FRIENDLY_PVP
+		[12] = oUF:CreateColor(255, 255, 139), -- SELF, buggy
+		[13] = oUF:CreateColor(0, 153, 0), -- BATTLEGROUND_FRIENDLY_PVP
 	},
 	class = {},
 	debuff = {},
@@ -114,7 +135,11 @@ for power, color in next, PowerBarColor do
 				colors.power[power][index] = {color_.r, color_.g, color_.b}
 			end
 		else
-			colors.power[power] = {color.r, color.g, color.b, atlas = color.atlas}
+			colors.power[power] = oUF:CreateColor(color.r, color.g, color.b)
+
+			if(color.atlas) then
+				colors.power[power]:SetAtlas(color.atlas)
+			end
 		end
 	end
 end
@@ -139,7 +164,7 @@ colors.power[18] = colors.power.PAIN
 
 -- there's no official colour for evoker's essence
 -- use the average colour of the essence texture instead
-colors.power.ESSENCE = oUF:CreateColor(100 / 255, 173 / 255, 206 / 255)
+colors.power.ESSENCE = oUF:CreateColor(100, 173, 206)
 colors.power[19] = colors.power.ESSENCE
 
 -- alternate power, sourced from FrameXML/CompactUnitFrame.lua

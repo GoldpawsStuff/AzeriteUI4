@@ -250,7 +250,7 @@ end
 BlizzKill.KillActionBars = function(self)
 
 	-- Dragonflight
-	if (ns.ClientMajor >= 10) then
+	if (ns.WoW10) then
 
 		self:HandleActionBar(MultiBarBottomLeft, true)
 		self:HandleActionBar(MultiBarBottomRight, true)
@@ -300,7 +300,7 @@ BlizzKill.KillActionBars = function(self)
 	end
 
 	-- Shadowlands, Wrath, Vanilla
-	if (ns.ClientMajor < 10) then
+	if (not ns.WoW10) then
 
 		MultiBarBottomLeft:SetParent(UIHider)
 		MultiBarBottomRight:SetParent(UIHider)
@@ -711,7 +711,7 @@ BlizzKill.KillFloaters = function(self)
 end
 
 BlizzKill.KillMenuOptions = function(self)
-	if (ns.ClientMajor >= 10) then
+	if (ns.WoW10) then
 		return
 	end
 	self:HandleMenuPage(5, "InterfaceOptionsActionBarsPanel")

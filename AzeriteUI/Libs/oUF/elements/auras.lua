@@ -71,7 +71,7 @@ button.isPlayer - indicates if the aura caster is the player or their vehicle (b
 
 local _, ns = ...
 local oUF = ns.oUF
-if (oUF.clientMajor < 10) then
+if (not oUF.WoW10) then
 	return
 end
 
@@ -106,11 +106,11 @@ local function CreateIcon(element, index)
 
 	local cd = CreateFrame('Cooldown', '$parentCooldown', button, 'CooldownFrameTemplate')
 	cd:SetAllPoints()
-	button.cd = cd
+	button.Cooldown = cd
 
 	local icon = button:CreateTexture(nil, 'BORDER')
 	icon:SetAllPoints()
-	button.icon = icon
+	button.Icon = icon
 
 	local countFrame = CreateFrame('Frame', nil, button)
 	countFrame:SetAllPoints(button)
@@ -118,20 +118,20 @@ local function CreateIcon(element, index)
 
 	local count = countFrame:CreateFontString(nil, 'OVERLAY', 'NumberFontNormal')
 	count:SetPoint('BOTTOMRIGHT', countFrame, 'BOTTOMRIGHT', -1, 0)
-	button.count = count
+	button.Count = count
 
 	local overlay = button:CreateTexture(nil, 'OVERLAY')
 	overlay:SetTexture([[Interface\Buttons\UI-Debuff-Overlays]])
 	overlay:SetAllPoints()
 	overlay:SetTexCoord(0.296875, 0.5703125, 0, 0.515625)
-	button.overlay = overlay
+	button.Overlay = overlay
 
 	local stealable = button:CreateTexture(nil, 'OVERLAY')
 	stealable:SetTexture([[Interface\TargetingFrame\UI-TargetingFrame-Stealable]])
 	stealable:SetPoint('TOPLEFT', -3, 3)
 	stealable:SetPoint('BOTTOMRIGHT', 3, -3)
 	stealable:SetBlendMode('ADD')
-	button.stealable = stealable
+	button.Stealable = stealable
 
 	button.UpdateTooltip = UpdateTooltip
 	button:SetScript('OnEnter', onEnter)
@@ -195,41 +195,40 @@ local function updateAura(element, unit, data, position)
 	button.auraInstanceID = data.auraInstanceID
 	button.isHarmful = data.isHarmful
 
-	if(button.cd and not element.disableCooldown) then
+	if(button.Cooldown and not element.disableCooldown) then
 		if(data.duration > 0) then
-			button.cd:SetCooldown(data.expirationTime - data.duration, data.duration, data.timeMod)
-			button.cd:Show()
+			button.Cooldown:SetCooldown(data.expirationTime - data.duration, data.duration, data.timeMod)
+			button.Cooldown:Show()
 		else
-			button.cd:Hide()
+			button.Cooldown:Hide()
 		end
 	end
 
-	if(button.overlay) then
+	if(button.Overlay) then
 		if((data.isHarmful and element.showDebuffType) or (not data.isHarmful and element.showBuffType) or element.showType) then
 			local color = element.__owner.colors.debuff[data.dispelName] or element.__owner.colors.debuff.none
 
-			button.overlay:SetVertexColor(color[1], color[2], color[3])
-			button.overlay:Show()
+			button.Overlay:SetVertexColor(color[1], color[2], color[3])
+			button.Overlay:Show()
 		else
-			button.overlay:Hide()
+			button.Overlay:Hide()
 		end
 	end
 
-	if(button.stealable) then
+	if(button.Stealable) then
 		if(not data.isHarmful and data.isStealable and element.showStealableBuffs and not UnitIsUnit('player', unit)) then
-			button.stealable:Show()
+			button.Stealable:Show()
 		else
-			button.stealable:Hide()
+			button.Stealable:Hide()
 		end
 	end
 
-	if(button.icon) then button.icon:SetTexture(data.icon) end
-	if(button.count) then button.count:SetText(data.applications > 1 and data.applications or '') end
+	if(button.Icon) then button.Icon:SetTexture(data.icon) end
+	if(button.Count) then button.Count:SetText(data.applications > 1 and data.applications or '') end
 
 	local width = element.width or element.size or 16
 	local height = element.height or element.size or 16
 	button:SetSize(width, height)
-
 	button:EnableMouse(not element.disableMouse)
 	button:Show()
 
@@ -409,10 +408,12 @@ local function UpdateAuras(self, event, unit, updateInfo)
 					end
 				end
 			end
+		end
 
-			-- instead of removing auras one by one, just wipe the tables entirely
-			-- and repopulate them, multiple table.remove calls are insanely slow
+		if(buffsChanged or debuffsChanged) then
 			if(buffsChanged) then
+				-- instead of removing auras one by one, just wipe the tables entirely
+				-- and repopulate them, multiple table.remove calls are insanely slow
 				auras.sortedBuffs = table.wipe(auras.sortedBuffs or {})
 
 				for _, data in next, auras.activeBuffs do
@@ -420,6 +421,45 @@ local function UpdateAuras(self, event, unit, updateInfo)
 				end
 
 				table.sort(auras.sortedBuffs, auras.SortBuffs or auras.SortAuras or SortAuras)
+
+				for i = 1, #auras.sortedBuffs do
+					updateAura(auras, unit, auras.sortedBuffs[i], i)
+				end
+			end
+
+			local offset = #auras.sortedBuffs
+
+			if(auras.gap and #auras.sortedDebuffs > 0) then
+				offset = offset + 1
+
+				local button = auras[offset]
+				if(not button) then
+					button = (auras.CreateIcon or CreateIcon) (auras, offset)
+					table.insert(auras, button)
+					auras.createdIcons = auras.createdIcons + 1
+				end
+
+				-- prevent the button from displaying anything
+				if(button.Cooldown) then button.Cooldown:Hide() end
+				if(button.Icon) then button.Icon:SetTexture() end
+				if(button.Overlay) then button.Overlay:Hide() end
+				if(button.Stealable) then button.Stealable:Hide() end
+				if(button.Count) then button.Count:SetText() end
+
+				button:EnableMouse(false)
+				button:Show()
+
+				--[[ Callback: Auras:PostUpdateGapIcon(unit, gapButton, offset)
+				Called after an invisible aura button has been created. Only used by Auras when the `gap` option is enabled.
+
+				* self      - the widget holding the aura buttons
+				* unit      - the unit that has the invisible aura button (string)
+				* gapButton - the invisible aura button (Button)
+				* offset    - the position of the invisible aura button (number)
+				--]]
+				if(auras.PostUpdateGapIcon) then
+					auras:PostUpdateGapIcon(unit, button, offset)
+				end
 			end
 
 			if(debuffsChanged) then
@@ -431,80 +471,38 @@ local function UpdateAuras(self, event, unit, updateInfo)
 
 				table.sort(auras.sortedDebuffs, auras.SortDebuffs or auras.SortAuras or SortAuras)
 			end
-		end
 
-		if(not (buffsChanged or debuffsChanged)) then return end
-
-		if(buffsChanged) then
-			for i = 1, #auras.sortedBuffs do
-				updateAura(auras, unit, auras.sortedBuffs[i], i)
-			end
-		end
-
-		local offset = #auras.sortedBuffs
-
-		if(auras.gap and #auras.sortedDebuffs > 0) then
-			offset = offset + 1
-
-			local button = auras[offset]
-			if(not button) then
-				button = (auras.CreateIcon or CreateIcon) (auras, offset)
-				table.insert(auras, button)
-				auras.createdIcons = auras.createdIcons + 1
+			-- any changes to buffs will affect debuffs, so just redraw them even
+			-- if nothing changed
+			for i = 1, #auras.sortedDebuffs do
+				updateAura(auras, unit, auras.sortedDebuffs[i], i + offset)
 			end
 
-			-- Prevent the button from displaying anything.
-			if(button.cd) then button.cd:Hide() end
-			if(button.icon) then button.icon:SetTexture() end
-			if(button.overlay) then button.overlay:Hide() end
-			if(button.stealable) then button.stealable:Hide() end
-			if(button.count) then button.count:SetText() end
+			for i = offset + #auras.sortedDebuffs + 1, #auras do
+				auras[i]:Hide()
+			end
 
-			button:EnableMouse(false)
-			button:Show()
+			if(auras.createdIcons > auras.anchoredIcons) then
+				--[[ Override: Auras:SetPosition(from, to)
+				Used to (re-)anchor the aura buttons.
+				Called when new aura buttons have been created or if :PreSetPosition is defined.
 
-			--[[ Callback: Auras:PostUpdateGapIcon(unit, gapButton, offset)
-			Called after an invisible aura button has been created. Only used by Auras when the `gap` option is enabled.
+				* self - the widget that holds the aura buttons
+				* from - the offset of the first aura button to be (re-)anchored (number)
+				* to   - the offset of the last aura button to be (re-)anchored (number)
+				--]]
+				(auras.SetPosition or SetPosition) (auras, auras.anchoredIcons + 1, auras.createdIcons)
+				auras.anchoredIcons = auras.createdIcons
+			end
 
-			* self      - the widget holding the aura buttons
-			* unit      - the unit that has the invisible aura button (string)
-			* gapButton - the invisible aura button (Button)
-			* offset    - the position of the invisible aura button (number)
+			--[[ Callback: Auras:PostUpdate(unit)
+			Called after the element has been updated.
+
+			* self - the widget holding the aura buttons
+			* unit - the unit for which the update has been triggered (string)
 			--]]
-			if(auras.PostUpdateGapIcon) then
-				auras:PostUpdateGapIcon(unit, button, offset)
-			end
+			if(auras.PostUpdate) then auras:PostUpdate(unit) end
 		end
-
-		-- any changes to buffs will affect debuffs, so just redraw them
-		for i = 1, #auras.sortedDebuffs do
-			updateAura(auras, unit, auras.sortedDebuffs[i], i + offset)
-		end
-
-		for i = offset + #auras.sortedDebuffs + 1, #auras do
-			auras[i]:Hide()
-		end
-
-		if(auras.createdIcons > auras.anchoredIcons) then
-			--[[ Override: Auras:SetPosition(from, to)
-			Used to (re-)anchor the aura buttons.
-			Called when new aura buttons have been created or if :PreSetPosition is defined.
-
-			* self - the widget that holds the aura buttons
-			* from - the offset of the first aura button to be (re-)anchored (number)
-			* to   - the offset of the last aura button to be (re-)anchored (number)
-			--]]
-			(auras.SetPosition or SetPosition) (auras, auras.anchoredIcons + 1, auras.createdIcons)
-			auras.anchoredIcons = auras.createdIcons
-		end
-
-		--[[ Callback: Auras:PostUpdate(unit)
-		Called after the element has been updated.
-
-		* self - the widget holding the aura buttons
-		* unit - the unit for which the update has been triggered (string)
-		--]]
-		if(auras.PostUpdate) then auras:PostUpdate(unit) end
 	end
 
 	local buffs = self.Buffs
@@ -577,34 +575,32 @@ local function UpdateAuras(self, event, unit, updateInfo)
 					end
 				end
 			end
+		end
 
-			if(buffsChanged) then
-				buffs.sorted = table.wipe(buffs.sorted or {})
+		if(buffsChanged) then
+			buffs.sorted = table.wipe(buffs.sorted or {})
 
-				for _, data in next, buffs.active do
-					table.insert(buffs.sorted, data)
-				end
-
-				table.sort(buffs.sorted, buffs.SortBuffs or buffs.SortAuras or SortAuras)
+			for _, data in next, buffs.active do
+				table.insert(buffs.sorted, data)
 			end
+
+			table.sort(buffs.sorted, buffs.SortBuffs or buffs.SortAuras or SortAuras)
+
+			for i = 1, #buffs.sorted do
+				updateAura(buffs, unit, buffs.sorted[i], i)
+			end
+
+			for i = #buffs.sorted + 1, #buffs do
+				buffs[i]:Hide()
+			end
+
+			if(buffs.createdIcons > buffs.anchoredIcons) then
+				(buffs.SetPosition or SetPosition) (buffs, buffs.anchoredIcons + 1, buffs.createdIcons)
+				buffs.anchoredIcons = buffs.createdIcons
+			end
+
+			if(buffs.PostUpdate) then buffs:PostUpdate(unit) end
 		end
-
-		if(not buffsChanged) then return end
-
-		for i = 1, #buffs.sorted do
-			updateAura(buffs, unit, buffs.sorted[i], i)
-		end
-
-		for i = #buffs.sorted + 1, #buffs do
-			buffs[i]:Hide()
-		end
-
-		if(buffs.createdIcons > buffs.anchoredIcons) then
-			(buffs.SetPosition or SetPosition) (buffs, buffs.anchoredIcons + 1, buffs.createdIcons)
-			buffs.anchoredIcons = buffs.createdIcons
-		end
-
-		if(buffs.PostUpdate) then buffs:PostUpdate(unit) end
 	end
 
 	local debuffs = self.Debuffs
@@ -677,34 +673,32 @@ local function UpdateAuras(self, event, unit, updateInfo)
 					end
 				end
 			end
+		end
 
-			if(debuffsChanged) then
-				debuffs.sorted = table.wipe(debuffs.sorted or {})
+		if(debuffsChanged) then
+			debuffs.sorted = table.wipe(debuffs.sorted or {})
 
-				for _, data in next, debuffs.active do
-					table.insert(debuffs.sorted, data)
-				end
-
-				table.sort(debuffs.sorted, debuffs.SortDebuffs or debuffs.SortAuras or SortAuras)
+			for _, data in next, debuffs.active do
+				table.insert(debuffs.sorted, data)
 			end
+
+			table.sort(debuffs.sorted, debuffs.SortDebuffs or debuffs.SortAuras or SortAuras)
+
+			for i = 1, #debuffs.sorted do
+				updateAura(debuffs, unit, debuffs.sorted[i], i)
+			end
+
+			for i = #debuffs.sorted + 1, #debuffs do
+				debuffs[i]:Hide()
+			end
+
+			if(debuffs.createdIcons > debuffs.anchoredIcons) then
+				(debuffs.SetPosition or SetPosition) (debuffs, debuffs.anchoredIcons + 1, debuffs.createdIcons)
+				debuffs.anchoredIcons = debuffs.createdIcons
+			end
+
+			if(debuffs.PostUpdate) then debuffs:PostUpdate(unit) end
 		end
-
-		if(not debuffsChanged) then return end
-
-		for i = 1, #debuffs.sorted do
-			updateAura(debuffs, unit, debuffs.sorted[i], i)
-		end
-
-		for i = #debuffs.sorted + 1, #debuffs do
-			debuffs[i]:Hide()
-		end
-
-		if(debuffs.createdIcons > debuffs.anchoredIcons) then
-			(debuffs.SetPosition or SetPosition) (debuffs, debuffs.anchoredIcons + 1, debuffs.createdIcons)
-			debuffs.anchoredIcons = debuffs.createdIcons
-		end
-
-		if(debuffs.PostUpdate) then debuffs:PostUpdate(unit) end
 	end
 end
 
