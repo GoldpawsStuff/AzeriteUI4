@@ -154,11 +154,7 @@ end
 local UnitSpecific = function(self, unit)
 	local id, style
 	if (unit == "player") then
-		style = "Player"
-
-	elseif (unit == "hud") then
-		unit = "player"
-		style = "PlayerHUD"
+		style = self:GetName():find("HUD") and "PlayerHUD" or "Player"
 
 	elseif (unit == "target") then
 		style = "Target"
@@ -280,7 +276,7 @@ UnitFrames.SpawnUnitFrames = function(self)
 
 		-- Spawn the individual frames.
 		oUF:Spawn("player", prefix.."Player")
-		oUF:Spawn("hud", prefix.."PlayerHUD")
+		oUF:Spawn("player", prefix.."PlayerHUD")
 		--oUF:Spawn("target", prefix.."Target")
 		--oUF:Spawn("targettarget", prefix.."TargetOfTarget")
 		--oUF:Spawn("pet", prefix.."Pet")

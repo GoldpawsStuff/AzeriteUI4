@@ -67,6 +67,8 @@ local hardenedLevel = ns.IsRetail and 10 or ns.IsClassic and 40 or 30
 --------------------------------------------
 local OnEvent = function(self, event, unit, ...)
 
+	print("player event", event, unit, ...)
+
 	if (event == "PLAYER_ENTERING_WORLD") then
 		playerXPDisabled = IsXPUserDisabled()
 
@@ -88,7 +90,10 @@ local OnEvent = function(self, event, unit, ...)
 		end
 	end
 
-	local db = ns.Config.Player[(playerXPDisabled or IsPlayerAtEffectiveMaxLevel()) and "Seasoned" or playerLevel < hardenedLevel and "Novice" or "Hardened"]
+	local key = (playerXPDisabled or IsPlayerAtEffectiveMaxLevel()) and "Seasoned" or playerLevel < hardenedLevel and "Novice" or "Hardened"
+	local db = ns.Config.Player[key]
+
+	print("player decided on", key)
 
 	local health = self.Health
 	health:ClearAllPoints()
@@ -118,6 +123,8 @@ local OnEvent = function(self, event, unit, ...)
 end
 
 UnitStyles["Player"] = function(self, unit, id)
+
+	print("creating player style")
 
 	self:SetSize(unpack(ns.Config.Player.Size))
 	self:SetPoint(unpack(ns.Config.Player.Position))

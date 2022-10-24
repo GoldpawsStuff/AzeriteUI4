@@ -51,7 +51,7 @@ local GetMedia = ns.API.GetMedia
 local IsAddOnEnabled = ns.API.IsAddOnEnabled
 
 -- Constants
-local _, PlayerClass = UnitClass("player")
+local _, playerClass = UnitClass("player")
 
 -- Utility Functions
 --------------------------------------------
@@ -69,6 +69,6 @@ local _, PlayerClass = UnitClass("player")
 --------------------------------------------
 
 
-UnitStyles["Player"] = function(self, unit, id)
+UnitStyles["PlayerHUD"] = function(self, unit, id)
 
 end
