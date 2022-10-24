@@ -115,6 +115,7 @@ Colors.brightred = createColor(249/255, 68/255, 68/255)
 Colors.gray = createColor(128/255, 128/255, 128/255)
 Colors.darkgray = createColor(89/255, 79/255, 69/255)
 Colors.verydarkgray = createColor(69/255, 59/255, 49/255)
+Colors.ui = createColor(192/255, 192/255, 192/255)
 
 -- Item Rarity
 Colors.blizzquality = createColorGroup(ITEM_QUALITY_COLORS)
@@ -141,7 +142,7 @@ Colors.quality.WoWToken = Colors.quality[8]
 Colors.quality.Blizard = Colors.quality[8]
 
 -- Unit specifics
-Colors.health = Colors.red
+Colors.health = createColor(245/255, 0/255, 45/255)
 Colors.cast = Colors.quality.Artifact
 Colors.disconnected = createColor(120/255, 120/255, 120/255)
 Colors.tapped = createColor(121/255, 101/255, 96/255)
@@ -334,5 +335,21 @@ Colors.zone.friendly = createColor(64/255, 175/255, 38/255)
 Colors.zone.hostile = createColor(175/255, 76/255, 56/255)
 Colors.zone.sanctuary = createColor(104/255, 204/255, 239/255)
 Colors.zone.unknown = createColor(255/255, 234/255, 137/255) -- instances, bgs, contested zones on pve realms
+
+local fast = Colors:CreateColor(0/255, 208/255, 176/255)
+local slow = Colors:CreateColor(116/255, 156/255, 255/255)
+local angry = Colors:CreateColor(156/255, 116/255, 255/255)
+
+Colors.power.ENERGY_CRYSTAL = fast -- Rogues, Druids, Monks
+Colors.power.FOCUS_CRYSTAL = slow -- Hunters
+Colors.power.FURY_CRYSTAL = angry -- Havoc Demon Hunter
+Colors.power.INSANITY_CRYSTAL = angry -- Shadow Priests
+Colors.power.LUNAR_POWER_CRYSTAL = slow -- Balance Druid Astral Power
+Colors.power.MAELSTROM_CRYSTAL = slow -- Elemental Shamans
+Colors.power.PAIN_CRYSTAL = angry -- Vengeance Demon Hunter
+Colors.power.RAGE_CRYSTAL = angry -- Druids, Warriors
+Colors.power.RUNIC_POWER_CRYSTAL = slow -- Death Knights
+Colors.power.MANA_CRYSTAL = Colors:CreateColor(101/255, 93/255, 191/255) -- Druid, Hunter (Classic), Mage, Paladin, Priest, Shaman, Warlock
+Colors.power.MANA_ORB = Colors:CreateColor(135/255, 125/255, 255/255) -- Druid, Hunter (Classic), Mage, Paladin, Priest, Shaman, Warlock
 
 ns.Private.Colors = Colors

@@ -85,26 +85,6 @@ local IsAddOnAvailable = ns.API.IsAddOnAvailable
 local SetRelativeScale = ns.API.SetRelativeScale
 local UpdateObjectScales = ns.API.UpdateObjectScales
 
--- Color overrides
-local Colors = ns.Colors
-local fast = Colors:CreateColor(0/255, 208/255, 176/255)
-local slow = Colors:CreateColor(116/255, 156/255, 255/255)
-local angry = Colors:CreateColor(156/255, 116/255, 255/255)
-
-Colors.health = Colors:CreateColor(245/255, 0/255, 45/255)
-Colors.ui = Colors:CreateColor(192/255, 192/255, 192/255)
-Colors.power.ENERGY_CRYSTAL = fast -- Rogues, Druids, Monks
-Colors.power.FOCUS_CRYSTAL = slow -- Hunters
-Colors.power.FURY_CRYSTAL = angry -- Havoc Demon Hunter
-Colors.power.INSANITY_CRYSTAL = angry -- Shadow Priests
-Colors.power.LUNAR_POWER_CRYSTAL = slow -- Balance Druid Astral Power
-Colors.power.MAELSTROM_CRYSTAL = slow -- Elemental Shamans
-Colors.power.PAIN_CRYSTAL = angry -- Vengeance Demon Hunter
-Colors.power.RAGE_CRYSTAL = angry -- Druids, Warriors
-Colors.power.RUNIC_POWER_CRYSTAL = slow -- Death Knights
-Colors.power.MANA_CRYSTAL = Colors:CreateColor(101/255, 93/255, 191/255) -- Druid, Hunter (Classic), Mage, Paladin, Priest, Shaman, Warlock
-Colors.power.MANA_ORB = Colors:CreateColor(135/255, 125/255, 255/255) -- Druid, Hunter (Classic), Mage, Paladin, Priest, Shaman, Warlock
-
 -- Purge deprecated settings,
 -- translate to new where applicable,
 -- make sure important ones are within bounds.
@@ -203,7 +183,7 @@ end
 
 -- Allow other modules and addons to use this.
 ns.GetSettings = function(self)
-	return self.db or SanitizeSettings(LibStub("AceDB-3.0"):New(Addon.."4_DB", defaults, true))
+	return self.db or SanitizeSettings(LibStub("AceDB-3.0"):New("AzeriteUI4_DB", defaults, true))
 end
 
 ns.OnInitialize = function(self)
