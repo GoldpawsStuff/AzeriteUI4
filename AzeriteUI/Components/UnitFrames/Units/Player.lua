@@ -282,6 +282,11 @@ local UnitFrame_UpdateTextures = function(self)
 	local healPredict = self.HealthPrediction
 	healPredict:SetTexture(db.HealthBarTexture)
 
+	local power = self.Power
+
+
+	local mana = self.AdditionalPower
+
 
 end
 
@@ -333,22 +338,23 @@ UnitStyles["Player"] = function(self, unit, id)
 	--------------------------------------------
 	local health = self:CreateBar(self:GetName().."HealthBar")
 	health:SetFrameLevel(health:GetFrameLevel() + 2)
-	health.Backdrop = self:CreateTexture(nil, "BACKGROUND", nil, -1)
 
 	self.Health = health
 	self.Health.Override = ns.API.UpdateHealth
 	self.Health.PostUpdate = Health_PostUpdate
 
-	-- Health Preview
-	--------------------------------------------
-	local preview = self:CreateBar(health:GetName().."Preview", health)
-	preview:SetAllPoints(health)
-	preview:SetFrameLevel(health:GetFrameLevel() - 1)
-	preview:DisableSmoothing(true)
-	preview:SetSparkTexture("")
-	preview:SetAlpha(.5)
+	local healthBackdrop = self:CreateTexture(health:GetName().."Backdrop", "BACKGROUND", nil, -1)
 
-	self.Health.Preview = preview
+	self.Health.Backdrop = healthBackdrop
+
+	local healthPreview = self:CreateBar(health:GetName().."Preview", health)
+	healthPreview:SetAllPoints(health)
+	healthPreview:SetFrameLevel(health:GetFrameLevel() - 1)
+	healthPreview:DisableSmoothing(true)
+	healthPreview:SetSparkTexture("")
+	healthPreview:SetAlpha(.5)
+
+	self.Health.Preview = healthPreview
 
 	-- Health Prediction
 	--------------------------------------------
@@ -381,6 +387,14 @@ UnitStyles["Player"] = function(self, unit, id)
 	self.Power.Override = ns.API.UpdatePower
 	self.Power.PostUpdate = Power_UpdateVisibility
 
+	local powerBackdrop = self:CreateTexture(power:GetName().."Backdrop", "BACKGROUND", nil, -1)
+
+	self.Power.Backdrop = powerBackdrop
+
+	local powerCase = overlay:CreateTexture(power:GetName().."Case", "ARTWORK")
+
+	self.Power.Case = powerCase
+
 	-- Mana Orb
 	--------------------------------------------
 	local mana = self:CreateOrb(self:GetName().."ManaOrb")
@@ -390,6 +404,14 @@ UnitStyles["Player"] = function(self, unit, id)
 	self.AdditionalPower = mana
 	self.AdditionalPower.Override = ns.API.UpdatePower
 	self.AdditionalPower.OverrideVisibility = Mana_UpdateVisibility
+
+	local manaBackdrop = self:CreateTexture(mana:GetName().."Backdrop", "BACKGROUND", nil, -1)
+
+	self.AdditionalPower.Backdrop = manaBackdrop
+
+	local manaCase = overlay:CreateTexture(mana:GetName().."Case", "ARTWORK")
+
+	self.AdditionalPower.Case = manaCase
 
 	-- CombatFeedback
 	--------------------------------------------
