@@ -63,6 +63,124 @@ local ALT_MANA_BAR_PAIR_DISPLAY_INFO = ALT_MANA_BAR_PAIR_DISPLAY_INFO
 
 -- Element Callbacks
 --------------------------------------------
+local Health_PostUpdateColor = function(element, unit, r, g, b)
+	local preview = element.Preview
+	if (preview) then
+		preview:SetStatusBarColor(r * .7, g * .7, b * .7)
+	end
+end
+
+local HealPredict_PostUpdate = function(element, unit, myIncomingHeal, otherIncomingHeal, absorb, healAbsorb, hasOverAbsorb, hasOverHealAbsorb, curHealth, maxHealth)
+
+	local allIncomingHeal = myIncomingHeal + otherIncomingHeal
+	local allNegativeHeals = absorb + healAbsorb
+	local showPrediction, change
+	local health = element.health
+
+	if ((allIncomingHeal > 0) or (allNegativeHeals > 0)) and (maxHealth > 0) then
+		local startPoint = curHealth/maxHealth
+
+		-- Dev switch to test absorbs with normal healing
+		--allIncomingHeal, allNegativeHeals = allNegativeHeals, allIncomingHeal
+
+		-- Hide elementions if the change is very small, or if the unit is at max health.
+		change = (allIncomingHeal - allNegativeHeals)/maxHealth
+		if ((curHealth < maxHealth) and (change > (health.elementThreshold or .05))) then
+			local endPoint = startPoint + change
+
+			-- Crop heal elemention overflows
+			if (endPoint > 1) then
+				endPoint = 1
+				change = endPoint - startPoint
+			end
+
+			-- Crop heal absorb overflows
+			if (endPoint < 0) then
+				endPoint = 0
+				change = -startPoint
+			end
+
+			-- This shouldn't happen, but let's do it anyway.
+			if (startPoint ~= endPoint) then
+				showPrediction = true
+			end
+		end
+	end
+
+	if (showPrediction) then
+
+		local preview = element.preview
+		local orientation = preview:GetOrientation()
+		local min,max = preview:GetMinMaxValues()
+		local value = preview:GetValue() / max
+		local previewTexture = preview:GetStatusBarTexture()
+		local previewWidth, previewHeight = preview:GetSize()
+		local left, right, top, bottom = preview:GetTexCoord()
+
+		if (orientation == "RIGHT") then
+
+			local texValue, texChange = value, change
+			local rangeH, rangeV
+
+			rangeH = right - left
+			rangeV = bottom - top
+			texChange = change*value
+			texValue = left + value*rangeH
+
+			if (change > 0) then
+				element:ClearAllPoints()
+				element:SetPoint("BOTTOMLEFT", previewTexture, "BOTTOMRIGHT", 0, 0)
+				element:SetSize(change*previewWidth, previewHeight)
+				element:SetTexCoord(texValue, texValue + texChange, top, bottom)
+				element:SetVertexColor(0, .7, 0, .25)
+				element:Show()
+
+			elseif (change < 0) then
+				element:ClearAllPoints()
+				element:SetPoint("BOTTOMRIGHT", previewTexture, "BOTTOMRIGHT", 0, 0)
+				element:SetSize((-change)*previewWidth, previewHeight)
+				element:SetTexCoord(texValue + texChange, texValue, top, bottom)
+				element:SetVertexColor(.5, 0, 0, .75)
+				element:Show()
+
+			else
+				element:Hide()
+			end
+
+		elseif (orientation == "LEFT") then
+			local texValue, texChange = value, change
+			local rangeH, rangeV
+			rangeH = right - left
+			rangeV = bottom - top
+			texChange = change*value
+			texValue = left + value*rangeH
+
+			if (change > 0) then
+				element:ClearAllPoints()
+				element:SetPoint("BOTTOMRIGHT", previewTexture, "BOTTOMLEFT", 0, 0)
+				element:SetSize(change*previewWidth, previewHeight)
+				element:SetTexCoord(texValue + texChange, texValue, top, bottom)
+				element:SetVertexColor(0, .7, 0, .25)
+				element:Show()
+
+			elseif (change < 0) then
+				element:ClearAllPoints()
+				element:SetPoint("BOTTOMLEFT", previewTexture, "BOTTOMLEFT", 0, 0)
+				element:SetSize((-change)*previewWidth, previewHeight)
+				element:SetTexCoord(texValue, texValue + texChange, top, bottom)
+				element:SetVertexColor(.5, 0, 0, .75)
+				element:Show()
+
+			else
+				element:Hide()
+			end
+		end
+	else
+		element:Hide()
+	end
+
+end
+
 local Mana_UpdateVisibility = function(self, event, unit)
 	local element = self.AdditionalPower
 
@@ -123,6 +241,44 @@ local Power_UpdateVisibility = function(element, unit, cur, min, max)
 	end
 end
 
+local UnitFrame_UpdateTextures = function(self)
+	local key = (playerXPDisabled or IsPlayerAtEffectiveMaxLevel()) and "Seasoned" or playerLevel < hardenedLevel and "Novice" or "Hardened"
+	local db = ns.Config.Player[key]
+
+	local health = self.Health
+	health:ClearAllPoints()
+	health:SetPoint(unpack(db.HealthBarPosition))
+	health:SetSize(unpack(db.HealthBarSize))
+	health:SetStatusBarTexture(db.HealthBarTexture)
+	health:SetStatusBarColor(unpack(db.HealthBarColor))
+	health:SetOrientation(db.HealthBarOrientation)
+	health:SetSparkMap(db.HealthBarSparkMap)
+
+	local preview = self.Health.Preview
+	preview:SetStatusBarTexture(db.HealthBarTexture)
+
+	local backdrop = self.Health.Backdrop
+	backdrop:ClearAllPoints()
+	backdrop:SetPoint(unpack(db.HealthBackdropPosition))
+	backdrop:SetSize(unpack(db.HealthBackdropSize))
+	backdrop:SetTexture(db.HealthBackdropTexture)
+	backdrop:SetVertexColor(unpack(db.HealthBackdropColor))
+
+	local cast = self.Castbar
+	cast:ClearAllPoints()
+	cast:SetPoint(unpack(db.HealthBarPosition))
+	cast:SetSize(unpack(db.HealthBarSize))
+	cast:SetStatusBarTexture(db.HealthBarTexture)
+	cast:SetStatusBarColor(unpack(db.HealthCastOverlayColor))
+	cast:SetOrientation(db.HealthBarOrientation)
+	cast:SetSparkMap(db.HealthBarSparkMap)
+
+	local healPredict = self.HealthPrediction
+	healPredict:SetTexture(db.HealthBarTexture)
+
+
+end
+
 -- Frame Script Handlers
 --------------------------------------------
 
@@ -151,34 +307,7 @@ local OnEvent = function(self, event, unit, ...)
 		end
 	end
 
-	local key = (playerXPDisabled or IsPlayerAtEffectiveMaxLevel()) and "Seasoned" or playerLevel < hardenedLevel and "Novice" or "Hardened"
-	local db = ns.Config.Player[key]
-
-	local health = self.Health
-	health:ClearAllPoints()
-	health:SetPoint(unpack(db.HealthBarPosition))
-	health:SetSize(unpack(db.HealthBarSize))
-	health:SetStatusBarTexture(db.HealthBarTexture)
-	health:SetStatusBarColor(unpack(db.HealthBarColor))
-	health:SetOrientation(db.HealthBarOrientation)
-	health:SetSparkMap(db.HealthBarSparkMap)
-
-	local backdrop = self.Health.Backdrop
-	backdrop:ClearAllPoints()
-	backdrop:SetPoint(unpack(db.HealthBackdropPosition))
-	backdrop:SetSize(unpack(db.HealthBackdropSize))
-	backdrop:SetTexture(db.HealthBackdropTexture)
-	backdrop:SetVertexColor(unpack(db.HealthBackdropColor))
-
-	local cast = self.Castbar
-	cast:ClearAllPoints()
-	cast:SetPoint(unpack(db.HealthBarPosition))
-	cast:SetSize(unpack(db.HealthBarSize))
-	cast:SetStatusBarTexture(db.HealthBarTexture)
-	cast:SetStatusBarColor(unpack(db.HealthCastOverlayColor))
-	cast:SetOrientation(db.HealthBarOrientation)
-	cast:SetSparkMap(db.HealthBarSparkMap)
-
+	UnitFrame_UpdateTextures(self)
 end
 
 UnitStyles["Player"] = function(self, unit, id)
@@ -186,37 +315,66 @@ UnitStyles["Player"] = function(self, unit, id)
 	self:SetSize(unpack(ns.Config.Player.Size))
 	self:SetPoint(unpack(ns.Config.Player.Position))
 
-	-- Health Bar
+	-- Overlay for icons and text
 	--------------------------------------------
-	local health = self:CreateBar()
+	local overlay = CreateFrame("Frame", self:GetName().."OverlayFrame", self)
+	overlay:SetFrameLevel(self:GetFrameLevel() + 5)
+	overlay:SetAllPoints()
+	self.Overlay = overlay
+
+	-- Health
+	--------------------------------------------
+	local health = self:CreateBar(self:GetName().."HealthBar")
+	health:SetFrameLevel(health:GetFrameLevel() + 2)
 	health.Backdrop = self:CreateTexture(nil, "BACKGROUND", nil, -1)
 
 	self.Health = health
 	self.Health.Override = ns.API.UpdateHealth
 
-	-- Health Bar Cast Overlay
+	-- Health Preview
 	--------------------------------------------
-	local castbar = self:CreateBar()
-	castbar:SetFrameLevel(self.Health:GetFrameLevel() + 1)
-	castbar:DisableSmoothing()
+	local preview = self:CreateBar(health:GetName().."Preview", health)
+	preview:SetAllPoints(health)
+	preview:SetFrameLevel(health:GetFrameLevel() - 1)
+	preview:DisableSmoothing(true)
+	preview:SetSparkTexture("")
+	preview:SetAlpha(.5)
 
+	self.Health.Preview = preview
+
+	-- Health Prediction
+	--------------------------------------------
+	local healPredictFrame = CreateFrame("Frame", nil, health)
+	healPredictFrame:SetFrameLevel(health:GetFrameLevel() + 2)
+
+	local healPredict = healPredictFrame:CreateTexture(health:GetName().."Prediction")
+	healPredict.health = health
+	healPredict.preview = preview
+	healPredict.maxOverflow = 1
+
+	self.HealthPrediction = healPredict
+	self.HealthPrediction.PostUpdate = HealPredict_PostUpdate
+
+	-- Health Cast Overlay
+	--------------------------------------------
+	local castbar = self:CreateBar(health:GetName().."CastOverlay", health)
+	castbar:SetFrameLevel(self:GetFrameLevel() + 5)
+	castbar:DisableSmoothing()
 	self.Castbar = castbar
 
 	-- Power Crystal
 	--------------------------------------------
-	local power = self:CreateBar()
+	local power = self:CreateBar(self:GetName().."PowerCrystal")
 	power.frequentUpdates = true
 	power.displayAltPower = true
-
 	self.Power = power
 	self.Power.Override = ns.API.UpdatePower
 	self.Power.PostUpdate = Power_UpdateVisibility
 
 	-- Mana Orb
 	--------------------------------------------
-	local mana = self:CreateOrb()
+	local mana = self:CreateOrb(self:GetName().."ManaOrb")
 	mana:SetStatusBarColor(unpack(Colors.power.MANA_ORB))
-
 	self.AdditionalPower = mana
 	self.AdditionalPower.Override = ns.API.UpdatePower
 	self.AdditionalPower.OverrideVisibility = Mana_UpdateVisibility
@@ -228,8 +386,9 @@ UnitStyles["Player"] = function(self, unit, id)
 	feedbackText.feedbackFont = GetFont(20, true)
 	feedbackText.feedbackFontLarge = GetFont(24, true)
 	feedbackText.feedbackFontSmall = GetFont(18, true)
-
+	feedbackText:SetFontObject(feedbackText.feedbackFont)
 	self.CombatFeedback = feedbackText
+
 
 	self:RegisterEvent("PLAYER_ALIVE", OnEvent, true)
 	self:RegisterEvent("PLAYER_ENTERING_WORLD", OnEvent, true)

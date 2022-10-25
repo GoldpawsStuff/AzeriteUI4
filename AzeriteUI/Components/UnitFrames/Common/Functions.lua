@@ -76,6 +76,12 @@ API.UpdateHealth = function(self, event, unit)
 	element.cur = cur
 	element.max = max
 
+	local preview = element.Preview
+	if (preview) then
+		preview:SetMinMaxValues(0, max, true)
+		preview:SetValue(connected and cur or max, true)
+	end
+
 	--[[ Callback: Health:PostUpdate(unit, cur, max)
 	Called after the element has been updated.
 

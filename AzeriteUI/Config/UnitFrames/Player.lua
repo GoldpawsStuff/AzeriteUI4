@@ -37,6 +37,7 @@ Config.Player = {
 	Position = { "BOTTOMLEFT", 167, 100 },
 	Novice = {
 
+		-- Health Bar
 		HealthBarSize = { 385, 37 },
 		HealthBarPosition = { "BOTTOMLEFT", 27, 27 },
 		HealthBarTexture = GetMedia("hp_lowmid_bar"),
@@ -62,6 +63,7 @@ Config.Player = {
 	},
 	Hardened = {
 
+		-- Health Bar
 		HealthBarSize = { 385, 37 },
 		HealthBarPosition = { "BOTTOMLEFT", 27, 27 },
 		HealthBarTexture = GetMedia("hp_lowmid_bar"),
@@ -86,6 +88,7 @@ Config.Player = {
 	},
 	Seasoned = {
 
+		-- Health Bar
 		HealthBarSize = { 385, 40 },
 		HealthBarPosition = { "BOTTOMLEFT", 27, 27 },
 		HealthBarTexture = GetMedia("hp_cap_bar"),
