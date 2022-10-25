@@ -26,10 +26,9 @@
 	<Script file="LibActionButton-1.0-GE\LibActionButton-1.0-GE.lua"/>
 
 	<!-- Unitframe specific libraries -->
+	<Include file="LibHealComm-4.0\LibHealComm-4.0.xml"/>
 	<Include file="oUF\oUF_Vanilla.xml"/>
 	<Include file="oUF_Plugins\oUF_Plugins.xml"/>
-	<Include file="LibHealComm-4.0\LibHealComm-4.0.xml"/>
-	<Include file="LibHealComm-4.0\LibHealComm-4.0.xml"/>
 
 	<!-- Goldpaw's libraries -->
 	<Script file="LibMoreEvents-1.0\LibMoreEvents-1.0.lua"/>
