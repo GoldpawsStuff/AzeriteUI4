@@ -63,6 +63,13 @@ local ALT_MANA_BAR_PAIR_DISPLAY_INFO = ALT_MANA_BAR_PAIR_DISPLAY_INFO
 
 -- Element Callbacks
 --------------------------------------------
+local Health_PostUpdate = function(element, unit, cur, max)
+	local predict = element.__owner.HealthPrediction
+	if (predict) then
+		predict:ForceUpdate()
+	end
+end
+
 local Health_PostUpdateColor = function(element, unit, r, g, b)
 	local preview = element.Preview
 	if (preview) then
@@ -73,9 +80,8 @@ end
 local HealPredict_PostUpdate = function(element, unit, myIncomingHeal, otherIncomingHeal, absorb, healAbsorb, hasOverAbsorb, hasOverHealAbsorb, curHealth, maxHealth)
 
 	local allIncomingHeal = myIncomingHeal + otherIncomingHeal
-	local allNegativeHeals = absorb + healAbsorb
+	local allNegativeHeals = healAbsorb
 	local showPrediction, change
-	local health = element.health
 
 	if ((allIncomingHeal > 0) or (allNegativeHeals > 0)) and (maxHealth > 0) then
 		local startPoint = curHealth/maxHealth
@@ -85,7 +91,7 @@ local HealPredict_PostUpdate = function(element, unit, myIncomingHeal, otherInco
 
 		-- Hide elementions if the change is very small, or if the unit is at max health.
 		change = (allIncomingHeal - allNegativeHeals)/maxHealth
-		if ((curHealth < maxHealth) and (change > (health.elementThreshold or .05))) then
+		if ((curHealth < maxHealth) and (change > (element.health.elementThreshold or .05))) then
 			local endPoint = startPoint + change
 
 			-- Crop heal elemention overflows
@@ -110,14 +116,14 @@ local HealPredict_PostUpdate = function(element, unit, myIncomingHeal, otherInco
 	if (showPrediction) then
 
 		local preview = element.preview
-		local orientation = preview:GetOrientation()
+		local growth = preview:GetGrowth()
 		local min,max = preview:GetMinMaxValues()
 		local value = preview:GetValue() / max
 		local previewTexture = preview:GetStatusBarTexture()
 		local previewWidth, previewHeight = preview:GetSize()
 		local left, right, top, bottom = preview:GetTexCoord()
 
-		if (orientation == "RIGHT") then
+		if (growth == "RIGHT") then
 
 			local texValue, texChange = value, change
 			local rangeH, rangeV
@@ -147,7 +153,7 @@ local HealPredict_PostUpdate = function(element, unit, myIncomingHeal, otherInco
 				element:Hide()
 			end
 
-		elseif (orientation == "LEFT") then
+		elseif (growth == "LEFT") then
 			local texValue, texChange = value, change
 			local rangeH, rangeV
 			rangeH = right - left
@@ -190,12 +196,12 @@ local Mana_UpdateVisibility = function(self, event, unit)
 	if (shouldEnable and not isEnabled) then
 
 		if (element.frequentUpdates) then
-			self:RegisterEvent("UNIT_POWER_FREQUENT", Path)
+			self:RegisterEvent("UNIT_POWER_FREQUENT", element.Override)
 		else
-			self:RegisterEvent("UNIT_POWER_UPDATE", Path)
+			self:RegisterEvent("UNIT_POWER_UPDATE", element.Override)
 		end
 
-		self:RegisterEvent("UNIT_MAXPOWER", Path)
+		self:RegisterEvent("UNIT_MAXPOWER", element.Override)
 
 		element:Show()
 
@@ -214,9 +220,9 @@ local Mana_UpdateVisibility = function(self, event, unit)
 
 	elseif (not shouldEnable and (isEnabled or isEnabled == nil)) then
 
-		self:UnregisterEvent("UNIT_MAXPOWER", Path)
-		self:UnregisterEvent("UNIT_POWER_FREQUENT", Path)
-		self:UnregisterEvent("UNIT_POWER_UPDATE", Path)
+		self:UnregisterEvent("UNIT_MAXPOWER", element.Override)
+		self:UnregisterEvent("UNIT_POWER_FREQUENT", element.Override)
+		self:UnregisterEvent("UNIT_POWER_UPDATE", element.Override)
 
 		element:Hide()
 
@@ -320,6 +326,7 @@ UnitStyles["Player"] = function(self, unit, id)
 	local overlay = CreateFrame("Frame", self:GetName().."OverlayFrame", self)
 	overlay:SetFrameLevel(self:GetFrameLevel() + 5)
 	overlay:SetAllPoints()
+
 	self.Overlay = overlay
 
 	-- Health
@@ -330,6 +337,7 @@ UnitStyles["Player"] = function(self, unit, id)
 
 	self.Health = health
 	self.Health.Override = ns.API.UpdateHealth
+	self.Health.PostUpdate = Health_PostUpdate
 
 	-- Health Preview
 	--------------------------------------------
@@ -357,9 +365,10 @@ UnitStyles["Player"] = function(self, unit, id)
 
 	-- Health Cast Overlay
 	--------------------------------------------
-	local castbar = self:CreateBar(health:GetName().."CastOverlay", health)
+	local castbar = self:CreateBar(health:GetName().."CastOverlay")
 	castbar:SetFrameLevel(self:GetFrameLevel() + 5)
 	castbar:DisableSmoothing()
+
 	self.Castbar = castbar
 
 	-- Power Crystal
@@ -367,6 +376,7 @@ UnitStyles["Player"] = function(self, unit, id)
 	local power = self:CreateBar(self:GetName().."PowerCrystal")
 	power.frequentUpdates = true
 	power.displayAltPower = true
+
 	self.Power = power
 	self.Power.Override = ns.API.UpdatePower
 	self.Power.PostUpdate = Power_UpdateVisibility
@@ -374,7 +384,9 @@ UnitStyles["Player"] = function(self, unit, id)
 	-- Mana Orb
 	--------------------------------------------
 	local mana = self:CreateOrb(self:GetName().."ManaOrb")
+	mana.displayPairs = {}
 	mana:SetStatusBarColor(unpack(Colors.power.MANA_ORB))
+
 	self.AdditionalPower = mana
 	self.AdditionalPower.Override = ns.API.UpdatePower
 	self.AdditionalPower.OverrideVisibility = Mana_UpdateVisibility
@@ -382,11 +394,12 @@ UnitStyles["Player"] = function(self, unit, id)
 	-- CombatFeedback
 	--------------------------------------------
 	local feedbackText = overlay:CreateFontString(nil, "OVERLAY")
-	feedbackText:SetPoint("CENTER", health, "CENTER", 0, 0)
 	feedbackText.feedbackFont = GetFont(20, true)
 	feedbackText.feedbackFontLarge = GetFont(24, true)
 	feedbackText.feedbackFontSmall = GetFont(18, true)
+	feedbackText:SetPoint("CENTER", health, "CENTER", 0, 0)
 	feedbackText:SetFontObject(feedbackText.feedbackFont)
+
 	self.CombatFeedback = feedbackText
 
 
