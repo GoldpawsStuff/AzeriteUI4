@@ -336,20 +336,4 @@ Colors.zone.hostile = createColor(175/255, 76/255, 56/255)
 Colors.zone.sanctuary = createColor(104/255, 204/255, 239/255)
 Colors.zone.unknown = createColor(255/255, 234/255, 137/255) -- instances, bgs, contested zones on pve realms
 
-local fast = createColor(0/255, 208/255, 176/255)
-local slow = createColor(116/255, 156/255, 255/255)
-local angry = createColor(156/255, 116/255, 255/255)
-
-Colors.power.ENERGY_CRYSTAL = fast -- Rogues, Druids, Monks
-Colors.power.FOCUS_CRYSTAL = slow -- Hunters
-Colors.power.FURY_CRYSTAL = angry -- Havoc Demon Hunter
-Colors.power.INSANITY_CRYSTAL = angry -- Shadow Priests
-Colors.power.LUNAR_POWER_CRYSTAL = slow -- Balance Druid Astral Power
-Colors.power.MAELSTROM_CRYSTAL = slow -- Elemental Shamans
-Colors.power.PAIN_CRYSTAL = angry -- Vengeance Demon Hunter
-Colors.power.RAGE_CRYSTAL = angry -- Druids, Warriors
-Colors.power.RUNIC_POWER_CRYSTAL = slow -- Death Knights
-Colors.power.MANA_CRYSTAL = createColor(101/255, 93/255, 191/255) -- Druid, Hunter (Classic), Mage, Paladin, Priest, Shaman, Warlock
-Colors.power.MANA_ORB = createColor(135/255, 125/255, 255/255) -- Druid, Hunter (Classic), Mage, Paladin, Priest, Shaman, Warlock
-
 ns.Private.Colors = Colors
