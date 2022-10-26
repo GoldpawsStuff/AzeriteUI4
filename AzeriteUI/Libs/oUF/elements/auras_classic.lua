@@ -137,13 +137,13 @@ local function createAuraIcon(element, index)
 	button.Count = count
 	button.Cooldown = cd
 
-	--[[ Callback: Auras:PostCreateIcon(button)
+	--[[ Callback: Auras:PostCreateButton(button)
 	Called after a new aura button has been created.
 
 	* self   - the widget holding the aura buttons
 	* button - the newly created aura button (Button)
 	--]]
-	if(element.PostCreateIcon) then element:PostCreateIcon(button) end
+	if(element.PostCreateButton) then element:PostCreateButton(button) end
 
 	return button
 end
@@ -163,7 +163,7 @@ local function updateIcon(element, unit, index, offset, filter, isDebuff, visibl
 		local position = visible + offset + 1
 		local button = element[position]
 		if(not button) then
-			--[[ Override: Auras:CreateIcon(position)
+			--[[ Override: Auras:CreateButton(position)
 			Used to create the aura button at a given position.
 
 			* self     - the widget holding the aura buttons
@@ -173,7 +173,7 @@ local function updateIcon(element, unit, index, offset, filter, isDebuff, visibl
 
 			* button - the button used to represent the aura (Button)
 			--]]
-			button = (element.CreateIcon or createAuraIcon) (element, position)
+			button = (element.CreateButton or createAuraIcon) (element, position)
 
 			table.insert(element, button)
 			element.createdIcons = element.createdIcons + 1
@@ -243,7 +243,7 @@ local function updateIcon(element, unit, index, offset, filter, isDebuff, visibl
 			button:SetID(index)
 			button:Show()
 
-			--[[ Callback: Auras:PostUpdateIcon(unit, button, index, position)
+			--[[ Callback: Auras:PostUpdateButton(unit, button, index, position)
 			Called after the aura button has been updated.
 
 			* self        - the widget holding the aura buttons
@@ -256,8 +256,8 @@ local function updateIcon(element, unit, index, offset, filter, isDebuff, visibl
 			* debuffType  - the debuff type of the aura (string?)['Curse', 'Disease', 'Magic', 'Poison']
 			* isStealable - whether the aura can be stolen or purged (boolean)
 			--]]
-			if(element.PostUpdateIcon) then
-				element:PostUpdateIcon(unit, button, index, position, duration, expiration, debuffType, isStealable)
+			if(element.PostUpdateButton) then
+				element:PostUpdateButton(unit, button, index, position, duration, expiration, debuffType, isStealable)
 			end
 
 			return VISIBLE
@@ -343,7 +343,7 @@ local function UpdateAuras(self, event, unit)
 
 			local button = auras[visibleBuffs]
 			if(not button) then
-				button = (auras.CreateIcon or createAuraIcon) (auras, visibleBuffs)
+				button = (auras.CreateButton or createAuraIcon) (auras, visibleBuffs)
 				table.insert(auras, button)
 				auras.createdIcons = auras.createdIcons + 1
 			end

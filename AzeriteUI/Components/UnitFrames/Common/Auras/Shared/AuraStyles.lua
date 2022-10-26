@@ -67,7 +67,7 @@ local OnClick = function(self, button, down)
 	end
 end
 
-ns.AuraStyles.CreateIconWithBar = function(element, position)
+ns.AuraStyles.CreateButtonWithBar = function(element, position)
 	local aura = CreateFrame("Button", element:GetDebugName() .. "Button" .. position, element)
 	aura:RegisterForClicks("RightButtonUp")
 
@@ -122,7 +122,7 @@ ns.AuraStyles.CreateIconWithBar = function(element, position)
 	return aura
 end
 
-ns.AuraStyles.CreateIcon = function(element, position)
+ns.AuraStyles.CreateButton = function(element, position)
 	local aura = CreateFrame("Button", element:GetDebugName() .. "Button" .. position, element)
 	aura:RegisterForClicks("RightButtonUp")
 

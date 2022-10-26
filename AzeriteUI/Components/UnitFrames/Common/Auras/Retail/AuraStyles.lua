@@ -34,7 +34,7 @@ local Colors = ns.Colors
 local GetFont = ns.API.GetFont
 local GetMedia = ns.API.GetMedia
 
-ns.AuraStyles.PlayerPostUpdateIcon = function(element, button, unit, data, position)
+ns.AuraStyles.PlayerPostUpdateButton = function(element, button, unit, data, position)
 
 	-- Border Coloring
 	local color
@@ -59,7 +59,7 @@ ns.AuraStyles.PlayerPostUpdateIcon = function(element, button, unit, data, posit
 
 end
 
-ns.AuraStyles.TargetPostUpdateIcon = function(element, button, unit, data, position)
+ns.AuraStyles.TargetPostUpdateButton = function(element, button, unit, data, position)
 
 	-- Stealable buffs
 	if(not button.isDebuff and isStealable and element.showStealableBuffs and not UnitIsUnit("player", unit)) then
@@ -87,7 +87,7 @@ ns.AuraStyles.TargetPostUpdateIcon = function(element, button, unit, data, posit
 
 end
 
-ns.AuraStyles.NameplatePostUpdateIcon = function(element, button, unit, data, position)
+ns.AuraStyles.NameplatePostUpdateButton = function(element, button, unit, data, position)
 
 	-- Stealable buffs
 	if(not button.isDebuff and isStealable and element.showStealableBuffs and not UnitIsUnit("player", unit)) then
