@@ -587,6 +587,14 @@ BlizzKill.KillFloaters = function(self)
 			TemporaryEnchantFrame:SetScript("OnUpdate", nil)
 			TemporaryEnchantFrame:SetParent(UIHider)
 		end
+
+		if (DebuffFrame) then
+			DebuffFrame:SetScript("OnLoad", nil)
+			DebuffFrame:SetScript("OnUpdate", nil)
+			DebuffFrame:SetScript("OnEvent", nil)
+			DebuffFrame:SetParent(UIHider)
+			DebuffFrame:UnregisterAllEvents()
+		end
 	end
 
 	-- Some shadowlands crap, possibly BfA.
