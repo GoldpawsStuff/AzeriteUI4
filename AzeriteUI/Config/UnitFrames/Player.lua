@@ -59,6 +59,12 @@ Config.Player = {
 		HealthCastOverlayColor = { 1, 1, 1, .25 },
 		HealthThreatTexture = GetMedia("hp_low_case_glow"),
 
+		-- Combat Feedback
+		CombatFeedbackAnchorElement = "Health",
+		CombatFeedbackPosition = { "CENTER", 0, 0 },
+		CombatFeedbackFont = GetFont(20, true),
+		CombatFeedbackFontLarge = GetFont(24, true),
+		CombatFeedbackFontSmall = GetFont(18, true),
 
 	},
 	Hardened = {
@@ -85,6 +91,13 @@ Config.Player = {
 		HealthCastOverlayColor = { 1, 1, 1, .25 },
 		HealthThreatTexture = GetMedia("hp_mid_case_glow"),
 
+		-- Combat Feedback
+		CombatFeedbackAnchorElement = "Health",
+		CombatFeedbackPosition = { "CENTER", 0, 0 },
+		CombatFeedbackFont = GetFont(20, true),
+		CombatFeedbackFontLarge = GetFont(24, true),
+		CombatFeedbackFontSmall = GetFont(18, true),
+
 	},
 	Seasoned = {
 
@@ -109,6 +122,13 @@ Config.Player = {
 		HealthBackdropColor = { Colors.ui[1], Colors.ui[2], Colors.ui[3] },
 		HealthCastOverlayColor = { 1, 1, 1, .25 },
 		HealthThreatTexture = GetMedia("hp_cap_case_glow"),
+
+		-- Combat Feedback
+		CombatFeedbackAnchorElement = "Health",
+		CombatFeedbackPosition = { "CENTER", 0, 0 },
+		CombatFeedbackFont = GetFont(20, true),
+		CombatFeedbackFontLarge = GetFont(24, true),
+		CombatFeedbackFontSmall = GetFont(18, true),
 
 	}
 }

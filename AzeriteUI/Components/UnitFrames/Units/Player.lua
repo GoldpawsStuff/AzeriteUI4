@@ -288,6 +288,14 @@ local UnitFrame_UpdateTextures = function(self)
 	local mana = self.AdditionalPower
 
 
+	local feedback = self.CombatFeedback
+	feedbackText:ClearAllPoints()
+	feedbackText:SetPoint(db.CombatFeedbackPosition[1], self[db.CombatFeedbackAnchorElement], unpack(db.CombatFeedbackPosition))
+	feedbackText:SetFontObject(db.CombatFeedbackFont)
+	feedbackText.feedbackFont = db.CombatFeedbackFont
+	feedbackText.feedbackFontLarge = db.CombatFeedbackFontLarge
+	feedbackText.feedbackFontSmall = db.CombatFeedbackFontSmall
+
 end
 
 -- Frame Script Handlers
@@ -416,14 +424,12 @@ UnitStyles["Player"] = function(self, unit, id)
 	-- CombatFeedback
 	--------------------------------------------
 	local feedbackText = overlay:CreateFontString(nil, "OVERLAY")
-	feedbackText.feedbackFont = GetFont(20, true)
-	feedbackText.feedbackFontLarge = GetFont(24, true)
-	feedbackText.feedbackFontSmall = GetFont(18, true)
-	feedbackText:SetPoint("CENTER", health, "CENTER", 0, 0)
-	feedbackText:SetFontObject(feedbackText.feedbackFont)
 
 	self.CombatFeedback = feedbackText
 
+
+	-- Add a callback for external style overriders
+	self:AddForceUpdate(UnitFrame_UpdateTextures)
 
 	self:RegisterEvent("PLAYER_ALIVE", OnEvent, true)
 	self:RegisterEvent("PLAYER_ENTERING_WORLD", OnEvent, true)
