@@ -24,7 +24,7 @@
 
 --]]
 local MAJOR_VERSION = "LibOrb-1.0"
-local MINOR_VERSION = 1
+local MINOR_VERSION = 3
 
 if (not LibStub) then
 	error(MAJOR_VERSION .. " requires LibStub.")
@@ -100,7 +100,6 @@ local Update = function(self, elapsed)
 	local orientation = data.orbOrientation
 	local width, height = self:GetSize()
 	local spark = data.spark
-	--local glow = data.glow
 
 	if value > max then
 		value = max
@@ -159,23 +158,16 @@ local Update = function(self, elapsed)
 			spark:SetSize(freeSpace, sparkHeight)
 			spark:ClearAllPoints()
 
-			--glow:SetSize(freeSpace, sparkHeight*2)
-			--glow:ClearAllPoints()
-
 			if (leftCrop > freeSpace/2) then
 				spark:SetPoint("LEFT", scrollframe, "TOPLEFT", leftCrop, sparkOffsetY)
-				--glow:SetPoint("LEFT", scrollframe, "TOPLEFT", leftCrop, sparkOffsetY*2)
 			else
 				spark:SetPoint("LEFT", scrollframe, "TOPLEFT", sparkOffsetX, sparkOffsetY)
-				--glow:SetPoint("LEFT", scrollframe, "TOPLEFT", sparkOffsetX, sparkOffsetY*2)
 			end
 
 			if (rightCrop > freeSpace/2) then
 				spark:SetPoint("RIGHT", scrollframe, "TOPRIGHT", -rightCrop, sparkOffsetY)
-				--glow:SetPoint("RIGHT", scrollframe, "TOPRIGHT", -rightCrop, sparkOffsetY*2)
 			else
 				spark:SetPoint("RIGHT", scrollframe, "TOPRIGHT", -sparkOffsetX, sparkOffsetY)
-				--glow:SetPoint("RIGHT", scrollframe, "TOPRIGHT", -sparkOffsetX, sparkOffsetY*2)
 			end
 
 		else
@@ -189,14 +181,9 @@ local Update = function(self, elapsed)
 			spark:SetPoint("LEFT", scrollframe, "TOPLEFT", sparkOffsetX, sparkOffsetY)
 			spark:SetPoint("RIGHT", scrollframe, "TOPRIGHT", -sparkOffsetX, sparkOffsetY)
 
-			--glow:SetSize(sparkWidth, sparkHeight*2)
-			--glow:ClearAllPoints()
-			--glow:SetPoint("LEFT", scrollframe, "TOPLEFT", sparkOffsetX, sparkOffsetY*2)
-			--glow:SetPoint("RIGHT", scrollframe, "TOPRIGHT", -sparkOffsetX, sparkOffsetY*2)
 		end
 		if (not spark:IsShown()) then
 			spark:Show()
-			--glow:Show()
 		end
 	end
 end
@@ -298,13 +285,11 @@ end
 
 Orb.SetSparkTexture = function(self, path)
 	Orbs[self].spark:SetTexture(path)
-	--Orbs[self].glow:SetTexture(path)
 	Update(self)
 end
 
 Orb.SetSparkColor = function(self, ...)
 	Orbs[self].spark:SetVertexColor(...)
-	--Orbs[self].glow:SetVertexColor(...)
 end
 
 Orb.SetSparkMinMaxPercent = function(self, min, max)
@@ -315,7 +300,6 @@ end
 
 Orb.SetSparkBlendMode = function(self, blendMode)
 	Orbs[self].spark:SetBlendMode(blendMode)
-	--Orbs[self].glow:SetBlendMode(blendMode)
 end
 
 -- Fancy method allowing us to crop the orb's sides
@@ -404,11 +388,10 @@ Orb.SetStatusBarColor = function(self, ...)
 	local data = Orbs[self]
 	local r, g, b = ...
 	data.layer1:SetVertexColor(r, g, b)
-	data.layer2:SetVertexColor(r/2, g/2 *3/4, b/2)
-	data.layer3:SetVertexColor(r/3, g/3 *2/3, b/3)
-	data.layer4:SetVertexColor(r/4, g/4 *1/2, b/4)
+	data.layer2:SetVertexColor(r * 4/5, g * 4/5 * 3/4, b * 4/5)
+	data.layer3:SetVertexColor(r * 3/4, g * 3/4 * 2/3, b * 3/4)
+	data.layer4:SetVertexColor(r * 2/3, g * 2/3 * 1/2, b * 2/3)
 	data.spark:SetVertexColor(r, g *3/4, b)
-	--data.glow:SetVertexColor(r, g, b)
 end
 
 Orb.GetStatusBarColor = function(self, id)
@@ -504,7 +487,7 @@ lib.CreateOrb = function(self, name, parent, template, rotateClockwise, speedMod
 	scrollframe:SetPoint("RIGHT")
 	scrollframe:SetSize(1,1)
 
-	-- The overlay is meant to hold overlay textures like the spark, glow, etc
+	-- The overlay is meant to hold overlay textures like the spark.
 	local overlay = CreateFrame("Frame", nil, scrollframe)
 	overlay:SetFrameLevel(scrollframe:GetFrameLevel() + 2)
 	overlay:SetAllPoints(orb)
@@ -525,119 +508,64 @@ lib.CreateOrb = function(self, name, parent, template, rotateClockwise, speedMod
 	orbTex4:SetDrawLayer("BACKGROUND", -3)
 	orbTex4:SetAllPoints()
 
+	-- Alpha values for top two layers
+	local high, low = .75, .25
+
+	-- Layer one animations
 	local t1ag1 = orbTex1:CreateAnimationGroup()
 
-	local t1a2 = t1ag1:CreateAnimation("Alpha")
-	t1a2:SetFromAlpha(.5)
-	t1a2:SetToAlpha(.25)
-	t1a2:SetDuration(6)
-	t1a2:SetOrder(1)
+		local t1a2 = t1ag1:CreateAnimation("Alpha")
+		t1a2:SetFromAlpha(low)
+		t1a2:SetToAlpha(high)
+		t1a2:SetDuration(6)
+		t1a2:SetOrder(1)
 
-	local t1a3 = t1ag1:CreateAnimation("Alpha")
-	t1a3:SetFromAlpha(.25)
-	t1a3:SetToAlpha(.5)
-	t1a3:SetDuration(3)
-	t1a3:SetOrder(2)
-
-	local t1a4 = t1ag1:CreateAnimation("Alpha")
-	t1a4:SetFromAlpha(.5)
-	t1a4:SetToAlpha(.25)
-	t1a4:SetDuration(6)
-	t1a4:SetOrder(3)
-
-	local t1a5 = t1ag1:CreateAnimation("Alpha")
-	t1a5:SetFromAlpha(.25)
-	t1a5:SetToAlpha(.5)
-	t1a5:SetDuration(3)
-	t1a5:SetOrder(4)
+		local t1a3 = t1ag1:CreateAnimation("Alpha")
+		t1a3:SetFromAlpha(high)
+		t1a3:SetToAlpha(low)
+		t1a3:SetDuration(3)
+		t1a3:SetOrder(2)
 
 	t1ag1:SetLooping("REPEAT")
 	t1ag1:Play()
 
 	local t1ag2 = orbTex1:CreateAnimationGroup()
-	local t1ag2a1 = t1ag2:CreateAnimation("Rotation")
-	t1ag2a1:SetDegrees(-360)
-	t1ag2a1:SetDuration(24)
-	t1ag2a1:SetOrder(1)
+
+		local t1ag2a1 = t1ag2:CreateAnimation("Rotation")
+		t1ag2a1:SetDegrees(-360)
+		t1ag2a1:SetDuration(24)
+		t1ag2a1:SetOrder(1)
+
 	t1ag2:SetLooping("REPEAT")
 	t1ag2:Play()
 
-
-
+	-- Layer two animations
 	local t2ag1 = orbTex2:CreateAnimationGroup()
 
-	local t2a2 = t2ag1:CreateAnimation("Alpha")
-	t2a2:SetFromAlpha(.25)
-	t2a2:SetToAlpha(.5)
-	t2a2:SetDuration(3)
-	t2a2:SetOrder(1)
+		local t2a2 = t2ag1:CreateAnimation("Alpha")
+		t2a2:SetFromAlpha(high)
+		t2a2:SetToAlpha(low)
+		t2a2:SetDuration(6)
+		t2a2:SetOrder(1)
 
-	local t2a3 = t2ag1:CreateAnimation("Alpha")
-	t2a3:SetFromAlpha(.5)
-	t2a3:SetToAlpha(.25)
-	t2a3:SetDuration(6)
-	t2a3:SetOrder(2)
-
-	local t2a4 = t2ag1:CreateAnimation("Alpha")
-	t2a4:SetFromAlpha(.25)
-	t2a4:SetToAlpha(.5)
-	t2a4:SetDuration(3)
-	t2a4:SetOrder(3)
-
-	local t2a5 = t2ag1:CreateAnimation("Alpha")
-	t2a5:SetFromAlpha(.5)
-	t2a5:SetToAlpha(.25)
-	t2a5:SetDuration(6)
-	t2a5:SetOrder(4)
+		local t2a3 = t2ag1:CreateAnimation("Alpha")
+		t2a3:SetFromAlpha(low)
+		t2a3:SetToAlpha(high)
+		t2a3:SetDuration(3)
+		t2a3:SetOrder(2)
 
 	t2ag1:SetLooping("REPEAT")
 	t2ag1:Play()
 
 	local t2ag2 = orbTex2:CreateAnimationGroup()
-	local t2ag2a1 = t2ag2:CreateAnimation("Rotation")
-	t2ag2a1:SetDegrees(360)
-	t2ag2a1:SetDuration(24)
-	t2ag2a1:SetOrder(1)
+
+		local t2ag2a1 = t2ag2:CreateAnimation("Rotation")
+		t2ag2a1:SetDegrees(360)
+		t2ag2a1:SetDuration(24)
+		t2ag2a1:SetOrder(1)
+
 	t2ag2:SetLooping("REPEAT")
 	t2ag2:Play()
-
-	--[[
-	local orbTex2AnimGroup = orbTex2:CreateAnimationGroup()
-
-	local orbTex2Anim1 = orbTex2AnimGroup:CreateAnimation("Rotation")
-	orbTex2Anim1:SetDegrees(-360)
-	orbTex2Anim1:SetDuration(20)
-
-	local orbTex2Anim2 = orbTex2AnimGroup:CreateAnimation("Alpha")
-	orbTex2Anim2:SetFromAlpha(.25)
-	orbTex2Anim2:SetToAlpha(.5)
-	orbTex2Anim2:SetDuration(10)
-	orbTex2Anim2:SetOrder(1)
-
-	local orbTex2Anim3 = orbTex2AnimGroup:CreateAnimation("Alpha")
-	orbTex2Anim3:SetFromAlpha(.5)
-	orbTex2Anim3:SetToAlpha(.25)
-	orbTex2Anim3:SetDuration(10)
-	orbTex2Anim3:SetStartDelay(10)
-	orbTex2Anim3:SetOrder(1)
-
-	orbTex2AnimGroup:SetLooping("REPEAT")
-	orbTex2AnimGroup:Play()
-
-	local orbTex3AnimGroup = orbTex3:CreateAnimationGroup()
-	local orbTex3Anim = orbTex3AnimGroup:CreateAnimation("Rotation")
-	orbTex3Anim:SetDegrees(360)
-	orbTex3Anim:SetDuration(30)
-	orbTex3AnimGroup:SetLooping("REPEAT")
-	orbTex3AnimGroup:Play()
-
-	local orbTex3AnimGroup = orbTex3:CreateAnimationGroup()
-	local orbTex3Anim = orbTex3AnimGroup:CreateAnimation("Rotation")
-	orbTex3Anim:SetDegrees(-360)
-	orbTex3Anim:SetDuration(20)
-	orbTex3AnimGroup:SetLooping("REPEAT")
-	orbTex3AnimGroup:Play()
-	]]
 
 	-- The spark will be cropped,
 	-- and only what's in the filled part of the orb will be visible.
@@ -652,18 +580,6 @@ lib.CreateOrb = function(self, name, parent, template, rotateClockwise, speedMod
 	spark:SetTexCoord(1,11/32,0,11/32,1,19/32,0,19/32)-- ULx,ULy,LLx,LLy,URx,URy,LRx,LRy
 	spark:Hide()
 
-	-- The glow is in the overlay frame, and always visible
-	--local glow = overlay:CreateTexture()
-	--glow:SetDrawLayer("BORDER", 2)
-	--glow:SetPoint("TOPLEFT", scrollframe, "TOPLEFT", 0, 0)
-	--glow:SetPoint("TOPRIGHT", scrollframe, "TOPRIGHT", 0, 0)
-	--glow:SetSize(1,1)
-	--glow:SetAlpha(.25)
-	--glow:SetBlendMode("ADD")
-	--glow:SetTexture([[Interface\CastingBar\UI-CastingBar-Spark]]) -- 32x32, centered vertical glow being 32x26px, from 0,3px to 32,28px
-	--glow:SetTexCoord(1,3/32,0,3/32,1,28/32,0,28/32) -- ULx,ULy,LLx,LLy,URx,URy,LRx,LRy
-	--glow:Hide()
-
 	local data = {}
 
 	-- framework
@@ -677,7 +593,6 @@ lib.CreateOrb = function(self, name, parent, template, rotateClockwise, speedMod
 	data.layer3 = orbTex3
 	data.layer4 = orbTex4
 	data.spark = spark
-	--data.glow = glow
 
 	data.barMin = 0 -- min value
 	data.barMax = 1 -- max value
