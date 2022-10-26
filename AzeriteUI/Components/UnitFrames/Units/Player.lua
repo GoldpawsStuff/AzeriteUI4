@@ -31,6 +31,7 @@ end
 
 -- Lua API
 local next = next
+local type = type
 local unpack = unpack
 
 -- WoW API
@@ -52,11 +53,6 @@ local playerClass = select(2, UnitClass("player"))
 local playerLevel = UnitLevel("player")
 local playerXPDisabled = IsXPUserDisabled()
 local hardenedLevel = ns.IsRetail and 10 or ns.IsClassic and 40 or 30
-
--- sourced from FrameXML/AlternatePowerBar.lua
-local ADDITIONAL_POWER_BAR_NAME = ADDITIONAL_POWER_BAR_NAME or "MANA"
-local ADDITIONAL_POWER_BAR_INDEX = ADDITIONAL_POWER_BAR_INDEX or 0
-local ALT_MANA_BAR_PAIR_DISPLAY_INFO = ALT_MANA_BAR_PAIR_DISPLAY_INFO
 
 -- Utility Functions
 --------------------------------------------
@@ -206,7 +202,7 @@ local Mana_UpdateVisibility = function(self, event, unit)
 		element:Show()
 
 		element.__isEnabled = true
-		element.Override(self, "ElementEnable", "player", ADDITIONAL_POWER_BAR_NAME)
+		element.Override(self, "ElementEnable", "player", "MANA")
 
 		--[[ Callback: AdditionalPower:PostVisibility(isVisible)
 		Called after the element's visibility has been changed.
@@ -227,14 +223,14 @@ local Mana_UpdateVisibility = function(self, event, unit)
 		element:Hide()
 
 		element.__isEnabled = false
-		element.Override(self, "ElementDisable", "player", ADDITIONAL_POWER_BAR_NAME)
+		element.Override(self, "ElementDisable", "player", "MANA")
 
 		if (element.PostVisibility) then
 			element:PostVisibility(false)
 		end
 
 	elseif (shouldEnable and isEnabled) then
-		element.Override(self, event, unit, ADDITIONAL_POWER_BAR_NAME)
+		element.Override(self, event, unit, "MANA")
 	end
 end
 
@@ -244,6 +240,18 @@ local Power_UpdateVisibility = function(element, unit, cur, min, max)
 		element:Hide()
 	else
 		element:Show()
+	end
+end
+
+local Power_UpdateColor = function(self, event, unit)
+	if (self.unit ~= unit) then
+		return
+	end
+	local element = self.Power
+	local pType, pToken, altR, altG, altB = UnitPowerType(unit)
+	if (pToken) then
+		local color = ns.Config.Player.PowerBarColors[pToken]
+		element:SetStatusBarColor(unpack(color))
 	end
 end
 
@@ -283,12 +291,60 @@ local UnitFrame_UpdateTextures = function(self)
 	healPredict:SetTexture(db.HealthBarTexture)
 
 	local power = self.Power
+	power:ClearAllPoints()
+	power:SetPoint(unpack(db.PowerBarPosition))
+	power:SetSize(unpack(db.PowerBarSize))
+	power:SetStatusBarTexture(db.PowerBarTexture)
+	power:SetTexCoord(unpack(db.PowerBarTexCoord))
+	power:SetOrientation(db.PowerBarOrientation)
+	power:SetSparkMap(db.PowerBarSparkMap)
 
+	local powerBackdrop = self.Power.Backdrop
+	powerBackdrop:ClearAllPoints()
+	powerBackdrop:SetPoint(unpack(db.PowerBackdropPosition))
+	powerBackdrop:SetSize(unpack(db.PowerBackdropSize))
+	powerBackdrop:SetTexture(db.PowerBackdropTexture)
+
+	local powerCase = self.Power.Case
+	powerCase:ClearAllPoints()
+	powerCase:SetPoint(unpack(db.PowerBarForegroundPosition))
+	powerCase:SetSize(unpack(db.PowerBarForegroundSize))
+	powerCase:SetTexture(db.PowerBarForegroundTexture)
+	powerCase:SetVertexColor(unpack(db.PowerBarForegroundColor))
 
 	local mana = self.AdditionalPower
+	mana:ClearAllPoints()
+	mana:SetPoint(unpack(db.ManaOrbPosition))
+	mana:SetSize(unpack(db.ManaOrbSize))
+	if (type(db.ManaOrbTexture) == "table") then
+		mana:SetStatusBarTexture(unpack(db.ManaOrbTexture))
+	else
+		mana:SetStatusBarTexture(db.ManaOrbTexture)
+	end
+	mana:SetStatusBarColor(unpack(ns.Config.Player.ManaOrbColor))
 
+	local manaBackdrop = self.AdditionalPower.Backdrop
+	manaBackdrop:ClearAllPoints()
+	manaBackdrop:SetPoint(unpack(db.ManaOrbBackdropPosition))
+	manaBackdrop:SetSize(unpack(db.ManaOrbBackdropSize))
+	manaBackdrop:SetTexture(db.ManaOrbBackdropTexture)
+	manaBackdrop:SetVertexColor(unpack(db.ManaOrbBackdropColor))
 
-	local feedback = self.CombatFeedback
+	local manaShade = self.AdditionalPower.Shade
+	manaShade:ClearAllPoints()
+	manaShade:SetPoint(unpack(db.ManaOrbShadePosition))
+	manaShade:SetSize(unpack(db.ManaOrbShadeSize))
+	manaShade:SetTexture(db.ManaOrbShadeTexture)
+	manaShade:SetVertexColor(unpack(db.ManaOrbShadeColor))
+
+	local manaCase = self.AdditionalPower.Case
+	manaCase:ClearAllPoints()
+	manaCase:SetPoint(unpack(db.ManaOrbForegroundPosition))
+	manaCase:SetSize(unpack(db.ManaOrbForegroundSize))
+	manaCase:SetTexture(db.ManaOrbForegroundTexture)
+	manaCase:SetVertexColor(unpack(db.ManaOrbForegroundColor))
+
+	local feedbackText = self.CombatFeedback
 	feedbackText:ClearAllPoints()
 	feedbackText:SetPoint(db.CombatFeedbackPosition[1], self[db.CombatFeedbackAnchorElement], unpack(db.CombatFeedbackPosition))
 	feedbackText:SetFontObject(db.CombatFeedbackFont)
@@ -394,12 +450,13 @@ UnitStyles["Player"] = function(self, unit, id)
 	self.Power = power
 	self.Power.Override = ns.API.UpdatePower
 	self.Power.PostUpdate = Power_UpdateVisibility
+	self.Power.UpdateColor = ns.Retail and Power_UpdateColor
 
-	local powerBackdrop = self:CreateTexture(power:GetName().."Backdrop", "BACKGROUND", nil, -1)
+	local powerBackdrop = power:CreateTexture(power:GetName().."Backdrop", "BACKGROUND", nil, -2)
 
 	self.Power.Backdrop = powerBackdrop
 
-	local powerCase = overlay:CreateTexture(power:GetName().."Case", "ARTWORK")
+	local powerCase = power:CreateTexture(power:GetName().."Case", "ARTWORK", nil, 1)
 
 	self.Power.Case = powerCase
 
@@ -407,17 +464,25 @@ UnitStyles["Player"] = function(self, unit, id)
 	--------------------------------------------
 	local mana = self:CreateOrb(self:GetName().."ManaOrb")
 	mana.displayPairs = {}
-	mana:SetStatusBarColor(unpack(Colors.power.MANA_ORB))
+	mana.frequentUpdates = true
 
 	self.AdditionalPower = mana
-	self.AdditionalPower.Override = ns.API.UpdatePower
+	self.AdditionalPower.Override = ns.API.UpdateAdditionalPower
 	self.AdditionalPower.OverrideVisibility = Mana_UpdateVisibility
 
-	local manaBackdrop = self:CreateTexture(mana:GetName().."Backdrop", "BACKGROUND", nil, -1)
+	local manaBackdrop = mana:CreateTexture(mana:GetName().."Backdrop", "BACKGROUND", nil, -2)
 
 	self.AdditionalPower.Backdrop = manaBackdrop
 
-	local manaCase = overlay:CreateTexture(mana:GetName().."Case", "ARTWORK")
+	local manaCaseFrame = CreateFrame("Frame", nil, mana)
+	manaCaseFrame:SetFrameLevel(mana:GetFrameLevel() + 2)
+	manaCaseFrame:SetAllPoints()
+
+	local manaShade = manaCaseFrame:CreateTexture(mana:GetName().."Shade", "ARTWORK", nil, 1)
+
+	self.AdditionalPower.Shade = manaShade
+
+	local manaCase = manaCaseFrame:CreateTexture(mana:GetName().."Case", "ARTWORK", nil, 2)
 
 	self.AdditionalPower.Case = manaCase
 
