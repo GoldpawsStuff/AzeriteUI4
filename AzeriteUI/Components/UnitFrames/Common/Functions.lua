@@ -147,3 +147,56 @@ API.UpdatePower = function(self, event, unit)
 		element:PostUpdate(unit, cur, min, max)
 	end
 end
+
+API.UpdateAdditionalPower = function(self, event, unit)
+	if(self.unit ~= unit) then return end
+	local element = self.AdditionalPower
+
+	--[[ Callback: Power:PreUpdate(unit)
+	Called before the element has been updated.
+
+	* self - the Power element
+	* unit - the unit for which the update has been triggered (string)
+	--]]
+	if (element.PreUpdate) then
+		element:PreUpdate(unit)
+	end
+
+	-- Different GUID means a different player or NPC,
+	-- so we want updates to be instant, not smoothed.
+	local guid = UnitGUID(unit)
+	local forced = (guid ~= element.guid) or (UnitIsDeadOrGhost(unit))
+	element.guid = guid
+
+	local displayType, min
+	if (element.displayAltPower and oUF.isRetail) then
+		displayType, min = element:GetDisplayPower()
+	end
+
+	local cur, max = UnitPower(unit, displayType), UnitPowerMax(unit, displayType)
+	element:SetMinMaxValues(min or 0, max)
+
+	if (UnitIsConnected(unit)) then
+		element:SetValue(cur, forced)
+	else
+		element:SetValue(max, forced)
+	end
+
+	element.cur = cur
+	element.min = min
+	element.max = max
+	element.displayType = displayType
+
+	--[[ Callback: Power:PostUpdate(unit, cur, min, max)
+	Called after the element has been updated.
+
+	* self - the Power element
+	* unit - the unit for which the update has been triggered (string)
+	* cur  - the unit's current power value (number)
+	* min  - the unit's minimum possible power value (number)
+	* max  - the unit's maximum possible power value (number)
+	--]]
+	if (element.PostUpdate) then
+		element:PostUpdate(unit, cur, min, max)
+	end
+end
