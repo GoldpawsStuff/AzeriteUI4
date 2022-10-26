@@ -880,6 +880,7 @@ ChatFrames.OnEvent = function(self, event, ...)
 			self:RegisterEvent("UPDATE_FLOATING_CHAT_WINDOWS", "OnEvent")
 			self:SecureHook("FCF_OpenTemporaryWindow", "SetupChatFrames")
 			self:SecureHook("FCF_DockUpdate","UpdateClutter")
+			ChatFrame1:Clear()
 		end
 		self:KillToastButton()
 
