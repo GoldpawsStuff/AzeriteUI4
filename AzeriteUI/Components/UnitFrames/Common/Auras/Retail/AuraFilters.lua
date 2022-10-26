@@ -37,7 +37,7 @@ ns.AuraFilters.PlayerBuffFilter = function(element, unit, data)
 	button.expiration = data.expiration
 	button.duration = data.duration
 	button.noDuration = (not data.duration or data.duration == 0)
-	button.isPlayer = data.isFromPlayerOrPlayerPet
+	button.isPlayer = data.isPlayerAura
 
 	if (data.isBossDebuff) then
 		return true
@@ -54,7 +54,7 @@ ns.AuraFilters.PlayerDebuffFilter = function(element, unit, data)
 	button.expiration = data.expiration
 	button.duration = data.duration
 	button.noDuration = (not data.duration or data.duration == 0)
-	button.isPlayer = data.isFromPlayerOrPlayerPet
+	button.isPlayer = data.isPlayerAura
 
 	if (data.isBossDebuff) then
 		return true
@@ -70,7 +70,7 @@ ns.AuraFilters.TargetAuraFilter = function(element, unit, data)
 	button.expiration = data.expiration
 	button.duration = data.duration
 	button.noDuration = (not data.duration or data.duration == 0)
-	button.isPlayer = data.isFromPlayerOrPlayerPet
+	button.isPlayer = data.isPlayerAura
 
 	if (data.isBossDebuff) then
 		return true
@@ -86,7 +86,7 @@ ns.AuraFilters.NameplateAuraFilter = function(element, unit, data)
 	button.expiration = data.expiration
 	button.duration = data.duration
 	button.noDuration = (not data.duration or data.duration == 0)
-	button.isPlayer = data.isFromPlayerOrPlayerPet
+	button.isPlayer = data.isPlayerAura
 
 	if (data.isBossDebuff) then
 		return true

@@ -247,17 +247,15 @@ local function updateAura(element, unit, data, position)
 end
 
 local function FilterAura(element, unit, data)
-	if((element.onlyShowPlayer and data.isFromPlayerOrPlayerPet) or (not element.onlyShowPlayer and data.name)) then
+	if((element.onlyShowPlayer and data.isPlayerAura) or (not element.onlyShowPlayer and data.name)) then
 		return true
 	end
 end
 
 -- see AuraUtil.DefaultAuraCompare
 local function SortAuras(a, b)
-	local aFromPlayer = a.sourceUnit and UnitIsUnit('player', a.sourceUnit)
-	local bFromPlayer = b.sourceUnit and UnitIsUnit('player', b.sourceUnit)
-	if(aFromPlayer ~= bFromPlayer) then
-		return aFromPlayer
+	if(a.isPlayerAura ~= b.isPlayerAura) then
+		return a.isPlayerAura
 	end
 
 	if(a.canApplyAura ~= b.canApplyAura) then
@@ -270,7 +268,7 @@ end
 local function processData(data)
 	if(not data) then return end
 
-	data.isFromPlayerOrPlayerPet = data.isFromPlayerOrPlayerPet or data.sourceUnit == 'vehicle'
+	data.isPlayerAura = data.sourceUnit and (UnitIsUnit('player', data.sourceUnit) or UnitIsOwnerOrControllerOfUnit('player', data.sourceUnit))
 
 	return data
 end
@@ -457,15 +455,9 @@ local function UpdateAuras(self, event, unit, updateInfo)
 
 				local button = auras[offset]
 				if(not button) then
-<<<<<<< HEAD:AzeriteUI/Libs/oUF/elements/auras.lua
-					button = (auras.CreateIcon or CreateIcon) (auras, offset)
-					table.insert(auras, button)
-					auras.createdIcons = auras.createdIcons + 1
-=======
 					button = (auras.CreateButton or CreateButton) (auras, offset)
 					table.insert(auras, button)
 					auras.createdButtons = auras.createdButtons + 1
->>>>>>> 5268bf39ea965da0f17930ac0ea40c493050a675:UICore/Libs/oUF/elements/auras.lua
 				end
 
 				-- prevent the button from displaying anything
@@ -478,11 +470,7 @@ local function UpdateAuras(self, event, unit, updateInfo)
 				button:EnableMouse(false)
 				button:Show()
 
-<<<<<<< HEAD:AzeriteUI/Libs/oUF/elements/auras.lua
-				--[[ Callback: Auras:PostUpdateGapIcon(unit, gapButton, offset)
-=======
 				--[[ Callback: Auras:PostUpdateGapButton(unit, gapButton, offset)
->>>>>>> 5268bf39ea965da0f17930ac0ea40c493050a675:UICore/Libs/oUF/elements/auras.lua
 				Called after an invisible aura button has been created. Only used by Auras when the `gap` option is enabled.
 
 				* self      - the widget holding the aura buttons
@@ -490,13 +478,8 @@ local function UpdateAuras(self, event, unit, updateInfo)
 				* gapButton - the invisible aura button (Button)
 				* offset    - the position of the invisible aura button (number)
 				--]]
-<<<<<<< HEAD:AzeriteUI/Libs/oUF/elements/auras.lua
-				if(auras.PostUpdateGapIcon) then
-					auras:PostUpdateGapIcon(unit, button, offset)
-=======
 				if(auras.PostUpdateGapButton) then
 					auras:PostUpdateGapButton(unit, button, offset)
->>>>>>> 5268bf39ea965da0f17930ac0ea40c493050a675:UICore/Libs/oUF/elements/auras.lua
 				end
 			end
 
@@ -525,11 +508,7 @@ local function UpdateAuras(self, event, unit, updateInfo)
 				auras[i]:Hide()
 			end
 
-<<<<<<< HEAD:AzeriteUI/Libs/oUF/elements/auras.lua
-			if(auras.createdIcons > auras.anchoredIcons) then
-=======
 			if(auras.createdButtons > auras.anchoredButtons) then
->>>>>>> 5268bf39ea965da0f17930ac0ea40c493050a675:UICore/Libs/oUF/elements/auras.lua
 				--[[ Override: Auras:SetPosition(from, to)
 				Used to (re-)anchor the aura buttons.
 				Called when new aura buttons have been created or if :PreSetPosition is defined.
@@ -538,13 +517,8 @@ local function UpdateAuras(self, event, unit, updateInfo)
 				* from - the offset of the first aura button to be (re-)anchored (number)
 				* to   - the offset of the last aura button to be (re-)anchored (number)
 				--]]
-<<<<<<< HEAD:AzeriteUI/Libs/oUF/elements/auras.lua
-				(auras.SetPosition or SetPosition) (auras, auras.anchoredIcons + 1, auras.createdIcons)
-				auras.anchoredIcons = auras.createdIcons
-=======
 				(auras.SetPosition or SetPosition) (auras, auras.anchoredButtons + 1, auras.createdButtons)
 				auras.anchoredButtons = auras.createdButtons
->>>>>>> 5268bf39ea965da0f17930ac0ea40c493050a675:UICore/Libs/oUF/elements/auras.lua
 			end
 
 			--[[ Callback: Auras:PostUpdate(unit)
@@ -646,15 +620,9 @@ local function UpdateAuras(self, event, unit, updateInfo)
 				buffs[i]:Hide()
 			end
 
-<<<<<<< HEAD:AzeriteUI/Libs/oUF/elements/auras.lua
-			if(buffs.createdIcons > buffs.anchoredIcons) then
-				(buffs.SetPosition or SetPosition) (buffs, buffs.anchoredIcons + 1, buffs.createdIcons)
-				buffs.anchoredIcons = buffs.createdIcons
-=======
 			if(buffs.createdButtons > buffs.anchoredButtons) then
 				(buffs.SetPosition or SetPosition) (buffs, buffs.anchoredButtons + 1, buffs.createdButtons)
 				buffs.anchoredButtons = buffs.createdButtons
->>>>>>> 5268bf39ea965da0f17930ac0ea40c493050a675:UICore/Libs/oUF/elements/auras.lua
 			end
 
 			if(buffs.PostUpdate) then buffs:PostUpdate(unit) end
@@ -750,15 +718,9 @@ local function UpdateAuras(self, event, unit, updateInfo)
 				debuffs[i]:Hide()
 			end
 
-<<<<<<< HEAD:AzeriteUI/Libs/oUF/elements/auras.lua
-			if(debuffs.createdIcons > debuffs.anchoredIcons) then
-				(debuffs.SetPosition or SetPosition) (debuffs, debuffs.anchoredIcons + 1, debuffs.createdIcons)
-				debuffs.anchoredIcons = debuffs.createdIcons
-=======
 			if(debuffs.createdButtons > debuffs.anchoredButtons) then
 				(debuffs.SetPosition or SetPosition) (debuffs, debuffs.anchoredButtons + 1, debuffs.createdButtons)
 				debuffs.anchoredButtons = debuffs.createdButtons
->>>>>>> 5268bf39ea965da0f17930ac0ea40c493050a675:UICore/Libs/oUF/elements/auras.lua
 			end
 
 			if(debuffs.PostUpdate) then debuffs:PostUpdate(unit) end
