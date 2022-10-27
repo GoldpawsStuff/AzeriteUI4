@@ -70,8 +70,8 @@ local T_BOSS = "|TInterface\\TargetingFrame\\UI-TargetingFrame-Skull:14:14:-2:1|
 
 -- Tags
 ---------------------------------------------------------------------
-Events["Azerite:Absorb"] = "UNIT_ABSORB_AMOUNT_CHANGED"
-Methods["Azerite:Absorb"] = function(unit)
+Events[ns.Prefix..":Absorb"] = "UNIT_ABSORB_AMOUNT_CHANGED"
+Methods[ns.Prefix..":Absorb"] = function(unit)
 	if (UnitIsDeadOrGhost(unit)) then
 		return
 	else
@@ -82,9 +82,9 @@ Methods["Azerite:Absorb"] = function(unit)
 	end
 end
 
-Events["Azerite:Classification"] = "UNIT_LEVEL PLAYER_LEVEL_UP UNIT_CLASSIFICATION_CHANGED"
+Events[ns.Prefix..":Classification"] = "UNIT_LEVEL PLAYER_LEVEL_UP UNIT_CLASSIFICATION_CHANGED"
 if (oUF.isClassic or oUF.isTBC or oUF.isWrath) then
-	Methods["Azerite:Classification"] = function(unit)
+	Methods[ns.Prefix..":Classification"] = function(unit)
 		local l = UnitLevel(unit)
 		local c = UnitClassification(unit)
 		if (c == "worldboss" or (not l) or (l < 1)) then
@@ -96,7 +96,7 @@ if (oUF.isClassic or oUF.isTBC or oUF.isWrath) then
 		return " "
 	end
 else
-	Methods["Azerite:Classification"] = function(unit)
+	Methods[ns.Prefix..":Classification"] = function(unit)
 		local l = UnitLevel(unit)
 		if (UnitIsWildBattlePet(unit) or UnitIsBattlePetCompanion(unit)) then
 			l = UnitBattlePetLevel(unit)
@@ -112,8 +112,8 @@ else
 	end
 end
 
-Events["Azerite:Health"] = "UNIT_HEALTH UNIT_MAXHEALTH"
-Methods["Azerite:Health"] = function(unit)
+Events[ns.Prefix..":Health"] = "UNIT_HEALTH UNIT_MAXHEALTH"
+Methods[ns.Prefix..":Health"] = function(unit)
 	if (UnitIsDeadOrGhost(unit)) then
 		return L_DEAD
 	else
@@ -124,8 +124,8 @@ Methods["Azerite:Health"] = function(unit)
 	end
 end
 
-Events["Azerite:Health:Full"] = "UNIT_HEALTH UNIT_MAXHEALTH"
-Methods["Azerite:Health:Full"] = function(unit)
+Events[ns.Prefix..":Health:Full"] = "UNIT_HEALTH UNIT_MAXHEALTH"
+Methods[ns.Prefix..":Health:Full"] = function(unit)
 	if (UnitIsDeadOrGhost(unit)) then
 		return
 	else
@@ -136,8 +136,8 @@ Methods["Azerite:Health:Full"] = function(unit)
 	end
 end
 
-Events["Azerite:Health:Smart"] = "UNIT_HEALTH UNIT_MAXHEALTH"
-Methods["Azerite:Health:Smart"] = function(unit)
+Events[ns.Prefix..":Health:Smart"] = "UNIT_HEALTH UNIT_MAXHEALTH"
+Methods[ns.Prefix..":Health:Smart"] = function(unit)
 	if (UnitIsDeadOrGhost(unit)) then
 		return L_DEAD
 	else
@@ -153,9 +153,9 @@ Methods["Azerite:Health:Smart"] = function(unit)
 	end
 end
 
-Events["Azerite:Level"] = "UNIT_LEVEL PLAYER_LEVEL_UP UNIT_CLASSIFICATION_CHANGED"
+Events[ns.Prefix..":Level"] = "UNIT_LEVEL PLAYER_LEVEL_UP UNIT_CLASSIFICATION_CHANGED"
 if (oUF.isClassic or oUF.isTBC or oUF.isWrath) then
-	Methods["Azerite:Level"] = function(unit)
+	Methods[ns.Prefix..":Level"] = function(unit, asPrefix)
 		local l = UnitLevel(unit)
 		local c = UnitClassification(unit)
 		if (c == "worldboss" or (not l) or (l < 1)) then
@@ -165,10 +165,14 @@ if (oUF.isClassic or oUF.isTBC or oUF.isWrath) then
 		if (c == "elite" or c == "rareelite") then
 			return colorCode..l..r..c_red.."+"..r
 		end
-		return colorCode..l..r
+		if (asPrefix) then
+			return colorCode..l..r..c_gray..":"..r
+		else
+			return colorCode..l..r
+		end
 	end
 else
-	Methods["Azerite:Level"] = function(unit)
+	Methods[ns.Prefix..":Level"] = function(unit, asPrefix)
 		local l = UnitLevel(unit)
 		if (UnitIsWildBattlePet(unit) or UnitIsBattlePetCompanion(unit)) then
 			l = UnitBattlePetLevel(unit)
@@ -181,18 +185,22 @@ else
 		if (c == "elite" or c == "rareelite") then
 			return colorCode..l..r..c_red.."+"..r
 		end
-		return colorCode..l..r
+		if (asPrefix) then
+			return colorCode..l..r..c_gray..":"..r
+		else
+			return colorCode..l..r
+		end
 	end
 end
 
-Events["Azerite:Level:Prefix"] = "UNIT_LEVEL PLAYER_LEVEL_UP UNIT_CLASSIFICATION_CHANGED"
-Methods["Azerite:Level:Prefix"] = function(unit)
-	local l = Methods["Azerite:Level"](unit)
+Events[ns.Prefix..":Level:Prefix"] = "UNIT_LEVEL PLAYER_LEVEL_UP UNIT_CLASSIFICATION_CHANGED"
+Methods[ns.Prefix..":Level:Prefix"] = function(unit)
+	local l = Methods[ns.Prefix..":Level"](unit, true)
 	return (l and l ~= T_BOSS) and l.." " or l
 end
 
-Events["Azerite:Name"] = "UNIT_NAME_UPDATE"
-Methods["Azerite:Name"] = function(unit, realUnit)
+Events[ns.Prefix..":Name"] = "UNIT_NAME_UPDATE"
+Methods[ns.Prefix..":Name"] = function(unit, realUnit)
 	local name = UnitName(realUnit or unit)
 	if (name and string_find(name, "%s")) then
 		name = AbbreviateName(name)
@@ -200,8 +208,8 @@ Methods["Azerite:Name"] = function(unit, realUnit)
 	return name
 end
 
-Events["Azerite:Power:Full"] = "UNIT_POWER_UPDATE UNIT_MAXPOWER"
-Methods["Azerite:Power:Full"] = function(unit)
+Events[ns.Prefix..":Power:Full"] = "UNIT_POWER_FREQUENT UNIT_MAXPOWER"
+Methods[ns.Prefix..":Power:Full"] = function(unit)
 	if (UnitIsDeadOrGhost(unit)) then
 		return
 	else
@@ -212,8 +220,8 @@ Methods["Azerite:Power:Full"] = function(unit)
 	end
 end
 
-Events["Azerite:Rare"] = "UNIT_CLASSIFICATION_CHANGED"
-Methods["Azerite:Rare"] = function(unit)
+Events[ns.Prefix..":Rare"] = "UNIT_CLASSIFICATION_CHANGED"
+Methods[ns.Prefix..":Rare"] = function(unit)
 	local classification = UnitClassification(unit)
 	local rare = classification == "rare" or classification == "rareelite"
 	if (rare) then
@@ -221,8 +229,8 @@ Methods["Azerite:Rare"] = function(unit)
 	end
 end
 
-Events["Azerite:Rare:Suffix"] = "UNIT_CLASSIFICATION_CHANGED"
-Methods["Azerite:Rare:Suffix"] = function(unit)
-	local r = Methods["Azerite:Rare"](unit)
+Events[ns.Prefix..":Rare:Suffix"] = "UNIT_CLASSIFICATION_CHANGED"
+Methods[ns.Prefix..":Rare:Suffix"] = function(unit)
+	local r = Methods[ns.Prefix..":Rare"](unit)
 	return r and " "..r
 end
