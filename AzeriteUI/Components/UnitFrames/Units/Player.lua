@@ -49,6 +49,8 @@ local GetMedia = ns.API.GetMedia
 local IsAddOnEnabled = ns.API.IsAddOnEnabled
 
 -- Constants
+local IsLoveFestival = ns.API.IsLoveFestival()
+local IsWinterVeil = ns.API.IsWinterVeil()
 local playerClass = select(2, UnitClass("player"))
 local playerLevel = UnitLevel("player")
 local playerXPDisabled = IsXPUserDisabled()
@@ -263,7 +265,11 @@ local UnitFrame_UpdateTextures = function(self)
 	health:ClearAllPoints()
 	health:SetPoint(unpack(db.HealthBarPosition))
 	health:SetSize(unpack(db.HealthBarSize))
-	health:SetStatusBarTexture(db.HealthBarTexture)
+	if (type(db.HealthBarTexture) == "table") then
+		health:SetStatusBarTexture(unpack(db.HealthBarTexture))
+	else
+		health:SetStatusBarTexture(db.HealthBarTexture)
+	end
 	health:SetStatusBarColor(unpack(db.HealthBarColor))
 	health:SetOrientation(db.HealthBarOrientation)
 	health:SetSparkMap(db.HealthBarSparkMap)
@@ -441,6 +447,16 @@ UnitStyles["Player"] = function(self, unit, id)
 
 	self.Castbar = castbar
 
+	-- Health Value
+	--------------------------------------------
+	--local healthValue = overlay:CreateFontString(health:GetName().."ValueText", "OVERLAY")
+	--healthValue:SetPoint(unpack(layout.PowerValuePlace))
+	--healthValue:SetDrawLayer(unpack(layout.PowerValueDrawLayer))
+	--healthValue:SetJustifyH(layout.PowerValueJustifyH)
+	--healthValue:SetJustifyV(layout.PowerValueJustifyV)
+	--healthValue:SetFontObject(layout.PowerValueFont)
+	--healthValue:SetTextColor(unpack(layout.PowerValueColor))
+
 	-- Power Crystal
 	--------------------------------------------
 	local power = self:CreateBar(self:GetName().."PowerCrystal")
@@ -459,6 +475,20 @@ UnitStyles["Player"] = function(self, unit, id)
 	local powerCase = power:CreateTexture(power:GetName().."Case", "ARTWORK", nil, 1)
 
 	self.Power.Case = powerCase
+
+	-- Power Value
+	--------------------------------------------
+	--local powerValue = overlay:CreateFontString(power:GetName().."ValueText", "OVERLAY")
+	--powerValue:SetPoint(unpack(layout.PowerValuePlace))
+	--powerValue:SetDrawLayer(unpack(layout.PowerValueDrawLayer))
+	--powerValue:SetJustifyH(layout.PowerValueJustifyH)
+	--powerValue:SetJustifyV(layout.PowerValueJustifyV)
+	--powerValue:SetFontObject(layout.PowerValueFont)
+	--powerValue:SetTextColor(unpack(layout.PowerValueColor))
+
+	self:Tag(powerValue, "[Azerite:Power:Full]")
+
+	self.Power.Value = powerValue
 
 	-- Mana Orb
 	--------------------------------------------
@@ -486,12 +516,39 @@ UnitStyles["Player"] = function(self, unit, id)
 
 	self.AdditionalPower.Case = manaCase
 
-	-- CombatFeedback
+	-- CombatFeedback Text
 	--------------------------------------------
-	local feedbackText = overlay:CreateFontString(nil, "OVERLAY")
+	local feedbackText = overlay:CreateFontString(self:GetName().."CombatFeedbackText", "OVERLAY")
 
 	self.CombatFeedback = feedbackText
 
+
+
+
+	-- Seasonal Flavors
+	--------------------------------------------
+	-- Feast of Winter Veil
+	if (IsWinterVeil) then
+		local db = ns.Config.Player.Seasonal
+
+		local winterVeilPower = power:CreateTexture(power:GetName().."WinterVeilDecorations", "OVERLAY", nil, 0)
+		winterVeilPower:SetSize(unpack(db.WinterVeilPowerSize))
+		winterVeilPower:SetPoint(unpack(db.WinterVeilPowerPlace))
+		winterVeilPower:SetTexture(db.WinterVeilPowerTexture)
+
+		self.Power.WinterVeil = winterVeilPower
+
+		local winterVeilMana = manaCaseFrame:CreateTexture(mana:GetName().."WinterVeilDecorations", "OVERLAY", nil, 0)
+		winterVeilMana:SetSize(unpack(db.WinterVeilManaSize))
+		winterVeilMana:SetPoint(unpack(db.WinterVeilManaPlace))
+		winterVeilMana:SetTexture(db.WinterVeilManaTexture)
+
+		self.AdditionalPower.WinterVeil = winterVeilMana
+	end
+
+	-- Love is in the Air
+	if (IsLoveFestival) then
+	end
 
 	-- Add a callback for external style overriders
 	self:AddForceUpdate(UnitFrame_UpdateTextures)

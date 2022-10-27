@@ -37,6 +37,9 @@ Config.Player = {
 	-----------------------------------------
 	Size = { 439, 93 },
 	Position = { "BOTTOMLEFT", 167, 100 },
+
+	-- Orb and Crystal Colors
+	ManaOrbColor = { 135/255, 125/255, 255/255 },
 	PowerBarColors = {
 		ENERGY = { 0/255, 208/255, 176/255 },
 		FOCUS = { 116/255, 156/255, 255/255 },
@@ -47,9 +50,21 @@ Config.Player = {
 		INSANITY = { 156/255, 116/255, 255/255 },
 		PAIN = { 156/255, 116/255, 255/255 },
 		RAGE = { 156/255, 116/255, 255/255 },
-		MANA = { 101/255, 93/255, 191/255 },
+		MANA = { 101/255, 93/255, 191/255 }
 	},
-	ManaOrbColor = { 135/255, 125/255, 255/255 },
+
+	Seasonal = {
+
+		-- Winter Veil Power Crystal Decorations
+		WinterVeilPowerSize = { 197, 197 },
+		WinterVeilPowerPlace = { "CENTER", -2, 24 },
+		WinterVeilPowerTexture = GetMedia("seasonal_winterveil_crystal"),
+
+		-- Winter Veil Mana Orb Decorations
+		WinterVeilManaSize = { 188, 188 },
+		WinterVeilManaPlace = { "CENTER", 0, 0 },
+		WinterVeilManaTexture = GetMedia("seasonal_winterveil_orb")
+	},
 
 	-- Level Specific Settings
 	-----------------------------------------
