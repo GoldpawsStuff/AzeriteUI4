@@ -37,6 +37,7 @@ Config.Player = {
 	-----------------------------------------
 	Size = { 439, 93 },
 	Position = { "BOTTOMLEFT", 167, 100 },
+	HitRectInsets = { 0, 0, 0, 6 },
 
 	-- Orb and Crystal Colors
 	ManaOrbColor = { 135/255, 125/255, 255/255 },
@@ -89,8 +90,15 @@ Config.Player = {
 		HealthBackdropPosition = { "CENTER", 1, -.5 },
 		HealthBackdropTexture = GetMedia("hp_low_case"),
 		HealthBackdropColor = { Colors.ui[1], Colors.ui[2], Colors.ui[3] },
+		HealthAbsorbColor = { 1, 1, 1, .35 },
 		HealthCastOverlayColor = { 1, 1, 1, .35 },
 		HealthThreatTexture = GetMedia("hp_low_case_glow"),
+
+		HealthValuePosition = { "LEFT", 27, 4 },
+		HealthValueJustifyH = "LEFT",
+		HealthValueJustifyV = "MIDDLE",
+		HealthValueFont = GetFont(18, true),
+		HealthValueColor = { Colors.highlight[1], Colors.highlight[2], Colors.highlight[3], .5 },
 
 		-- Power Crystal
 		PowerBarSize = { 120, 140 },
@@ -124,6 +132,12 @@ Config.Player = {
 		PowerBarForegroundPosition = { "BOTTOM", 7, -51 },
 		PowerBarForegroundTexture = GetMedia("pw_crystal_case_low"),
 		PowerBarForegroundColor = { Colors.ui[1], Colors.ui[2], Colors.ui[3] },
+
+		PowerValuePosition = { "CENTER", 0, -16 },
+		PowerValueJustifyH = "CENTER",
+		PowerValueJustifyV = "MIDDLE",
+		PowerValueFont = GetFont(18, true),
+		PowerValueColor = { Colors.highlight[1], Colors.highlight[2], Colors.highlight[3], .4 },
 
 		-- Mana Orb
 		ManaOrbSize = { 103, 103 },
@@ -174,8 +188,15 @@ Config.Player = {
 		HealthBackdropPosition = { "CENTER", 1, -.5 },
 		HealthBackdropTexture = GetMedia("hp_mid_case"),
 		HealthBackdropColor = { Colors.ui[1], Colors.ui[2], Colors.ui[3] },
+		HealthAbsorbColor = { 1, 1, 1, .35 },
 		HealthCastOverlayColor = { 1, 1, 1, .35 },
 		HealthThreatTexture = GetMedia("hp_mid_case_glow"),
+
+		HealthValuePosition = { "LEFT", 27, 4 },
+		HealthValueJustifyH = "LEFT",
+		HealthValueJustifyV = "MIDDLE",
+		HealthValueFont = GetFont(18, true),
+		HealthValueColor = { Colors.highlight[1], Colors.highlight[2], Colors.highlight[3], .5 },
 
 		-- Power Crystal
 		PowerBarSize = { 120, 140 },
@@ -209,6 +230,12 @@ Config.Player = {
 		PowerBarForegroundPosition = { "BOTTOM", 7, -51 },
 		PowerBarForegroundTexture = GetMedia("pw_crystal_case"),
 		PowerBarForegroundColor = { Colors.ui[1], Colors.ui[2], Colors.ui[3] },
+
+		PowerValuePosition = { "CENTER", 0, -16 },
+		PowerValueJustifyH = "CENTER",
+		PowerValueJustifyV = "MIDDLE",
+		PowerValueFont = GetFont(18, true),
+		PowerValueColor = { Colors.highlight[1], Colors.highlight[2], Colors.highlight[3], .4 },
 
 		-- Mana Orb
 		ManaOrbSize = { 103, 103 },
@@ -259,8 +286,15 @@ Config.Player = {
 		HealthBackdropPosition = { "CENTER", 1, -.5 },
 		HealthBackdropTexture = GetMedia("hp_cap_case"),
 		HealthBackdropColor = { Colors.ui[1], Colors.ui[2], Colors.ui[3] },
+		HealthAbsorbColor = { 1, 1, 1, .35 },
 		HealthCastOverlayColor = { 1, 1, 1, .35 },
 		HealthThreatTexture = GetMedia("hp_cap_case_glow"),
+
+		HealthValuePosition = { "LEFT", 27, 4 },
+		HealthValueJustifyH = "LEFT",
+		HealthValueJustifyV = "MIDDLE",
+		HealthValueFont = GetFont(18, true),
+		HealthValueColor = { Colors.highlight[1], Colors.highlight[2], Colors.highlight[3], .5 },
 
 		-- Power Crystal
 		PowerBarSize = { 120, 140 },
@@ -294,6 +328,12 @@ Config.Player = {
 		PowerBarForegroundPosition = { "BOTTOM", 7, -51 },
 		PowerBarForegroundTexture = GetMedia("pw_crystal_case"),
 		PowerBarForegroundColor = { Colors.ui[1], Colors.ui[2], Colors.ui[3] },
+
+		PowerValuePosition = { "CENTER", 0, -16 },
+		PowerValueJustifyH = "CENTER",
+		PowerValueJustifyV = "MIDDLE",
+		PowerValueFont = GetFont(18, true),
+		PowerValueColor = { Colors.highlight[1], Colors.highlight[2], Colors.highlight[3], .4 },
 
 		-- Mana Orb
 		ManaOrbSize = { 103, 103 },

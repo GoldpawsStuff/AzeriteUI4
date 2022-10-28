@@ -31,6 +31,7 @@ end
 
 -- Lua API
 local next = next
+local string_gsub = string.gsub
 local type = type
 local unpack = unpack
 
@@ -58,9 +59,15 @@ local hardenedLevel = ns.IsRetail and 10 or ns.IsClassic and 40 or 30
 
 -- Utility Functions
 --------------------------------------------
+-- Simplify the tagging process a little.
+local prefix = function(msg)
+	return string_gsub(msg, "*", ns.Prefix)
+end
 
 -- Element Callbacks
 --------------------------------------------
+-- Forceupdate health prediction on health updates,
+-- to assure our smoothed elements are properly aligned.
 local Health_PostUpdate = function(element, unit, cur, max)
 	local predict = element.__owner.HealthPrediction
 	if (predict) then
@@ -68,6 +75,7 @@ local Health_PostUpdate = function(element, unit, cur, max)
 	end
 end
 
+-- Update the health preview color on health color updates.
 local Health_PostUpdateColor = function(element, unit, r, g, b)
 	local preview = element.Preview
 	if (preview) then
@@ -75,6 +83,8 @@ local Health_PostUpdateColor = function(element, unit, r, g, b)
 	end
 end
 
+-- Align our custom health prediction texture
+-- based on the plugins provided values.
 local HealPredict_PostUpdate = function(element, unit, myIncomingHeal, otherIncomingHeal, absorb, healAbsorb, hasOverAbsorb, hasOverHealAbsorb, curHealth, maxHealth)
 
 	local allIncomingHeal = myIncomingHeal + otherIncomingHeal
@@ -89,7 +99,7 @@ local HealPredict_PostUpdate = function(element, unit, myIncomingHeal, otherInco
 
 		-- Hide elementions if the change is very small, or if the unit is at max health.
 		change = (allIncomingHeal - allNegativeHeals)/maxHealth
-		if ((curHealth < maxHealth) and (change > (element.health.elementThreshold or .05))) then
+		if ((curHealth < maxHealth) and (change > (element.health.predictThreshold or .05))) then
 			local endPoint = startPoint + change
 
 			-- Crop heal elemention overflows
@@ -183,8 +193,19 @@ local HealPredict_PostUpdate = function(element, unit, myIncomingHeal, otherInco
 		element:Hide()
 	end
 
+	local absorb = self.Absorb
+	if (absorb) then
+		local fraction = absorb/maxHealth
+		if (fraction > .6) then
+			absorb = maxHealth * .6
+		end
+		absorb:SetMinMaxValues(0, maxHealth)
+		absorb:SetValue(absorb)
+	end
+
 end
 
+-- Only show mana orb when mana is the primary resource.
 local Mana_UpdateVisibility = function(self, event, unit)
 	local element = self.AdditionalPower
 
@@ -236,6 +257,7 @@ local Mana_UpdateVisibility = function(self, event, unit)
 	end
 end
 
+-- Hide power crystal when mana is the primary resource.
 local Power_UpdateVisibility = function(element, unit, cur, min, max)
 	local powerType = UnitPowerType(unit)
 	if (powerType == Enum.PowerType.Mana) then
@@ -245,6 +267,7 @@ local Power_UpdateVisibility = function(element, unit, cur, min, max)
 	end
 end
 
+-- Use custom colors for our power crystal. Does not apply to Wrath.
 local Power_UpdateColor = function(self, event, unit)
 	if (self.unit ~= unit) then
 		return
@@ -257,6 +280,7 @@ local Power_UpdateColor = function(self, event, unit)
 	end
 end
 
+-- Update player frame based on player level.
 local UnitFrame_UpdateTextures = function(self)
 	local key = (playerXPDisabled or IsPlayerAtEffectiveMaxLevel()) and "Seasoned" or playerLevel < hardenedLevel and "Novice" or "Hardened"
 	local db = ns.Config.Player[key]
@@ -265,36 +289,48 @@ local UnitFrame_UpdateTextures = function(self)
 	health:ClearAllPoints()
 	health:SetPoint(unpack(db.HealthBarPosition))
 	health:SetSize(unpack(db.HealthBarSize))
-	if (type(db.HealthBarTexture) == "table") then
-		health:SetStatusBarTexture(unpack(db.HealthBarTexture))
-	else
-		health:SetStatusBarTexture(db.HealthBarTexture)
-	end
+	health:SetStatusBarTexture(db.HealthBarTexture)
 	health:SetStatusBarColor(unpack(db.HealthBarColor))
 	health:SetOrientation(db.HealthBarOrientation)
 	health:SetSparkMap(db.HealthBarSparkMap)
 
-	local preview = self.Health.Preview
-	preview:SetStatusBarTexture(db.HealthBarTexture)
+	local healthPreview = self.Health.Preview
+	healthPreview:SetStatusBarTexture(db.HealthBarTexture)
 
-	local backdrop = self.Health.Backdrop
-	backdrop:ClearAllPoints()
-	backdrop:SetPoint(unpack(db.HealthBackdropPosition))
-	backdrop:SetSize(unpack(db.HealthBackdropSize))
-	backdrop:SetTexture(db.HealthBackdropTexture)
-	backdrop:SetVertexColor(unpack(db.HealthBackdropColor))
+	local healthBackdrop = self.Health.Backdrop
+	healthBackdrop:ClearAllPoints()
+	healthBackdrop:SetPoint(unpack(db.HealthBackdropPosition))
+	healthBackdrop:SetSize(unpack(db.HealthBackdropSize))
+	healthBackdrop:SetTexture(db.HealthBackdropTexture)
+	healthBackdrop:SetVertexColor(unpack(db.HealthBackdropColor))
 
-	local cast = self.Castbar
-	cast:ClearAllPoints()
-	cast:SetPoint(unpack(db.HealthBarPosition))
-	cast:SetSize(unpack(db.HealthBarSize))
-	cast:SetStatusBarTexture(db.HealthBarTexture)
-	cast:SetStatusBarColor(unpack(db.HealthCastOverlayColor))
-	cast:SetOrientation(db.HealthBarOrientation)
-	cast:SetSparkMap(db.HealthBarSparkMap)
+	local healthValue = self.Health.Value
+	healthValue:SetPoint(unpack(db.HealthValuePosition))
+	healthValue:SetFontObject(db.HealthValueFont)
+	healthValue:SetTextColor(unpack(db.HealthValueColor))
+	healthValue:SetJustifyH(db.HealthValueJustifyH)
+	healthValue:SetJustifyV(db.HealthValueJustifyV)
 
 	local healPredict = self.HealthPrediction
 	healPredict:SetTexture(db.HealthBarTexture)
+
+	local absorb = self.Health.Absorb
+	if (absorb) then
+		absorb:SetStatusBarTexture(db.HealthBarTexture)
+		absorb:SetStatusBarColor(db.HealthAbsorbColor)
+		local orientation
+		if (db.HealthBarOrientation == "UP") then
+			orientation = "DOWN"
+		elseif (db.HealthBarOrientation == "DOWN") then
+			orientation = "UP"
+		elseif (db.HealthBarOrientation == "LEFT") then
+			orientation = "RIGHT"
+		else
+			orientation = "LEFT"
+		end
+		absorb:SetOrientation(orientation)
+		absorb:SetSparkMap(db.HealthBarSparkMap)
+	end
 
 	local power = self.Power
 	power:ClearAllPoints()
@@ -317,6 +353,13 @@ local UnitFrame_UpdateTextures = function(self)
 	powerCase:SetSize(unpack(db.PowerBarForegroundSize))
 	powerCase:SetTexture(db.PowerBarForegroundTexture)
 	powerCase:SetVertexColor(unpack(db.PowerBarForegroundColor))
+
+	local powerValue = self.Power.Value
+	powerValue:SetPoint(unpack(db.PowerValuePosition))
+	powerValue:SetFontObject(db.PowerValueFont)
+	powerValue:SetTextColor(unpack(db.PowerValueColor))
+	powerValue:SetJustifyH(db.PowerValueJustifyH)
+	powerValue:SetJustifyV(db.PowerValueJustifyV)
 
 	local mana = self.AdditionalPower
 	mana:ClearAllPoints()
@@ -349,6 +392,15 @@ local UnitFrame_UpdateTextures = function(self)
 	manaCase:SetSize(unpack(db.ManaOrbForegroundSize))
 	manaCase:SetTexture(db.ManaOrbForegroundTexture)
 	manaCase:SetVertexColor(unpack(db.ManaOrbForegroundColor))
+
+	local cast = self.Castbar
+	cast:ClearAllPoints()
+	cast:SetPoint(unpack(db.HealthBarPosition))
+	cast:SetSize(unpack(db.HealthBarSize))
+	cast:SetStatusBarTexture(db.HealthBarTexture)
+	cast:SetStatusBarColor(unpack(db.HealthCastOverlayColor))
+	cast:SetOrientation(db.HealthBarOrientation)
+	cast:SetSparkMap(db.HealthBarSparkMap)
 
 	local feedbackText = self.CombatFeedback
 	feedbackText:ClearAllPoints()
@@ -395,10 +447,11 @@ UnitStyles["Player"] = function(self, unit, id)
 
 	self:SetSize(unpack(ns.Config.Player.Size))
 	self:SetPoint(unpack(ns.Config.Player.Position))
+	self:SetHitRectInsets(unpack(ns.Config.Player.HitRectInsets))
 
 	-- Overlay for icons and text
 	--------------------------------------------
-	local overlay = CreateFrame("Frame", self:GetName().."OverlayFrame", self)
+	local overlay = CreateFrame("Frame", nil, self)
 	overlay:SetFrameLevel(self:GetFrameLevel() + 5)
 	overlay:SetAllPoints()
 
@@ -406,18 +459,19 @@ UnitStyles["Player"] = function(self, unit, id)
 
 	-- Health
 	--------------------------------------------
-	local health = self:CreateBar(self:GetName().."HealthBar")
+	local health = self:CreateBar()
 	health:SetFrameLevel(health:GetFrameLevel() + 2)
+	health.predictThreshold = .01
 
 	self.Health = health
 	self.Health.Override = ns.API.UpdateHealth
 	self.Health.PostUpdate = Health_PostUpdate
 
-	local healthBackdrop = self:CreateTexture(health:GetName().."Backdrop", "BACKGROUND", nil, -1)
+	local healthBackdrop = self:CreateTexture(nil, "BACKGROUND", nil, -1)
 
 	self.Health.Backdrop = healthBackdrop
 
-	local healthPreview = self:CreateBar(health:GetName().."Preview", health)
+	local healthPreview = self:CreateBar(nil, health)
 	healthPreview:SetAllPoints(health)
 	healthPreview:SetFrameLevel(health:GetFrameLevel() - 1)
 	healthPreview:DisableSmoothing(true)
@@ -431,7 +485,7 @@ UnitStyles["Player"] = function(self, unit, id)
 	local healPredictFrame = CreateFrame("Frame", nil, health)
 	healPredictFrame:SetFrameLevel(health:GetFrameLevel() + 2)
 
-	local healPredict = healPredictFrame:CreateTexture(health:GetName().."Prediction")
+	local healPredict = healPredictFrame:CreateTexture(nil, "OVERLAY", nil, 1)
 	healPredict.health = health
 	healPredict.preview = preview
 	healPredict.maxOverflow = 1
@@ -441,7 +495,7 @@ UnitStyles["Player"] = function(self, unit, id)
 
 	-- Health Cast Overlay
 	--------------------------------------------
-	local castbar = self:CreateBar(health:GetName().."CastOverlay")
+	local castbar = self:CreateBar()
 	castbar:SetFrameLevel(self:GetFrameLevel() + 5)
 	castbar:DisableSmoothing()
 
@@ -449,17 +503,37 @@ UnitStyles["Player"] = function(self, unit, id)
 
 	-- Health Value
 	--------------------------------------------
-	--local healthValue = overlay:CreateFontString(health:GetName().."ValueText", "OVERLAY")
-	--healthValue:SetPoint(unpack(layout.PowerValuePlace))
-	--healthValue:SetDrawLayer(unpack(layout.PowerValueDrawLayer))
-	--healthValue:SetJustifyH(layout.PowerValueJustifyH)
-	--healthValue:SetJustifyV(layout.PowerValueJustifyV)
-	--healthValue:SetFontObject(layout.PowerValueFont)
-	--healthValue:SetTextColor(unpack(layout.PowerValueColor))
+	local healthValue = overlay:CreateFontString(nil, "OVERLAY", nil, 1)
+
+	if (ns.IsRetail) then
+		self:Tag(healthValue, prefix("[*:Health:Big]  [*:Absorb]"))
+	else
+		self:Tag(healthValue, prefix("[*:Health:Big]"))
+	end
+
+	self.Health.Value = healthValue
+
+	-- Health Percentage
+	-- *we also add dead/offline flags here.
+	--------------------------------------------
+	--local healthPerc = overlay:CreateFontString(health:GetName().."PercentText", "OVERLAY", nil, 1)
+	--self:Tag(healthPerc, prefix("[*:Health:Percent][*:Dead][*:Offline]"))
+	--
+	--self.Health.ValuePercent = healthPerc
+
+	-- Absorb Bar (Retail)
+	--------------------------------------------
+	if (ns.IsRetail) then
+		local absorb = self:CreateBar()
+		absorb:SetAllPoints(health)
+		absorb:SetFrameLevel(health:GetFrameLevel() + 3)
+
+		self.Absorb = absorb
+	end
 
 	-- Power Crystal
 	--------------------------------------------
-	local power = self:CreateBar(self:GetName().."PowerCrystal")
+	local power = self:CreateBar()
 	power.frequentUpdates = true
 	power.displayAltPower = true
 
@@ -468,31 +542,24 @@ UnitStyles["Player"] = function(self, unit, id)
 	self.Power.PostUpdate = Power_UpdateVisibility
 	self.Power.UpdateColor = ns.Retail and Power_UpdateColor
 
-	local powerBackdrop = power:CreateTexture(power:GetName().."Backdrop", "BACKGROUND", nil, -2)
+	local powerBackdrop = power:CreateTexture(nil, "BACKGROUND", nil, -2)
 
 	self.Power.Backdrop = powerBackdrop
 
-	local powerCase = power:CreateTexture(power:GetName().."Case", "ARTWORK", nil, 1)
+	local powerCase = power:CreateTexture(nil, "ARTWORK", nil, 1)
 
 	self.Power.Case = powerCase
 
 	-- Power Value
 	--------------------------------------------
-	--local powerValue = overlay:CreateFontString(power:GetName().."ValueText", "OVERLAY")
-	--powerValue:SetPoint(unpack(layout.PowerValuePlace))
-	--powerValue:SetDrawLayer(unpack(layout.PowerValueDrawLayer))
-	--powerValue:SetJustifyH(layout.PowerValueJustifyH)
-	--powerValue:SetJustifyV(layout.PowerValueJustifyV)
-	--powerValue:SetFontObject(layout.PowerValueFont)
-	--powerValue:SetTextColor(unpack(layout.PowerValueColor))
-
-	self:Tag(powerValue, "[Azerite:Power:Full]")
+	local powerValue = overlay:CreateFontString(nil, "OVERLAY", nil, 1)
+	self:Tag(powerValue, prefix("[*:Power:Full]"))
 
 	self.Power.Value = powerValue
 
 	-- Mana Orb
 	--------------------------------------------
-	local mana = self:CreateOrb(self:GetName().."ManaOrb")
+	local mana = self:CreateOrb()
 	mana.displayPairs = {}
 	mana.frequentUpdates = true
 
@@ -500,7 +567,7 @@ UnitStyles["Player"] = function(self, unit, id)
 	self.AdditionalPower.Override = ns.API.UpdateAdditionalPower
 	self.AdditionalPower.OverrideVisibility = Mana_UpdateVisibility
 
-	local manaBackdrop = mana:CreateTexture(mana:GetName().."Backdrop", "BACKGROUND", nil, -2)
+	local manaBackdrop = mana:CreateTexture(nil, "BACKGROUND", nil, -2)
 
 	self.AdditionalPower.Backdrop = manaBackdrop
 
@@ -508,17 +575,17 @@ UnitStyles["Player"] = function(self, unit, id)
 	manaCaseFrame:SetFrameLevel(mana:GetFrameLevel() + 2)
 	manaCaseFrame:SetAllPoints()
 
-	local manaShade = manaCaseFrame:CreateTexture(mana:GetName().."Shade", "ARTWORK", nil, 1)
+	local manaShade = manaCaseFrame:CreateTexture(nil, "ARTWORK", nil, 1)
 
 	self.AdditionalPower.Shade = manaShade
 
-	local manaCase = manaCaseFrame:CreateTexture(mana:GetName().."Case", "ARTWORK", nil, 2)
+	local manaCase = manaCaseFrame:CreateTexture(nil, "ARTWORK", nil, 2)
 
 	self.AdditionalPower.Case = manaCase
 
 	-- CombatFeedback Text
 	--------------------------------------------
-	local feedbackText = overlay:CreateFontString(self:GetName().."CombatFeedbackText", "OVERLAY")
+	local feedbackText = overlay:CreateFontString(nil, "OVERLAY")
 
 	self.CombatFeedback = feedbackText
 
@@ -531,14 +598,14 @@ UnitStyles["Player"] = function(self, unit, id)
 	if (IsWinterVeil) then
 		local db = ns.Config.Player.Seasonal
 
-		local winterVeilPower = power:CreateTexture(power:GetName().."WinterVeilDecorations", "OVERLAY", nil, 0)
+		local winterVeilPower = power:CreateTexture(nil, "OVERLAY", nil, 0)
 		winterVeilPower:SetSize(unpack(db.WinterVeilPowerSize))
 		winterVeilPower:SetPoint(unpack(db.WinterVeilPowerPlace))
 		winterVeilPower:SetTexture(db.WinterVeilPowerTexture)
 
 		self.Power.WinterVeil = winterVeilPower
 
-		local winterVeilMana = manaCaseFrame:CreateTexture(mana:GetName().."WinterVeilDecorations", "OVERLAY", nil, 0)
+		local winterVeilMana = manaCaseFrame:CreateTexture(nil, "OVERLAY", nil, 0)
 		winterVeilMana:SetSize(unpack(db.WinterVeilManaSize))
 		winterVeilMana:SetPoint(unpack(db.WinterVeilManaPlace))
 		winterVeilMana:SetTexture(db.WinterVeilManaTexture)
