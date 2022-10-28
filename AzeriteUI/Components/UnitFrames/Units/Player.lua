@@ -38,7 +38,10 @@ local unpack = unpack
 -- WoW API
 local IsPlayerAtEffectiveMaxLevel = IsPlayerAtEffectiveMaxLevel
 local IsXPUserDisabled = IsXPUserDisabled
+local UnitFactionGroup = UnitFactionGroup
 local UnitHasVehicleUI = UnitHasVehicleUI
+local UnitIsMercenary = UnitIsMercenary
+local UnitIsPVPFreeForAll = UnitIsPVPFreeForAll
 local UnitLevel = UnitLevel
 local UnitPowerType = UnitPowerType
 
@@ -278,6 +281,44 @@ local Power_UpdateColor = function(self, event, unit)
 		local color = ns.Config.Player.PowerBarColors[pToken]
 		element:SetStatusBarColor(unpack(color))
 	end
+end
+
+-- Trigger PvPIndicator post update when combat status is toggled.
+local CombatIndicator_PostUpdate = function(element, inCombat)
+	element.__owner.PvPIndicator:ForceUpdate()
+end
+
+-- Only show Horde/Alliance badges, and hide them in combat.
+local PvPIndicator_Override = function(self, event, unit)
+	if (unit and unit ~= self.unit) then return end
+
+	local element = self.PvPIndicator
+	unit = unit or self.unit
+
+	local status
+	local factionGroup = UnitFactionGroup(unit) or "Neutral"
+
+	if (factionGroup ~= "Neutral") then
+		if (UnitIsPVPFreeForAll(unit)) then
+		elseif (UnitIsPVP(unit)) then
+			if (ns.IsRetail and unit == "player" and UnitIsMercenary(unit)) then
+				if (factionGroup == "Horde") then
+					factionGroup = "Alliance"
+				elseif (factionGroup == "Alliance") then
+					factionGroup = "Horde"
+				end
+			end
+			status = factionGroup
+		end
+	end
+
+	if (status and not self.CombatIndicator:IsShown()) then
+		element:SetTexture(element[status])
+		element:Show()
+	else
+		element:Hide()
+	end
+
 end
 
 -- Update player frame based on player level.
@@ -609,6 +650,31 @@ UnitStyles["Player"] = function(self, unit, id)
 
 	self.CombatFeedback = feedbackText
 
+	-- Combat Indicator
+	--------------------------------------------
+
+	-- Combat Indicator
+	--------------------------------------------
+	local combatIndicator = overlay:CreateTexture(nil, "OVERLAY", nil, -2)
+	combatIndicator:SetSize(unpack(db.CombatIndicatorSize))
+	combatIndicator:SetPoint(unpack(db.CombatIndicatorPosition))
+	combatIndicator:SetTexture(db.CombatIndicatorTexture)
+	combatIndicator:SetVertexColor(unpack(db.CombatIndicatorColor))
+
+	self.CombatIndicator = combatIndicator
+	self.CombatIndicator.PostUpdate = CombatIndicator_PostUpdate
+
+	-- PvP Indicator
+	--------------------------------------------
+	local PvPIndicator = overlay:CreateTexture(nil, "OVERLAY", nil, -2)
+	PvPIndicator:SetSize(unpack(db.PvPIndicatorSize))
+	PvPIndicator:SetPoint(unpack(db.PvPIndicatorPosition))
+	PvPIndicator.Alliance = db.PvPIndicatorAllianceTexture
+	PvPIndicator.Horde = db.PvPIndicatorHordeTexture
+
+	self.PvPIndicator = PvPIndicator
+	self.PvPIndicator.Override = PvPIndicator_Override
+
 	-- Seasonal Flavors
 	--------------------------------------------
 	-- Feast of Winter Veil
@@ -631,6 +697,13 @@ UnitStyles["Player"] = function(self, unit, id)
 
 	-- Love is in the Air
 	if (IsLoveFestival) then
+
+		combatIndicator:SetSize(unpack(db.LoveFestivalCombatIndicatorSize))
+		combatIndicator:ClearAllPoints()
+		combatIndicator:SetPoint(unpack(db.LoveFestivalCombatIndicatorPosition))
+		combatIndicator:SetTexture(db.LoveFestivalCombatIndicatorTexture)
+		combatIndicator:SetVertexColor(unpack(db.LoveFestivalCombatIndicatorColor))
+
 	end
 
 	-- Add a callback for external style overriders

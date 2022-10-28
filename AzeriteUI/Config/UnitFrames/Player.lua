@@ -67,7 +67,6 @@ Config.Player = {
 	ManaValueColor = { Colors.highlight[1], Colors.highlight[2], Colors.highlight[3], .4 },
 	ManaValueFont = GetFont(18, true),
 
-
 	-- Combat Feedback Text
 	CombatFeedbackAnchorElement = "Health",
 	CombatFeedbackPosition = { "CENTER", 0, 0 },
@@ -75,7 +74,41 @@ Config.Player = {
 	CombatFeedbackFontLarge = GetFont(24, true), -- crit/drushing font
 	CombatFeedbackFontSmall = GetFont(18, true), -- glancing blow font
 
+	-- Combat Indicator
+	CombatIndicatorPosition = { "BOTTOMLEFT", -81, -18 },
+	CombatIndicatorSize = { 80,80 },
+	CombatIndicatorTexture = GetMedia("icon-combat"),
+	CombatIndicatorColor = { Colors.ui[1] *.75, Colors.ui[2] *.75, Colors.ui[3] *.75 },
+
+	-- PvP Indicator
+	PvPIndicatorPosition = { "BOTTOMLEFT", -81, -18 },
+	PvPIndicatorSize = { 84, 84 },
+	PvPIndicatorAllianceTexture = GetMedia("icon_badges_alliance"),
+	PvPIndicatorHordeTexture = GetMedia("icon_badges_horde"),
+
+	-- Seasonal Overrides & Additions
+	-----------------------------------------
+	Seasonal = {
+
+		-- Love Festival Combat Indicator
+		LoveFestivalCombatIndicatorPosition = { "BOTTOMLEFT", -61, 2 },
+		LoveFestivalCombatIndicatorSize = { 48, 48 },
+		LoveFestivalCombatIndicatorTexture = GetMedia("icon-heart-red"),
+		LoveFestivalCombatIndicatorColor = { Colors.ui[1] *.75, Colors.ui[2] *.75, Colors.ui[3] *.75 },
+
+		-- Winter Veil Power Crystal Decorations
+		WinterVeilPowerSize = { 197, 197 },
+		WinterVeilPowerPlace = { "CENTER", -2, 24 },
+		WinterVeilPowerTexture = GetMedia("seasonal_winterveil_crystal"),
+
+		-- Winter Veil Mana Orb Decorations
+		WinterVeilManaSize = { 188, 188 },
+		WinterVeilManaPlace = { "CENTER", 0, 0 },
+		WinterVeilManaTexture = GetMedia("seasonal_winterveil_orb")
+	},
+
 	-- Orb and Crystal Colors
+	-----------------------------------------
 	ManaOrbColor = { 135/255, 125/255, 255/255 },
 	PowerBarColors = {
 		ENERGY = { 0/255, 208/255, 176/255 },
@@ -88,19 +121,6 @@ Config.Player = {
 		PAIN = { 156/255, 116/255, 255/255 },
 		RAGE = { 156/255, 116/255, 255/255 },
 		MANA = { 101/255, 93/255, 191/255 }
-	},
-
-	Seasonal = {
-
-		-- Winter Veil Power Crystal Decorations
-		WinterVeilPowerSize = { 197, 197 },
-		WinterVeilPowerPlace = { "CENTER", -2, 24 },
-		WinterVeilPowerTexture = GetMedia("seasonal_winterveil_crystal"),
-
-		-- Winter Veil Mana Orb Decorations
-		WinterVeilManaSize = { 188, 188 },
-		WinterVeilManaPlace = { "CENTER", 0, 0 },
-		WinterVeilManaTexture = GetMedia("seasonal_winterveil_orb")
 	},
 
 	-- Level Specific Settings
