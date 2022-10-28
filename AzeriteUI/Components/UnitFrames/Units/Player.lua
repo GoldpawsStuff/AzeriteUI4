@@ -517,6 +517,7 @@ UnitStyles["Player"] = function(self, unit, id)
 	-- Power Crystal
 	--------------------------------------------
 	local power = self:CreateBar()
+	power:SetFrameLevel(self:GetFrameLevel() - 2)
 	power.frequentUpdates = true
 	power.displayAltPower = true
 
@@ -561,6 +562,7 @@ UnitStyles["Player"] = function(self, unit, id)
 	-- Mana Orb
 	--------------------------------------------
 	local mana = self:CreateOrb()
+	mana:SetFrameLevel(self:GetFrameLevel() - 2)
 	mana.displayPairs = {}
 	mana.frequentUpdates = true
 
@@ -573,7 +575,7 @@ UnitStyles["Player"] = function(self, unit, id)
 	self.AdditionalPower.Backdrop = manaBackdrop
 
 	local manaCaseFrame = CreateFrame("Frame", nil, mana)
-	manaCaseFrame:SetFrameLevel(mana:GetFrameLevel() + 2)
+	manaCaseFrame:SetFrameLevel(mana:GetFrameLevel() + 1)
 	manaCaseFrame:SetAllPoints()
 
 	local manaShade = manaCaseFrame:CreateTexture(nil, "ARTWORK", nil, 1)
