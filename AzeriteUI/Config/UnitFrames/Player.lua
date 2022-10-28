@@ -39,6 +39,42 @@ Config.Player = {
 	Position = { "BOTTOMLEFT", 167, 100 },
 	HitRectInsets = { 0, 0, 0, 6 },
 
+	-- Health Value Text
+	HealthValuePosition = { "LEFT", 27, 4 },
+	HealthValueJustifyH = "LEFT",
+	HealthValueJustifyV = "MIDDLE",
+	HealthValueFont = GetFont(18, true),
+	HealthValueColor = { Colors.highlight[1], Colors.highlight[2], Colors.highlight[3], .5 },
+
+	-- Mana Value Text (when mana is not primary resource)
+	ManaTextPosition = { "CENTER", 1, -34 },
+	ManaTextFont = GetFont(15, true),
+	ManaTextColor = { Colors.red[1], Colors.red[2], Colors.red[3], .75 },
+	ManaTextJustifyH = "CENTER",
+	ManaTextJustifyV = "MIDDLE",
+
+	-- Power Value Text
+	PowerValuePosition = { "CENTER", 0, -16 },
+	PowerValueJustifyH = "CENTER",
+	PowerValueJustifyV = "MIDDLE",
+	PowerValueFont = GetFont(18, true),
+	PowerValueColor = { Colors.highlight[1], Colors.highlight[2], Colors.highlight[3], .4 },
+
+	-- Mana Orb Value Text
+	ManaValuePosition = { "CENTER", 3, 0 },
+	ManaValueJustifyH = "CENTER",
+	ManaValueJustifyV = "MIDDLE",
+	ManaValueColor = { Colors.highlight[1], Colors.highlight[2], Colors.highlight[3], .4 },
+	ManaValueFont = GetFont(18, true),
+
+
+	-- Combat Feedback Text
+	CombatFeedbackAnchorElement = "Health",
+	CombatFeedbackPosition = { "CENTER", 0, 0 },
+	CombatFeedbackFont = GetFont(20, true), -- standard font
+	CombatFeedbackFontLarge = GetFont(24, true), -- crit/drushing font
+	CombatFeedbackFontSmall = GetFont(18, true), -- glancing blow font
+
 	-- Orb and Crystal Colors
 	ManaOrbColor = { 135/255, 125/255, 255/255 },
 	PowerBarColors = {
@@ -94,12 +130,6 @@ Config.Player = {
 		HealthCastOverlayColor = { 1, 1, 1, .35 },
 		HealthThreatTexture = GetMedia("hp_low_case_glow"),
 
-		HealthValuePosition = { "LEFT", 27, 4 },
-		HealthValueJustifyH = "LEFT",
-		HealthValueJustifyV = "MIDDLE",
-		HealthValueFont = GetFont(18, true),
-		HealthValueColor = { Colors.highlight[1], Colors.highlight[2], Colors.highlight[3], .5 },
-
 		-- Power Crystal
 		PowerBarSize = { 120, 140 },
 		PowerBarPosition = { "BOTTOMLEFT", -101, 38 },
@@ -133,12 +163,6 @@ Config.Player = {
 		PowerBarForegroundTexture = GetMedia("pw_crystal_case_low"),
 		PowerBarForegroundColor = { Colors.ui[1], Colors.ui[2], Colors.ui[3] },
 
-		PowerValuePosition = { "CENTER", 0, -16 },
-		PowerValueJustifyH = "CENTER",
-		PowerValueJustifyV = "MIDDLE",
-		PowerValueFont = GetFont(18, true),
-		PowerValueColor = { Colors.highlight[1], Colors.highlight[2], Colors.highlight[3], .4 },
-
 		-- Mana Orb
 		ManaOrbSize = { 103, 103 },
 		ManaOrbPosition = { "BOTTOMLEFT", -92, 27 },
@@ -159,12 +183,6 @@ Config.Player = {
 		ManaOrbForegroundTexture = GetMedia("orb_case_low"),
 		ManaOrbForegroundColor = { Colors.ui[1], Colors.ui[2], Colors.ui[3] },
 
-		-- Combat Feedback
-		CombatFeedbackAnchorElement = "Health",
-		CombatFeedbackPosition = { "CENTER", 0, 0 },
-		CombatFeedbackFont = GetFont(20, true), -- standard font
-		CombatFeedbackFontLarge = GetFont(24, true), -- crit/drushing font
-		CombatFeedbackFontSmall = GetFont(18, true), -- glancing blow font
 
 	},
 	Hardened = {
@@ -192,12 +210,6 @@ Config.Player = {
 		HealthCastOverlayColor = { 1, 1, 1, .35 },
 		HealthThreatTexture = GetMedia("hp_mid_case_glow"),
 
-		HealthValuePosition = { "LEFT", 27, 4 },
-		HealthValueJustifyH = "LEFT",
-		HealthValueJustifyV = "MIDDLE",
-		HealthValueFont = GetFont(18, true),
-		HealthValueColor = { Colors.highlight[1], Colors.highlight[2], Colors.highlight[3], .5 },
-
 		-- Power Crystal
 		PowerBarSize = { 120, 140 },
 		PowerBarPosition = { "BOTTOMLEFT", -101, 38 },
@@ -231,12 +243,6 @@ Config.Player = {
 		PowerBarForegroundTexture = GetMedia("pw_crystal_case"),
 		PowerBarForegroundColor = { Colors.ui[1], Colors.ui[2], Colors.ui[3] },
 
-		PowerValuePosition = { "CENTER", 0, -16 },
-		PowerValueJustifyH = "CENTER",
-		PowerValueJustifyV = "MIDDLE",
-		PowerValueFont = GetFont(18, true),
-		PowerValueColor = { Colors.highlight[1], Colors.highlight[2], Colors.highlight[3], .4 },
-
 		-- Mana Orb
 		ManaOrbSize = { 103, 103 },
 		ManaOrbPosition = { "BOTTOMLEFT", -92, 27 },
@@ -256,13 +262,6 @@ Config.Player = {
 		ManaOrbForegroundPosition = { "CENTER", 0, 0 },
 		ManaOrbForegroundTexture = GetMedia("orb_case_hi"),
 		ManaOrbForegroundColor = { Colors.ui[1], Colors.ui[2], Colors.ui[3] },
-
-		-- Combat Feedback
-		CombatFeedbackAnchorElement = "Health",
-		CombatFeedbackPosition = { "CENTER", 0, 0 },
-		CombatFeedbackFont = GetFont(20, true), -- standard font
-		CombatFeedbackFontLarge = GetFont(24, true), -- crit/drushing font
-		CombatFeedbackFontSmall = GetFont(18, true), -- glancing blow font
 
 	},
 	Seasoned = {
@@ -290,12 +289,6 @@ Config.Player = {
 		HealthCastOverlayColor = { 1, 1, 1, .35 },
 		HealthThreatTexture = GetMedia("hp_cap_case_glow"),
 
-		HealthValuePosition = { "LEFT", 27, 4 },
-		HealthValueJustifyH = "LEFT",
-		HealthValueJustifyV = "MIDDLE",
-		HealthValueFont = GetFont(18, true),
-		HealthValueColor = { Colors.highlight[1], Colors.highlight[2], Colors.highlight[3], .5 },
-
 		-- Power Crystal
 		PowerBarSize = { 120, 140 },
 		PowerBarPosition = { "BOTTOMLEFT", -101, 38 },
@@ -329,12 +322,6 @@ Config.Player = {
 		PowerBarForegroundTexture = GetMedia("pw_crystal_case"),
 		PowerBarForegroundColor = { Colors.ui[1], Colors.ui[2], Colors.ui[3] },
 
-		PowerValuePosition = { "CENTER", 0, -16 },
-		PowerValueJustifyH = "CENTER",
-		PowerValueJustifyV = "MIDDLE",
-		PowerValueFont = GetFont(18, true),
-		PowerValueColor = { Colors.highlight[1], Colors.highlight[2], Colors.highlight[3], .4 },
-
 		-- Mana Orb
 		ManaOrbSize = { 103, 103 },
 		ManaOrbPosition = { "BOTTOMLEFT", -92, 27 },
@@ -354,13 +341,6 @@ Config.Player = {
 		ManaOrbForegroundPosition = { "CENTER", 0, 0 },
 		ManaOrbForegroundTexture = GetMedia("orb_case_hi"),
 		ManaOrbForegroundColor = { Colors.ui[1], Colors.ui[2], Colors.ui[3] },
-
-		-- Combat Feedback
-		CombatFeedbackAnchorElement = "Health",
-		CombatFeedbackPosition = { "CENTER", 0, 0 },
-		CombatFeedbackFont = GetFont(20, true), -- standard font
-		CombatFeedbackFontLarge = GetFont(24, true), -- crit/drushing font
-		CombatFeedbackFontSmall = GetFont(18, true), -- glancing blow font
 
 	}
 }

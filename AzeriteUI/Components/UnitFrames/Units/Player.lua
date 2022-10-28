@@ -193,7 +193,7 @@ local HealPredict_PostUpdate = function(element, unit, myIncomingHeal, otherInco
 		element:Hide()
 	end
 
-	local absorb = self.Absorb
+	local absorb = element.Absorb
 	if (absorb) then
 		local fraction = absorb/maxHealth
 		if (fraction > .6) then
@@ -304,13 +304,6 @@ local UnitFrame_UpdateTextures = function(self)
 	healthBackdrop:SetTexture(db.HealthBackdropTexture)
 	healthBackdrop:SetVertexColor(unpack(db.HealthBackdropColor))
 
-	local healthValue = self.Health.Value
-	healthValue:SetPoint(unpack(db.HealthValuePosition))
-	healthValue:SetFontObject(db.HealthValueFont)
-	healthValue:SetTextColor(unpack(db.HealthValueColor))
-	healthValue:SetJustifyH(db.HealthValueJustifyH)
-	healthValue:SetJustifyV(db.HealthValueJustifyV)
-
 	local healPredict = self.HealthPrediction
 	healPredict:SetTexture(db.HealthBarTexture)
 
@@ -354,13 +347,6 @@ local UnitFrame_UpdateTextures = function(self)
 	powerCase:SetTexture(db.PowerBarForegroundTexture)
 	powerCase:SetVertexColor(unpack(db.PowerBarForegroundColor))
 
-	local powerValue = self.Power.Value
-	powerValue:SetPoint(unpack(db.PowerValuePosition))
-	powerValue:SetFontObject(db.PowerValueFont)
-	powerValue:SetTextColor(unpack(db.PowerValueColor))
-	powerValue:SetJustifyH(db.PowerValueJustifyH)
-	powerValue:SetJustifyV(db.PowerValueJustifyV)
-
 	local mana = self.AdditionalPower
 	mana:ClearAllPoints()
 	mana:SetPoint(unpack(db.ManaOrbPosition))
@@ -402,14 +388,6 @@ local UnitFrame_UpdateTextures = function(self)
 	cast:SetOrientation(db.HealthBarOrientation)
 	cast:SetSparkMap(db.HealthBarSparkMap)
 
-	local feedbackText = self.CombatFeedback
-	feedbackText:ClearAllPoints()
-	feedbackText:SetPoint(db.CombatFeedbackPosition[1], self[db.CombatFeedbackAnchorElement], unpack(db.CombatFeedbackPosition))
-	feedbackText:SetFontObject(db.CombatFeedbackFont)
-	feedbackText.feedbackFont = db.CombatFeedbackFont
-	feedbackText.feedbackFontLarge = db.CombatFeedbackFontLarge
-	feedbackText.feedbackFontSmall = db.CombatFeedbackFontSmall
-
 end
 
 -- Frame Script Handlers
@@ -445,9 +423,10 @@ end
 
 UnitStyles["Player"] = function(self, unit, id)
 
-	self:SetSize(unpack(ns.Config.Player.Size))
-	self:SetPoint(unpack(ns.Config.Player.Position))
-	self:SetHitRectInsets(unpack(ns.Config.Player.HitRectInsets))
+	local db = ns.Config.Player
+	self:SetSize(unpack(db.Size))
+	self:SetPoint(unpack(db.Position))
+	self:SetHitRectInsets(unpack(db.HitRectInsets))
 
 	-- Overlay for icons and text
 	--------------------------------------------
@@ -487,7 +466,7 @@ UnitStyles["Player"] = function(self, unit, id)
 
 	local healPredict = healPredictFrame:CreateTexture(nil, "OVERLAY", nil, 1)
 	healPredict.health = health
-	healPredict.preview = preview
+	healPredict.preview = healthPreview
 	healPredict.maxOverflow = 1
 
 	self.HealthPrediction = healPredict
@@ -503,8 +482,12 @@ UnitStyles["Player"] = function(self, unit, id)
 
 	-- Health Value
 	--------------------------------------------
-	local healthValue = overlay:CreateFontString(nil, "OVERLAY", nil, 1)
-
+	local healthValue = health:CreateFontString(nil, "OVERLAY", nil, 1)
+	healthValue:SetPoint(unpack(db.HealthValuePosition))
+	healthValue:SetFontObject(db.HealthValueFont)
+	healthValue:SetTextColor(unpack(db.HealthValueColor))
+	healthValue:SetJustifyH(db.HealthValueJustifyH)
+	healthValue:SetJustifyV(db.HealthValueJustifyV)
 	if (ns.IsRetail) then
 		self:Tag(healthValue, prefix("[*:Health:Big]  [*:Absorb]"))
 	else
@@ -552,10 +535,28 @@ UnitStyles["Player"] = function(self, unit, id)
 
 	-- Power Value
 	--------------------------------------------
-	local powerValue = overlay:CreateFontString(nil, "OVERLAY", nil, 1)
-	self:Tag(powerValue, prefix("[*:Power:Full]"))
+	local powerValue = power:CreateFontString(nil, "OVERLAY", nil, 1)
+	powerValue:SetPoint(unpack(db.PowerValuePosition))
+	powerValue:SetFontObject(db.PowerValueFont)
+	powerValue:SetTextColor(unpack(db.PowerValueColor))
+	powerValue:SetJustifyH(db.PowerValueJustifyH)
+	powerValue:SetJustifyV(db.PowerValueJustifyV)
+	self:Tag(powerValue, prefix("[*:Power]"))
 
 	self.Power.Value = powerValue
+
+	-- ManaText Value
+	-- *when mana isn't primary resource
+	--------------------------------------------
+	local manaText = power:CreateFontString(nil, "OVERLAY", nil, 1)
+	manaText:SetPoint(unpack(db.ManaTextPosition))
+	manaText:SetFontObject(db.ManaTextFont)
+	manaText:SetTextColor(unpack(db.ManaTextColor))
+	manaText:SetJustifyH(db.ManaTextJustifyH)
+	manaText:SetJustifyV(db.ManaTextJustifyV)
+	self:Tag(manaText, prefix("[*:ManaText:Low]"))
+
+	self.Power.ManaText = manaText
 
 	-- Mana Orb
 	--------------------------------------------
@@ -583,32 +584,45 @@ UnitStyles["Player"] = function(self, unit, id)
 
 	self.AdditionalPower.Case = manaCase
 
+	-- Mana Orb Value
+	--------------------------------------------
+	local manaValue = manaCaseFrame:CreateFontString(nil, "OVERLAY", nil, 1)
+	manaValue:SetPoint(unpack(db.ManaValuePosition))
+	manaValue:SetFontObject(db.ManaValueFont)
+	manaValue:SetTextColor(unpack(db.ManaValueColor))
+	manaValue:SetJustifyH(db.ManaValueJustifyH)
+	manaValue:SetJustifyV(db.ManaValueJustifyV)
+	self:Tag(manaValue, prefix("[*:Mana]"))
+
+	self.AdditionalPower.Value = manaValue
+
 	-- CombatFeedback Text
 	--------------------------------------------
 	local feedbackText = overlay:CreateFontString(nil, "OVERLAY")
+	feedbackText:SetPoint(db.CombatFeedbackPosition[1], self[db.CombatFeedbackAnchorElement], unpack(db.CombatFeedbackPosition))
+	feedbackText:SetFontObject(db.CombatFeedbackFont)
+	feedbackText.feedbackFont = db.CombatFeedbackFont
+	feedbackText.feedbackFontLarge = db.CombatFeedbackFontLarge
+	feedbackText.feedbackFontSmall = db.CombatFeedbackFontSmall
 
 	self.CombatFeedback = feedbackText
-
-
-
 
 	-- Seasonal Flavors
 	--------------------------------------------
 	-- Feast of Winter Veil
 	if (IsWinterVeil) then
-		local db = ns.Config.Player.Seasonal
 
 		local winterVeilPower = power:CreateTexture(nil, "OVERLAY", nil, 0)
-		winterVeilPower:SetSize(unpack(db.WinterVeilPowerSize))
-		winterVeilPower:SetPoint(unpack(db.WinterVeilPowerPlace))
-		winterVeilPower:SetTexture(db.WinterVeilPowerTexture)
+		winterVeilPower:SetSize(unpack(db.Seasonal.WinterVeilPowerSize))
+		winterVeilPower:SetPoint(unpack(db.Seasonal.WinterVeilPowerPlace))
+		winterVeilPower:SetTexture(db.Seasonal.WinterVeilPowerTexture)
 
 		self.Power.WinterVeil = winterVeilPower
 
 		local winterVeilMana = manaCaseFrame:CreateTexture(nil, "OVERLAY", nil, 0)
-		winterVeilMana:SetSize(unpack(db.WinterVeilManaSize))
-		winterVeilMana:SetPoint(unpack(db.WinterVeilManaPlace))
-		winterVeilMana:SetTexture(db.WinterVeilManaTexture)
+		winterVeilMana:SetSize(unpack(db.Seasonal.WinterVeilManaSize))
+		winterVeilMana:SetPoint(unpack(db.Seasonal.WinterVeilManaPlace))
+		winterVeilMana:SetTexture(db.Seasonal.WinterVeilManaTexture)
 
 		self.AdditionalPower.WinterVeil = winterVeilMana
 	end

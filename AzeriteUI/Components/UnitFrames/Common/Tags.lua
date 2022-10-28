@@ -59,6 +59,7 @@ local GetDifficultyColorByLevel = ns.API.GetDifficultyColorByLevel
 -- Colors
 local c_gray = Colors.gray.colorCode
 local c_normal = Colors.normal.colorCode
+local c_highlight = Colors.highlight.colorCode
 local c_rare = Colors.quality.Rare.colorCode
 local c_red = Colors.red.colorCode
 local r = "|r"
@@ -199,17 +200,84 @@ Methods[prefix("*:Health:Big")] = function(unit)
 	end
 end
 
-Events[prefix("*:Mana")] = "UNIT_HEALTH UNIT_MAXHEALTH UNIT_CONNECTION"
+Events[prefix("*:Mana")] = "UNIT_POWER_FREQUENT UNIT_MAXPOWER"
 Methods[prefix("*:Mana")] = function(unit)
-	if (UnitIsDeadOrGhost(unit) or not UnitIsConnected(unit)) then
+	if (UnitIsDeadOrGhost(unit)) then
 		return
 	else
 		local mana, maxMana = UnitPower(unit, Enum.PowerType.Mana), UnitPowerMax(unit, Enum.PowerType.Mana)
 		if (maxMana > 0) then
-			local displayValue = mana / maxMana * 100 + .5
-			return displayValue - displayValue%1
+			return AbbreviateNumber(mana)
 		end
 	end
+end
+
+Events[prefix("*:ManaText:Low")] = "UNIT_POWER_FREQUENT UNIT_MAXPOWER"
+Methods[prefix("*:ManaText:Low")] = function(unit)
+	if (UnitIsDeadOrGhost(unit)) then
+		return
+	else
+		local mana, maxMana = UnitPower(unit, Enum.PowerType.Mana), UnitPowerMax(unit, Enum.PowerType.Mana)
+		if (maxMana > 0) then
+			local perc = mana / maxMana
+			if (perc < .25) then
+				value = perc * 100 + .5
+				return value - value%1
+			end
+		end
+	end
+end
+
+Events[prefix("*:Level:Prefix")] = "UNIT_LEVEL PLAYER_LEVEL_UP UNIT_CLASSIFICATION_CHANGED"
+Methods[prefix("*:Level:Prefix")] = function(unit)
+	local l = Methods[prefix("*:Level")](unit, true)
+	return (l and l ~= T_BOSS) and l.." " or l
+end
+
+Events[prefix("*:Name")] = "UNIT_NAME_UPDATE"
+Methods[prefix("*:Name")] = function(unit, realUnit)
+	local name = UnitName(realUnit or unit)
+	if (name and string_find(name, "%s")) then
+		name = AbbreviateName(name)
+	end
+	return name
+end
+
+Events[prefix("*:Power")] = "UNIT_POWER_FREQUENT UNIT_MAXPOWER"
+Methods[prefix("*:Power")] = function(unit)
+	if (UnitIsDeadOrGhost(unit)) then
+		return
+	else
+		local power = UnitPower(unit)
+		return power > 0 and power
+	end
+end
+
+Events[prefix("*:Power:Full")] = "UNIT_POWER_FREQUENT UNIT_MAXPOWER"
+Methods[prefix("*:Power:Full")] = function(unit)
+	if (UnitIsDeadOrGhost(unit)) then
+		return
+	else
+		local power, powerMax = UnitPower(unit), UnitPowerMax(unit)
+		if (powerMax > 0) then
+			return power..c_gray.."/"..r..powerMax
+		end
+	end
+end
+
+Events[prefix("*:Rare")] = "UNIT_CLASSIFICATION_CHANGED"
+Methods[prefix("*:Rare")] = function(unit)
+	local classification = UnitClassification(unit)
+	local rare = classification == "rare" or classification == "rareelite"
+	if (rare) then
+		return c_rare.."("..L_RARE..")"..r
+	end
+end
+
+Events[prefix("*:Rare:Suffix")] = "UNIT_CLASSIFICATION_CHANGED"
+Methods[prefix("*:Rare:Suffix")] = function(unit)
+	local r = Methods[prefix("*:Rare")](unit)
+	return r and " "..r
 end
 
 Events[prefix("*:Dead")] = "UNIT_HEALTH UNIT_MAXHEALTH UNIT_CONNECTION"
@@ -260,46 +328,4 @@ else
 			return colorCode..l..r
 		end
 	end
-end
-
-Events[prefix("*:Level:Prefix")] = "UNIT_LEVEL PLAYER_LEVEL_UP UNIT_CLASSIFICATION_CHANGED"
-Methods[prefix("*:Level:Prefix")] = function(unit)
-	local l = Methods[prefix("*:Level")](unit, true)
-	return (l and l ~= T_BOSS) and l.." " or l
-end
-
-Events[prefix("*:Name")] = "UNIT_NAME_UPDATE"
-Methods[prefix("*:Name")] = function(unit, realUnit)
-	local name = UnitName(realUnit or unit)
-	if (name and string_find(name, "%s")) then
-		name = AbbreviateName(name)
-	end
-	return name
-end
-
-Events[prefix("*:Power:Full")] = "UNIT_POWER_FREQUENT UNIT_MAXPOWER"
-Methods[prefix("*:Power:Full")] = function(unit)
-	if (UnitIsDeadOrGhost(unit)) then
-		return
-	else
-		local current, total = UnitPower(unit), UnitPowerMax(unit)
-		if (total > 0) then
-			return current..c_gray.."/"..r..total
-		end
-	end
-end
-
-Events[prefix("*:Rare")] = "UNIT_CLASSIFICATION_CHANGED"
-Methods[prefix("*:Rare")] = function(unit)
-	local classification = UnitClassification(unit)
-	local rare = classification == "rare" or classification == "rareelite"
-	if (rare) then
-		return c_rare.."("..L_RARE..")"..r
-	end
-end
-
-Events[prefix("*:Rare:Suffix")] = "UNIT_CLASSIFICATION_CHANGED"
-Methods[prefix("*:Rare:Suffix")] = function(unit)
-	local r = Methods[prefix("*:Rare")](unit)
-	return r and " "..r
 end
