@@ -1,5 +1,5 @@
 --[[
-Copyright (c) 2010-2021, Hendrik "nevcairiel" Leppkes <h.leppkes@gmail.com>
+Copyright (c) 2010-2022, Hendrik "nevcairiel" Leppkes <h.leppkes@gmail.com>
 
 All rights reserved.
 
@@ -29,7 +29,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ]]
 local MAJOR_VERSION = "LibActionButton-1.0"
-local MINOR_VERSION = 94
+local MINOR_VERSION = 96
 
 if not LibStub then error(MAJOR_VERSION .. " requires LibStub.") end
 local lib, oldversion = LibStub:NewLibrary(MAJOR_VERSION, MINOR_VERSION)
@@ -1167,16 +1167,26 @@ function Update(self)
 		self.rangeTimer = - 1
 		if WoW10 then
 			if not self.MasqueSkinned then
+				self.SlotBackground:Hide()
 				if self.config.hideElements.border then
 					self.NormalTexture:SetTexture()
 					self.icon:RemoveMaskTexture(self.IconMask)
 					self.HighlightTexture:SetSize(52, 51)
 					self.HighlightTexture:SetPoint("TOPLEFT", self, "TOPLEFT", -2.5, 2.5)
+					self.CheckedTexture:SetSize(52, 51)
+					self.CheckedTexture:SetPoint("TOPLEFT", self, "TOPLEFT", -2.5, 2.5)
+					self.cooldown:ClearAllPoints()
+					self.cooldown:SetAllPoints()
 				else
 					self:SetNormalAtlas("UI-HUD-ActionBar-IconFrame-AddRow")
 					self.icon:AddMaskTexture(self.IconMask)
 					self.HighlightTexture:SetSize(46, 45)
 					self.HighlightTexture:SetPoint("TOPLEFT")
+					self.CheckedTexture:SetSize(46, 45)
+					self.CheckedTexture:SetPoint("TOPLEFT")
+					self.cooldown:ClearAllPoints()
+					self.cooldown:SetPoint("TOPLEFT", self, "TOPLEFT", 3, -2)
+					self.cooldown:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -3, 3)
 				end
 			end
 		else
@@ -1196,6 +1206,7 @@ function Update(self)
 		end
 		if WoW10 then
 			if not self.MasqueSkinned then
+				self.SlotBackground:Show()
 				if self.config.hideElements.borderIfEmpty then
 					self.NormalTexture:SetTexture()
 				else
