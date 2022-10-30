@@ -89,7 +89,6 @@ Config.Player = {
 	-- Seasonal Overrides & Additions
 	-----------------------------------------
 	Seasonal = {
-
 		-- Love Festival Combat Indicator
 		LoveFestivalCombatIndicatorPosition = { "BOTTOMLEFT", -61, 2 },
 		LoveFestivalCombatIndicatorSize = { 48, 48 },

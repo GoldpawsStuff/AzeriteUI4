@@ -513,13 +513,22 @@ UnitStyles["Player"] = function(self, unit, id)
 	self.HealthPrediction = healPredict
 	self.HealthPrediction.PostUpdate = HealPredict_PostUpdate
 
-	-- Health Cast Overlay
+	-- Cast Overlay
 	--------------------------------------------
 	local castbar = self:CreateBar()
 	castbar:SetFrameLevel(self:GetFrameLevel() + 5)
 	castbar:DisableSmoothing()
 
 	self.Castbar = castbar
+
+	-- Cast Name
+	--------------------------------------------
+	-- toggle health value and cast name when casting/channeling
+	-- white name on normal casts, yellow on protected!
+
+	-- Cast Time
+	--------------------------------------------
+
 
 	-- Health Value
 	--------------------------------------------
@@ -536,14 +545,6 @@ UnitStyles["Player"] = function(self, unit, id)
 	end
 
 	self.Health.Value = healthValue
-
-	-- Health Percentage
-	-- *we also add dead/offline flags here.
-	--------------------------------------------
-	--local healthPerc = overlay:CreateFontString(health:GetName().."PercentText", "OVERLAY", nil, 1)
-	--self:Tag(healthPerc, prefix("[*:Health:Percent][*:Dead][*:Offline]"))
-	--
-	--self.Health.ValuePercent = healthPerc
 
 	-- Absorb Bar (Retail)
 	--------------------------------------------
@@ -568,11 +569,9 @@ UnitStyles["Player"] = function(self, unit, id)
 	self.Power.UpdateColor = ns.Retail and Power_UpdateColor
 
 	local powerBackdrop = power:CreateTexture(nil, "BACKGROUND", nil, -2)
-
-	self.Power.Backdrop = powerBackdrop
-
 	local powerCase = power:CreateTexture(nil, "ARTWORK", nil, 1)
 
+	self.Power.Backdrop = powerBackdrop
 	self.Power.Case = powerCase
 
 	-- Power Value
@@ -611,20 +610,16 @@ UnitStyles["Player"] = function(self, unit, id)
 	self.AdditionalPower.Override = ns.API.UpdateAdditionalPower
 	self.AdditionalPower.OverrideVisibility = Mana_UpdateVisibility
 
-	local manaBackdrop = mana:CreateTexture(nil, "BACKGROUND", nil, -2)
-
-	self.AdditionalPower.Backdrop = manaBackdrop
-
 	local manaCaseFrame = CreateFrame("Frame", nil, mana)
 	manaCaseFrame:SetFrameLevel(mana:GetFrameLevel() + 1)
 	manaCaseFrame:SetAllPoints()
 
+	local manaBackdrop = mana:CreateTexture(nil, "BACKGROUND", nil, -2)
 	local manaShade = manaCaseFrame:CreateTexture(nil, "ARTWORK", nil, 1)
-
-	self.AdditionalPower.Shade = manaShade
-
 	local manaCase = manaCaseFrame:CreateTexture(nil, "ARTWORK", nil, 2)
 
+	self.AdditionalPower.Backdrop = manaBackdrop
+	self.AdditionalPower.Shade = manaShade
 	self.AdditionalPower.Case = manaCase
 
 	-- Mana Orb Value
