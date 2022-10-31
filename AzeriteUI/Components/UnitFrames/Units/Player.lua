@@ -647,9 +647,6 @@ UnitStyles["Player"] = function(self, unit, id)
 
 	-- Combat Indicator
 	--------------------------------------------
-
-	-- Combat Indicator
-	--------------------------------------------
 	local combatIndicator = overlay:CreateTexture(nil, "OVERLAY", nil, -2)
 	combatIndicator:SetSize(unpack(db.CombatIndicatorSize))
 	combatIndicator:SetPoint(unpack(db.CombatIndicatorPosition))

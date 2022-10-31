@@ -98,7 +98,7 @@ PetBar.UpdateVisibilityDriver = function(self)
 
 	local visdriver
 	if (self.enabled) then
-		visdriver = self.customVisibilityDriver or "[petbattle][possessbar][overridebar][vehicleui][target=vehicle,exists]hide;[pet]show;hide"
+		visdriver = self.customVisibilityDriver or "[petbattle][vehicleui]hide;[@pet,exists,nopossessbar]show;hide"
 	end
 	self:SetAttribute("visibility-driver", visdriver)
 
@@ -143,7 +143,7 @@ PetBar.Create = function(self, name, parent)
 	]])
 	bar.buttons = {}
 	bar.config = {
-		showgrid = false,
+		showgrid = true,
 		hidehotkey = true
 	}
 

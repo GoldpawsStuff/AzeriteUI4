@@ -479,23 +479,17 @@ local function Enable(self, unit)
 
 		self:RegisterEvent('UNIT_SPELLCAST_START', CastStart)
 		self:RegisterEvent('UNIT_SPELLCAST_CHANNEL_START', CastStart)
+		self:RegisterEvent('UNIT_SPELLCAST_EMPOWER_START', CastStart)
 		self:RegisterEvent('UNIT_SPELLCAST_STOP', CastStop)
 		self:RegisterEvent('UNIT_SPELLCAST_CHANNEL_STOP', CastStop)
+		self:RegisterEvent('UNIT_SPELLCAST_EMPOWER_STOP', CastStop)
 		self:RegisterEvent('UNIT_SPELLCAST_DELAYED', CastUpdate)
 		self:RegisterEvent('UNIT_SPELLCAST_CHANNEL_UPDATE', CastUpdate)
+		self:RegisterEvent('UNIT_SPELLCAST_EMPOWER_UPDATE', CastUpdate)
 		self:RegisterEvent('UNIT_SPELLCAST_FAILED', CastFail)
 		self:RegisterEvent('UNIT_SPELLCAST_INTERRUPTED', CastFail)
-
-		if (oUF.isRetail) then
-			self:RegisterEvent('UNIT_SPELLCAST_INTERRUPTIBLE', CastInterruptible)
-			self:RegisterEvent('UNIT_SPELLCAST_NOT_INTERRUPTIBLE', CastInterruptible)
-
-			if (oUF.clientMajor >= 10) then
-				self:RegisterEvent('UNIT_SPELLCAST_EMPOWER_START', CastStart)
-				self:RegisterEvent('UNIT_SPELLCAST_EMPOWER_STOP', CastStop)
-				self:RegisterEvent('UNIT_SPELLCAST_EMPOWER_UPDATE', CastUpdate)
-			end
-		end
+		self:RegisterEvent('UNIT_SPELLCAST_INTERRUPTIBLE', CastInterruptible)
+		self:RegisterEvent('UNIT_SPELLCAST_NOT_INTERRUPTIBLE', CastInterruptible)
 
 		element.holdTime = 0
 		element.Pips = {}
@@ -503,14 +497,9 @@ local function Enable(self, unit)
 		element:SetScript('OnUpdate', element.OnUpdate or onUpdate)
 
 		if(self.unit == 'player' and not (self.hasChildren or self.isChild or self.isNamePlate)) then
-			if (oUF.clientMajor >= 10) then
-				PlayerCastingBarFrame:SetUnit(nil)
-				PetCastingBarFrame:SetUnit(nil)
-				PetCastingBarFrame:UnregisterEvent('UNIT_PET')
-			else
-				CastingBarFrame_SetUnit(CastingBarFrame, nil)
-				CastingBarFrame_SetUnit(PetCastingBarFrame, nil)
-			end
+			PlayerCastingBarFrame:SetUnit(nil)
+			PetCastingBarFrame:SetUnit(nil)
+			PetCastingBarFrame:UnregisterEvent('UNIT_PET')
 		end
 
 		if(element:IsObjectType('StatusBar') and not element:GetStatusBarTexture()) then
@@ -545,33 +534,23 @@ local function Disable(self)
 
 		self:UnregisterEvent('UNIT_SPELLCAST_START', CastStart)
 		self:UnregisterEvent('UNIT_SPELLCAST_CHANNEL_START', CastStart)
+		self:UnregisterEvent('UNIT_SPELLCAST_EMPOWER_START', CastStart)
 		self:UnregisterEvent('UNIT_SPELLCAST_STOP', CastStop)
 		self:UnregisterEvent('UNIT_SPELLCAST_CHANNEL_STOP', CastStop)
+		self:UnregisterEvent('UNIT_SPELLCAST_EMPOWER_STOP', CastStop)
 		self:UnregisterEvent('UNIT_SPELLCAST_DELAYED', CastUpdate)
 		self:UnregisterEvent('UNIT_SPELLCAST_CHANNEL_UPDATE', CastUpdate)
+		self:UnregisterEvent('UNIT_SPELLCAST_EMPOWER_UPDATE', CastUpdate)
 		self:UnregisterEvent('UNIT_SPELLCAST_FAILED', CastFail)
 		self:UnregisterEvent('UNIT_SPELLCAST_INTERRUPTED', CastFail)
-
-		if (oUF.isRetail) then
-			self:UnregisterEvent('UNIT_SPELLCAST_INTERRUPTIBLE', CastInterruptible)
-			self:UnregisterEvent('UNIT_SPELLCAST_NOT_INTERRUPTIBLE', CastInterruptible)
-
-			if (oUF.clientMajor >= 10) then
-				self:UnregisterEvent('UNIT_SPELLCAST_EMPOWER_START', CastStart)
-				self:UnregisterEvent('UNIT_SPELLCAST_EMPOWER_STOP', CastStop)
-				self:UnregisterEvent('UNIT_SPELLCAST_EMPOWER_UPDATE', CastUpdate)
-			end
-		end
+		self:UnregisterEvent('UNIT_SPELLCAST_INTERRUPTIBLE', CastInterruptible)
+		self:UnregisterEvent('UNIT_SPELLCAST_NOT_INTERRUPTIBLE', CastInterruptible)
 
 		element:SetScript('OnUpdate', nil)
 
 		if(self.unit == 'player' and not (self.hasChildren or self.isChild or self.isNamePlate)) then
-			if (oUF.clientMajor >= 10) then
-				PlayerCastingBarFrame:OnLoad()
-			else
-				CastingBarFrame_OnLoad(CastingBarFrame, 'player', true, false)
-			end
-			PetCastingBarFrame_OnLoad(PetCastingBarFrame)
+			PlayerCastingBarFrame:OnLoad()
+			PetCastingBarFrame:PetCastingBar_OnLoad()
 		end
 	end
 end

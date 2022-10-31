@@ -82,7 +82,10 @@ ActionBar.CreateButton = function(self, id)
 		button.keyBoundTarget = string_format("MULTIACTIONBAR4BUTTON%d", id)
 	end
 
-	button:UpdateConfig({ keyBoundTarget = button.keyBoundTarget })
+	local config = button.config or {}
+	config.keyBoundTarget = button.keyBoundTarget
+
+	button:UpdateConfig(config)
 
 	self.buttons[#self.buttons + 1] = button
 
@@ -140,23 +143,30 @@ ActionBar.UpdateStateDriver = function(self)
 
 	local statedriver
 	if (self.id == 1) then
-		statedriver = "[overridebar][possessbar][shapeshift]possess; [form,noform] 0; [bar:2]2; [bar:3]3; [bar:4]4; [bar:5]5; [bar:6]6"
+		statedriver = "[overridebar][possessbar][shapeshift][bonusbar:5]possess; [form,noform] 0; [bar:2]2; [bar:3]3; [bar:4]4; [bar:5]5; [bar:6]6"
 
 		if (playerClass == "DRUID") then
-			statedriver = statedriver .. "; [bonusbar:1,nostealth] 7; [bonusbar:1,stealth] 7; [bonusbar:2] 8; [bonusbar:3] 9; [bonusbar:4] 10"
+			statedriver = statedriver .. "; [bonusbar:1] 7; [bonusbar:2] 8; [bonusbar:3] 9; [bonusbar:4] 10"
 
 		elseif (playerClass == "MONK") then
 			statedriver = statedriver .. "; [bonusbar:1] 7; [bonusbar:2] 8; [bonusbar:3] 9"
 
 		elseif (playerClass == "PRIEST") then
-			statedriver = statedriver .. "; [bonusbar:1] 7"
-
+			if (not ns.IsRetail) then
+				statedriver = statedriver .. "; [bonusbar:1] 7" -- Shadowform
+			end
 		elseif (playerClass == "ROGUE") then
-			statedriver = statedriver .. "; [bonusbar:1] 7"
-
+			if (ns.IsWrath) then
+				statedriver = statedriver .. "; [bonusbar:1] 7 [bonusbar:2] 8" -- Shadowdance
+			else
+				statedriver = statedriver .. "; [bonusbar:1] 7"
+			end
 		elseif (playerClass == "WARRIOR") then
-			statedriver = statedriver .. "; [bonusbar:1] 7; [bonusbar:2] 8"
+			if (not ns.IsRetail) then
+				statedriver = statedriver .. "; [bonusbar:1] 7; [bonusbar:2] 8; [bonusbar:3] 9"
+			end
 		end
+
 		statedriver = statedriver .. "; 1"
 	else
 		statedriver = tostring(self.id)
@@ -177,7 +187,7 @@ ActionBar.UpdateVisibilityDriver = function(self)
 		if (self.id == 1) then
 			visdriver = "[petbattle]hide;show"
 		else
-			visdriver = "[petbattle][possessbar][overridebar][vehicleui][target=vehicle,exists]hide;show"
+			visdriver = "[petbattle][possessbar][overridebar][vehicleui][@vehicle,exists]hide;show"
 		end
 	end
 
@@ -240,15 +250,18 @@ ActionBar.Create = function(self, id, name, parent)
 	]])
 
 	bar:SetAttribute("_onstate-page", [[
-		if newstate == "possess" or newstate == "11" then
-			if HasVehicleActionBar() then
+		if (newstate == "possess" or newstate == "11") then
+			if (HasVehicleActionBar()) then
 				newstate = GetVehicleBarIndex()
-			elseif HasOverrideActionBar() then
+			elseif (HasOverrideActionBar()) then
 				newstate = GetOverrideBarIndex()
-			elseif HasTempShapeshiftActionBar() then
+			elseif (HasTempShapeshiftActionBar()) then
 				newstate = GetTempShapeshiftBarIndex()
+			elseif (HasBonusActionBar() and GetActionBarPage() == 1) then
+				newstate = GetBonusBarIndex()
 			else
-				newstate = nil
+				-- Is it a good idea to use this fallback?
+				newstate = GetActionBarPage()
 			end
 			if not newstate then
 				newstate = 12
