@@ -108,10 +108,10 @@ function oUF:DisableBlizzard(unit)
 	elseif(unit:match('arena%d?$')) then
 		local id = unit:match('arena(%d)')
 		if(id) then
-			if (oUF.WoW10) then
-				handleFrame('ArenaEnemyMatchFrame' .. id)
-			else
+			if (oUF.isWrath) then
 				handleFrame('ArenaEnemyFrame' .. id)
+			else
+				handleFrame('ArenaEnemyMatchFrame' .. id)
 			end
 		else
 			for i = 1, MAX_ARENA_ENEMIES do
@@ -119,14 +119,9 @@ function oUF:DisableBlizzard(unit)
 			end
 		end
 
-		if (oUF.WoW10) then
-			-- this disables ArenaEnemyFramesContainer
-			SetCVar('showArenaEnemyFrames', '0')
-		else
-			-- Blizzard_ArenaUI should not be loaded
-			_G.Arena_LoadUI = function() end
-			SetCVar('showArenaEnemyFrames', '0', 'SHOW_ARENA_ENEMY_FRAMES_TEXT')
-		end
+		-- this disables ArenaEnemyFramesContainer
+		SetCVar('showArenaEnemyFrames', '0')
+		if(oUF.isWrath) then _G.Arena_LoadUI = function() end end
 
 	elseif(unit:match('nameplate%d+$')) then
 		local frame = C_NamePlate.GetNamePlateForUnit(unit)

@@ -259,16 +259,14 @@ local function Enable(self, unit)
 			end
 		end
 
-		-- ElvUI block
 		if element.IsObjectType and element:IsObjectType("Frame") then
 			element:Show()
 		end
-		-- end block
 
-		if oUF.isRetail then
-			self:RegisterEvent('PLAYER_SPECIALIZATION_CHANGED', ColorPath)
-		else
+		if oUF.isWrath then
 			self:RegisterEvent('RUNE_TYPE_UPDATE', ColorPath, true)
+		else
+			self:RegisterEvent('PLAYER_SPECIALIZATION_CHANGED', ColorPath)
 		end
 
 		self:RegisterEvent('RUNE_POWER_UPDATE', Path, true)
@@ -284,16 +282,14 @@ local function Disable(self)
 			element[i]:Hide()
 		end
 
-		-- ElvUI block
 		if element.IsObjectType and element:IsObjectType("Frame") then
 			element:Hide()
 		end
-		-- end block
 
-		if oUF.isRetail then
-			self:UnregisterEvent('PLAYER_SPECIALIZATION_CHANGED', ColorPath)
-		else
+		if oUF.Wrath then
 			self:UnregisterEvent('RUNE_TYPE_UPDATE', ColorPath)
+		else
+			self:UnregisterEvent('PLAYER_SPECIALIZATION_CHANGED', ColorPath)
 		end
 
 		self:UnregisterEvent('RUNE_POWER_UPDATE', Path)

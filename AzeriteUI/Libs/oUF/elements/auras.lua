@@ -71,7 +71,7 @@ button.auraInstanceID - unique ID for the current aura being tracked by the butt
 
 local _, ns = ...
 local oUF = ns.oUF
-if (not oUF.WoW10) then
+if (not oUF.isRetail) then
 	return
 end
 

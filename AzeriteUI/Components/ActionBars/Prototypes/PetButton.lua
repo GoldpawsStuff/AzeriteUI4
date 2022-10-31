@@ -72,69 +72,16 @@ PetButton.Create = function(self, id, name, parent)
 	button.id = id
 	button.parent = parent
 
-	button.icon = button.icon
-	button.autoCastable = button.AutoCastable
-	button.autoCastShine = button.AutoCastShine
-	button.border = button.Border
-	button.cooldown = button.cooldown
-	button.count = button.Count
-	button.flash = button.Flash
-	button.flyoutArrowContainer = button.FlyoutArrowContainer -- WoW10
-	button.flyoutBorder = button.FlyoutBorder
-	button.flyoutBorderShadow = button.FlyoutBorderShadow
-	button.hotkey = button.HotKey
-	button.levelLinkLockIcon = button.LevelLinkLockIcon -- Retail
-	button.macro = button.Name
-	button.newActionTexture = button.NewActionTexture
-	button.normalTexture = button.NormalTexture
-	button.spellHighlightAnim = button.SpellHighlightAnim
-	button.spellHighlightTexture = button.SpellHighlightTexture
-
-	if (ns.WoW10) then
-		button.checkedTexture = button.CheckedTexture
-		button.highlightTexture = button.HighlightTexture
-		button.pushedTexture = button.PushedTexture
-	else
-		button.checkedTexture = button:GetCheckedTexture()
-		button.highlightTexture = button:GetHighlightTexture()
-		button.pushedTexture = button:GetPushedTexture()
-	end
-
-	if (ns.WoW10) then
-		button.bottomDivider = button.BottomDivider
-		button.rightDivider = button.RightDivider
-		button.slotArt = button.SlotArt
-		button.slotBackground = button.SlotBackground
-	end
-
-	-- Classic overwrites the default texture
-	if (not ns.WoW10) then
-		if (ns.IsWrath) then
-			button.autoCastable = _G[name.."AutoCastable"]
-		end
-		button.autoCastShine = _G[name.."Shine"]
-	end
-
-	button.pushedTexture = button:GetPushedTexture()
-	button.highlightTexture = button:GetHighlightTexture()
-
-	button.textureCache = {}
-	button.textureCache.pushed = button.pushedTexture:GetTexture()
-	button.textureCache.highlight = button.highlightTexture:GetTexture()
-
-	--button:SetFrameStrata("MEDIUM")
-
 	button:SetID(id)
 	button:SetAttribute("type", "pet")
 	button:SetAttribute("action", id)
 	button:SetAttribute("buttonLock", true)
 
 	button:RegisterForDrag("LeftButton", "RightButton")
-	button:RegisterForClicks("AnyUp", ns.WoW10 and "AnyDown")
+	button:RegisterForClicks("AnyUp", ns.IsRetail and "AnyDown")
 
 	button:UnregisterAllEvents()
 	button:SetScript("OnEvent", nil)
-
 	button:SetScript("OnEnter", PetButton.OnEnter)
 	button:SetScript("OnLeave", PetButton.OnLeave)
 	button:SetScript("OnDragStart", PetButton.OnDragStart)

@@ -148,7 +148,7 @@ local UpdateUsable = function(self)
 		end
 	end
 
-	if (not ns.IsClassic and not ns.IsTBC and not ns.IsWrath and self._state_type == "action") then
+	if (ns.IsRetail and self._state_type == "action") then
 		local isLevelLinkLocked = C_LevelLink.IsActionLocked(self._state_action)
 		if (not self.icon:IsDesaturated()) then
 			self.icon:SetDesaturated(isLevelLinkLocked)

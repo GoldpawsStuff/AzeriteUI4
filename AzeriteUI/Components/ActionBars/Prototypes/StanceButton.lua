@@ -49,50 +49,12 @@ ns.StanceButton = Button
 
 Button.Create = function(self, id, name, parent)
 
-	local name = ns.Prefix.."StanceButton"..id
 	local button = setmetatable(CreateFrame("CheckButton", name, parent, "StanceButtonTemplate"), Button_MT)
-
-	button:Hide()
-	button:SetID(id)
 	button.id = id
 	button.parent = parent
 
-	button.icon = button.icon
-	button.autoCastable = button.AutoCastable
-	button.autoCastShine = button.AutoCastShine
-	button.border = button.Border
-	button.cooldown = button.cooldown
-	button.count = button.Count
-	button.flash = button.Flash
-	button.flyoutArrowContainer = button.FlyoutArrowContainer -- WoW10
-	button.flyoutBorder = button.FlyoutBorder
-	button.flyoutBorderShadow = button.FlyoutBorderShadow
-	button.hotkey = button.HotKey
-	button.levelLinkLockIcon = button.LevelLinkLockIcon -- Retail
-	button.macro = button.Name
-	button.newActionTexture = button.NewActionTexture
-	button.normalTexture = button.NormalTexture
-	button.normalTexture2 = _G[name.."NormalTexture2"]
-	button.spellHighlightAnim = button.SpellHighlightAnim
-	button.spellHighlightTexture = button.SpellHighlightTexture
-
-	if (ns.WoW10) then
-		button.checkedTexture = button.CheckedTexture
-		button.highlightTexture = button.HighlightTexture
-		button.pushedTexture = button.PushedTexture
-	else
-		button.checkedTexture = button:GetCheckedTexture()
-		button.highlightTexture = button:GetHighlightTexture()
-		button.pushedTexture = button:GetPushedTexture()
-	end
-
-	if (ns.WoW10) then
-		button.bottomDivider = button.BottomDivider
-		button.rightDivider = button.RightDivider
-		button.slotArt = button.SlotArt
-		button.slotBackground = button.SlotBackground
-	end
-
+	button:Hide()
+	button:SetID(id)
 	button:SetScript("OnEnter", Button.OnEnter)
 	button:SetScript("OnLeave", Button.OnLeave)
 
@@ -154,7 +116,7 @@ end
 
 Button.UpdateHotkeys = function(self)
 	local key = self:GetHotkey() or ""
-	local hotkey = self.hotkey
+	local hotkey = self.HotKey
 
 	if key == "" or self.hidehotkey then
 		hotkey:Hide()

@@ -283,6 +283,30 @@ local Power_UpdateColor = function(self, event, unit)
 	end
 end
 
+-- Toggle cast text color on protected casts.
+local Cast_PostCastInterruptible = function(element, unit)
+	if (element.notInterruptible) then
+		element.Text:SetTextColor(unpack(element.color))
+	else
+		element.Text:SetTextColor(unpack(element.colorProtected))
+	end
+end
+
+-- Toggle cast info and health info when castbar is visible.
+local Cast_UpdateTexts = function(element)
+	local health = element.__owner.Health
+
+	if (element:IsShown()) then
+		element.Text:Show()
+		element.Time:Show()
+		health.Value:Hide()
+	else
+		element.Text:Hide()
+		element.Time:Hide()
+		health.Value:Show()
+	end
+end
+
 -- Trigger PvPIndicator post update when combat status is toggled.
 local CombatIndicator_PostUpdate = function(element, inCombat)
 	element.__owner.PvPIndicator:ForceUpdate()
@@ -523,12 +547,33 @@ UnitStyles["Player"] = function(self, unit, id)
 
 	-- Cast Name
 	--------------------------------------------
-	-- toggle health value and cast name when casting/channeling
-	-- white name on normal casts, yellow on protected!
+	local castText = health:CreateFontString(nil, "OVERLAY", nil, 1)
+	castText:SetPoint(unpack(db.HealthValuePosition))
+	castText:SetFontObject(db.HealthValueFont)
+	castText:SetTextColor(unpack(db.CastBarTextColor))
+	castText:SetJustifyH(db.HealthValueJustifyH)
+	castText:SetJustifyV(db.HealthValueJustifyV)
+	castText:Hide()
+	castText.color = db.CastBarTextColor
+	castText.colorProtected = Colors.CastBarTextProtectedColor
+
+	self.Castbar.Text = castText
+	self.Castbar.PostCastInterruptible = Cast_PostCastInterruptible
 
 	-- Cast Time
 	--------------------------------------------
+	local castTime = health:CreateFontString(nil, "OVERLAY", nil, 1)
+	castTime:SetPoint(unpack(db.CastBarValuePosition))
+	castTime:SetFontObject(db.CastBarValueFont)
+	castTime:SetTextColor(unpack(db.CastBarTextColor))
+	castTime:SetJustifyH(db.CastBarValueJustifyH)
+	castTime:SetJustifyV(db.CastBarValueJustifyV)
+	castTime:Hide()
 
+	self.Castbar.Time = castTime
+
+	self.Castbar:HookScript("OnShow", Cast_UpdateTexts)
+	self.Castbar:HookScript("OnHide", Cast_UpdateTexts)
 
 	-- Health Value
 	--------------------------------------------
@@ -667,11 +712,37 @@ UnitStyles["Player"] = function(self, unit, id)
 	self.PvPIndicator = PvPIndicator
 	self.PvPIndicator.Override = PvPIndicator_Override
 
+	-- Auras
+	--------------------------------------------
+	local auras = CreateFrame("Frame", nil, self)
+	auras:SetSize(unpack(db.AurasSize))
+	auras:SetPoint(unpack(db.AurasPosition))
+	auras.size = 36
+	auras.spacing = 4
+	auras.numTotal = 16
+	auras.disableMouse = false
+	auras.disableCooldown = false
+	auras.onlyShowPlayer = false
+	auras.showStealableBuffs = false
+	auras.initialAnchor = "BOTTOMLEFT"
+	auras["spacing-x"] = 4
+	auras["spacing-y"] = 4
+	auras["growth-x"] = "RIGHT"
+	auras["growth-y"] = "UP"
+	auras.tooltipAnchor = "ANCHOR_TOPRIGHT"
+	auras.sortMethod = "TIME_REMAINING"
+	auras.sortDirection = "DESCENDING"
+	auras.CreateButton = ns.AuraStyles.CreateButton
+	auras.PostUpdateButton = ns.AuraStyles.PlayerPostUpdateButton
+	auras.CustomFilter = ns.AuraFilters.PlayerAuraFilter
+	auras.PreSetPosition = ns.AuraSorts.Default
+
+	self.Auras = auras
+
 	-- Seasonal Flavors
 	--------------------------------------------
 	-- Feast of Winter Veil
 	if (IsWinterVeil) then
-
 		local winterVeilPower = power:CreateTexture(nil, "OVERLAY", nil, 0)
 		winterVeilPower:SetSize(unpack(db.Seasonal.WinterVeilPowerSize))
 		winterVeilPower:SetPoint(unpack(db.Seasonal.WinterVeilPowerPlace))
@@ -689,18 +760,17 @@ UnitStyles["Player"] = function(self, unit, id)
 
 	-- Love is in the Air
 	if (IsLoveFestival) then
-
 		combatIndicator:SetSize(unpack(db.LoveFestivalCombatIndicatorSize))
 		combatIndicator:ClearAllPoints()
 		combatIndicator:SetPoint(unpack(db.LoveFestivalCombatIndicatorPosition))
 		combatIndicator:SetTexture(db.LoveFestivalCombatIndicatorTexture)
 		combatIndicator:SetVertexColor(unpack(db.LoveFestivalCombatIndicatorColor))
-
 	end
 
 	-- Add a callback for external style overriders
 	self:AddForceUpdate(UnitFrame_UpdateTextures)
 
+	-- Register events to handle texture updates.
 	self:RegisterEvent("PLAYER_ALIVE", OnEvent, true)
 	self:RegisterEvent("PLAYER_ENTERING_WORLD", OnEvent, true)
 	self:RegisterEvent("DISABLE_XP_GAIN", OnEvent, true)

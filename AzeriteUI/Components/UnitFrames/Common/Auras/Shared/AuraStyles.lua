@@ -33,7 +33,7 @@ local GetMedia = ns.API.GetMedia
 
 local UpdateTooltip = function(self)
 	if (GameTooltip:IsForbidden()) then return end
-	if (not ns.WoW10) then
+	if (not ns.IsRetail) then
 		GameTooltip:SetUnitAura(self:GetParent().__owner.unit, self:GetID(), self.filter)
 	else
 		if (self.isHarmful) then

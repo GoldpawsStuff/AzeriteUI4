@@ -67,6 +67,17 @@ Config.Player = {
 	ManaValueColor = { Colors.highlight[1], Colors.highlight[2], Colors.highlight[3], .4 },
 	ManaValueFont = GetFont(18, true),
 
+	-- Castbar Name Text
+	CastBarTextColor = { Colors.highlight[1], Colors.highlight[2], Colors.highlight[3], .5 },
+	CastBarTextProtectedColor = { Colors.normal[1], Colors.normal[2], Colors.normal[3], .75 },
+
+	-- Castbar Value Text
+	CastBarValuePosition = { "RIGHT", -27, 4 },
+	CastBarValueJustifyH = "CENTER",
+	CastBarValueJustifyV = "MIDDLE",
+	CastBarValueFont = GetFont(18, true),
+	CastBarValueColor = { Colors.highlight[1], Colors.highlight[2], Colors.highlight[3], .4 },
+
 	-- Combat Feedback Text
 	CombatFeedbackAnchorElement = "Health",
 	CombatFeedbackPosition = { "CENTER", 0, 0 },
@@ -85,6 +96,11 @@ Config.Player = {
 	PvPIndicatorSize = { 84, 84 },
 	PvPIndicatorAllianceTexture = GetMedia("icon_badges_alliance"),
 	PvPIndicatorHordeTexture = GetMedia("icon_badges_horde"),
+
+	-- Auras
+	-----------------------------------------
+	AurasPosition = { "BOTTOMLEFT", 37, 91 },
+	AurasSize = { 40*8 - 6, 40*2 - 6 },
 
 	-- Seasonal Overrides & Additions
 	-----------------------------------------

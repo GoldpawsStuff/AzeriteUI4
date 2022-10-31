@@ -24,12 +24,12 @@
 
 --]]
 local Addon, ns = ...
-if (not ns.WoW10) then
+if (not ns.IsRetail) then
 	return
 end
 ns.AuraFilters = ns.AuraFilters or {}
 
-ns.AuraFilters.PlayerBuffFilter = function(element, unit, data)
+ns.AuraFilters.PlayerAuraFilter = function(element, unit, data)
 
 	--button.unitIsCaster = unit and caster and UnitIsUnit(unit, caster)
 	button.spell = data.name
@@ -44,23 +44,6 @@ ns.AuraFilters.PlayerBuffFilter = function(element, unit, data)
 	end
 
 	return (not button.noDuration and data.duration < 301) or (button.timeLeft and button.timeLeft > 0 and button.timeLeft < 31) or (data.count > 1)
-end
-
-ns.AuraFilters.PlayerDebuffFilter = function(element, unit, data)
-
-	--button.unitIsCaster = unit and caster and UnitIsUnit(unit, caster)
-	button.spell = data.name
-	button.timeLeft = data.expiration and (data.expiration - GetTime())
-	button.expiration = data.expiration
-	button.duration = data.duration
-	button.noDuration = (not data.duration or data.duration == 0)
-	button.isPlayer = data.isPlayerAura
-
-	if (data.isBossDebuff) then
-		return true
-	end
-
-	return true
 end
 
 ns.AuraFilters.TargetAuraFilter = function(element, unit, data)

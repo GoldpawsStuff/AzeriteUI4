@@ -24,7 +24,7 @@
 
 --]]
 local Addon, ns = ...
-if (not ns.WoW10) then
+if (not ns.IsRetail) then
 	return
 end
 ns.AuraStyles = ns.AuraStyles or {}
@@ -45,7 +45,7 @@ ns.AuraStyles.PlayerPostUpdateButton = function(element, button, unit, data, pos
 	end
 	if (color) then
 		button.Border:SetBackdropBorderColor(color[1], color[2], color[3])
-		button.Bar:SetStatusBarColor(color[1], color[2], color[3])
+		--button.Bar:SetStatusBarColor(color[1], color[2], color[3])
 	end
 
 	-- Icon Coloring
