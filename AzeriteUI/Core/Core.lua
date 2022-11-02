@@ -84,6 +84,8 @@ local ReloadUI = ReloadUI
 local IsAddOnAvailable = ns.API.IsAddOnAvailable
 local SetRelativeScale = ns.API.SetRelativeScale
 local UpdateObjectScales = ns.API.UpdateObjectScales
+local ShowMovableFrameAnchors = ns.Widgets.ShowMovableFrameAnchors
+local HideMovableFrameAnchors = ns.Widgets.HideMovableFrameAnchors
 
 -- Purge deprecated settings,
 -- translate to new where applicable,
@@ -103,6 +105,14 @@ end
 -- Proxy method to avoid modules using the callback object directly
 ns.Fire = function(self, name, ...)
 	ns.callbacks:Fire(name, ...)
+end
+
+ns.LockMovableFrames = function(self)
+	ShowMovableFrameAnchors()
+end
+
+ns.UnlockMovableFrames = function(self)
+	HideMovableFrameAnchors()
 end
 
 ns.ResetScale = function(self)
@@ -210,6 +220,8 @@ ns.OnInitialize = function(self)
 	-- Fully experimental
 	self:RegisterChatCommand("setscale", "SetScale")
 	self:RegisterChatCommand("resetscale", "ResetScale")
+	self:RegisterChatCommand("lock", "LockMovableFrames")
+	self:RegisterChatCommand("unlock", "UnlockMovableFrames")
 
 	-- In case some other jokers have disabled these, we add them back to avoid a World of Bugs.
 	-- RothUI used to remove the two first, and a lot of people missed his documentation on how to get them back.

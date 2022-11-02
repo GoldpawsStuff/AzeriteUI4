@@ -28,6 +28,7 @@
 		  so don't define Widget upvalues at loading!
 	-->
 	<Script file="Widgets\Cooldowns.lua"/>
+	<Script file="Widgets\MovableFrames.lua"/>
 
 	<!-- Core -->
 	<Script file="Core.lua"/>
