@@ -46,13 +46,16 @@ local GetScale = ns.API.GetScale
 local SetObjectScale = ns.API.SetObjectScale
 local UIHider = ns.Hider
 
--- Caches
-local Anchors = {}
+-- Private event frame
+local Frame = CreateFrame("Frame")
+Frame:SetScript("OnEvent", function(self, event, ...)
+	if (event == "PLAYER_REGEN_DISABLED") then
+		Widgets:HideMovableFrameAnchors()
+	end
+end)
 
--- Compare two inprecise floats.
-local compare = function(point, x, y, point2, x2, y2)
-	return point == point and math_abs(x - x2) < 0.01 and math_abs(y - y2) < 0.01
-end
+-- Anchor cache
+local Anchors = {}
 
 -- Anchor Template
 local Anchor = CreateFrame("Frame")
@@ -93,11 +96,16 @@ Anchor.Create = function(self, frame, savedPosition)
 	anchor:SetScript("OnEnter", Anchor.OnEnter)
 	anchor:SetScript("OnLeave", Anchor.OnLeave)
 
-	Frame:RegisterEvent("PLAYER_REGEN_DISABLED")
-
 	Anchors[#Anchors + 1] = anchor
 
+	Frame:RegisterEvent("PLAYER_REGEN_DISABLED")
+
 	return anchor
+end
+
+-- Compare two anchor points.
+local compare = function(point, x, y, point2, x2, y2)
+	return point == point and math_abs(x - x2) < 0.01 and math_abs(y - y2) < 0.01
 end
 
 -- 'true' if the frame has moved since last showing the anchor.
@@ -266,10 +274,3 @@ Widgets.HideMovableFrameAnchors = function()
 		anchor:Hide()
 	end
 end
-
--- Keep anchors hidden in combat.
-CreateFrame("Frame"):SetScript("OnEvent", function(self, event, ...)
-	if (event == "PLAYER_REGEN_DISABLED") then
-		Widgets:HideMovableFrameAnchors()
-	end
-end)
