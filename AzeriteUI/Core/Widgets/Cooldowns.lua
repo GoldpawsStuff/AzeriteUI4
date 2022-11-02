@@ -24,7 +24,8 @@
 
 --]]
 local Addon, ns = ...
-local Widgets = {}
+local Widgets = ns.Private.Widgets or {}
+ns.Private.Widgets = Widgets
 
 -- Lua API
 local pairs = pairs
@@ -56,8 +57,8 @@ Timer:SetScript("OnUpdate", function(self, elapsed)
 	for cooldown,info in next,Active do
 		timeLeft = info.expiration - now
 
-		-- Don't show bars and texts for cooldowns 
-		-- shorter than the global cooldown. Their spirals is enough. 
+		-- Don't show bars and texts for cooldowns
+		-- shorter than the global cooldown. Their spirals is enough.
 		if (timeLeft > 0) and (info.duration > 1.5) then
 			if (info.Bar) and (info.Bar:IsVisible()) then
 				info.Bar:SetValue(timeLeft)
@@ -104,8 +105,8 @@ end
 
 -- Virtual Cooldown Template
 ---------------------------------------------------------
--- This is meant as a way for bars and texts to  
--- piggyback on the normal cooldown API, 
+-- This is meant as a way for bars and texts to
+-- piggyback on the normal cooldown API,
 -- without using a normal cooldown frame.
 -- We're only adding methods we or our libraries use.
 local Cooldown = {}
@@ -134,7 +135,7 @@ Cooldown.SetCooldown = function(self, start, duration)
 	if (not Timer:IsShown()) then
 		Timer:Show()
 	end
-end 
+end
 
 Cooldown.Clear = function(self)
 	if (Active[self]) then
@@ -143,19 +144,19 @@ Cooldown.Clear = function(self)
 		info.expiration = 0
 		info.duration = 0
 	end
-end 
+end
 
-Cooldown.Show = function(self) 
+Cooldown.Show = function(self)
 	local info = Cooldowns[self]
 	if info.Bar then
 		if (not info.Bar:IsShown()) then
 			info.Bar:Show()
 		end
 	end
-	info.shown = true 
+	info.shown = true
 end
 
-Cooldown.Hide = function(self) 
+Cooldown.Hide = function(self)
 	local info = Cooldowns[self]
 	if info.Bar then
 		info.Bar:Hide()
@@ -165,22 +166,22 @@ Cooldown.Hide = function(self)
 	if info.Time then
 		info.Time:SetText("")
 	end
-	info.shown = nil 
+	info.shown = nil
 	self:Clear()
-end 
-
-Cooldown.IsShown = function(self) 
-	return self._isshown 
 end
 
-Cooldown.IsObjectType = function(self, objectType) 
-	return objectType == "Cooldown" 
+Cooldown.IsShown = function(self)
+	return self._isshown
+end
+
+Cooldown.IsObjectType = function(self, objectType)
+	return objectType == "Cooldown"
 end
 
 -- Global API
 ---------------------------------------------------------
 Widgets.RegisterCooldown = function(...)
-	-- Check if an actual element is passed, 
+	-- Check if an actual element is passed,
 	-- and hook its relevant methods if so.
 	local cooldown
 	for i,v in pairs({...}) do
@@ -199,7 +200,7 @@ Widgets.RegisterCooldown = function(...)
 		AttachToCooldown(cooldown, ...)
 		return cooldown
 	else
-		-- Only subelements were passed, 
+		-- Only subelements were passed,
 		-- so we need a virtual cooldown element.
 		local cooldown = setmetatable({}, Cooldown_MT)
 		Cooldowns[cooldown] = { shown = nil }
@@ -207,5 +208,3 @@ Widgets.RegisterCooldown = function(...)
 		return cooldown
 	end
 end
-
-ns.Private.Widgets = Widgets
