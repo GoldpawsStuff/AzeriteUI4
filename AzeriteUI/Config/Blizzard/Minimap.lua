@@ -29,4 +29,42 @@ ns.Config = Config
 
 Config.Minimap = {
 
+	Size = { 213, 213 },
+	Position = { "BOTTOMRIGHT", UIParent, "BOTTOMRIGHT", -58, 59 },
+	MaskTexture = GetMedia("minimap-mask-transparent"),
+
+	BackdropSize = { 217, 217 },
+	BackdropPosition = { "CENTER", 0, 0 },
+	BackdropTexture = GetMedia("minimap-mask-opaque"),
+	BackdropColor = { 0, 0, 0, .75 },
+
+	BorderSize = { 419, 419 },
+	BorderPosition = { "CENTER", 0, 0 },
+	BorderTexture = GetMedia("minimap-border"),
+	BorderColor = { Colors.ui[1], Colors.ui[2], Colors.ui[3] },
+
+	CoordinateColor = { Colors.offwhite[1], Colors.offwhite[2], Colors.offwhite[3], .75 },
+	CoordinateFont = GetFont(12, true),
+	CoordinatePlace = { "BOTTOM", 3, 23 },
+
+	ClockPosition = { "BOTTOMRIGHT", -226, -8 },
+	ClockFont = GetFont(15,true),
+	ClockColor = { Colors.offwhite[1], Colors.offwhite[2], Colors.offwhite[3] },
+
+	-- About 8px to the left of the clock.
+	ZoneTextPosition = { "BOTTOMRIGHT", -(226 + 100), -8 }, -- adjust this
+	ZoneTextFont = GetFont(15,true),
+	ZoneTextAlpha = .85,
+
+	-- About 6px Above the clock, slightly indented towards the left.
+	FrameRatePosition = { "BOTTOMRIGHT", -(226 + 6), -8 + 6 },
+	FrameRateFont = GetFont(12,true),
+	FrameRateColor = { Colors.offwhite[1], Colors.offwhite[2], Colors.offwhite[3], .5 },
+
+	-- To the left of the framerate, right above the zone text.
+	LatencyPosition = { "BOTTOMRIGHT", -(226 + 100), -8 + 6 }, -- adjust this
+	LatencyFont = GetFont(12,true),
+	LatencyColor = { Colors.offwhite[1], Colors.offwhite[2], Colors.offwhite[3], .5 },
+
+
 }

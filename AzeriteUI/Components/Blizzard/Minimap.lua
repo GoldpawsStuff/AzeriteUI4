@@ -38,6 +38,7 @@ local select = select
 local string_format = string.format
 local string_lower = string.lower
 local string_match = string.match
+local string_upper = string.upper
 local unpack = unpack
 
 -- WoW API
@@ -70,12 +71,13 @@ local IsAddOnEnabled = ns.API.IsAddOnEnabled
 
 -- WoW Strings
 local L_FPS = FPS_ABBR -- "fps"
-local L_MS = MILLISECONDS_ABBR -- "ms"
 local L_RESTING = TUTORIAL_TITLE30 -- "Resting"
 local L_NEW = NEW -- "New"
 local L_MAIL = MAIL_LABEL -- "Mail"
 local L_HAVE_MAIL = HAVE_MAIL -- "You have unread mail"
 local L_HAVE_MAIL_FROM = HAVE_MAIL_FROM -- "Unread mail from:"
+local L_HOME = HOME -- "Home"
+local L_WORLD = WORLD -- "World"
 
 -- Constants
 local TORGHAST_ZONE_ID = 2162
@@ -83,6 +85,14 @@ local IN_TORGHAST = (not IsResting()) and (GetRealZoneText() == GetRealZoneText(
 
 local UIHider = ns.Hider
 local noop = ns.Noop
+
+local getTimeStrings = function(h, m, suffix, useHalfClock, abbreviateSuffix)
+	if (useHalfClock) then
+		return "%.0f:%02.0f |cff888888%s|r", h, m, abbreviateSuffix and string_match(suffix, "^.") or suffix
+	else
+		return "%02.0f:%02.0f", h, m
+	end
+end
 
 local Minimap_OnMouseWheel = function(self, delta)
 	if (delta > 0) then
@@ -114,19 +124,10 @@ local Minimap_OnMouseUp = function(self, button)
 	end
 end
 
-local getTimeStrings = function(h, m, suffix, useHalfClock, abbreviateSuffix)
-	if (useHalfClock) then
-		return "%.0f:%02.0f |cff888888%s|r", h, m, abbreviateSuffix and string_match(suffix, "^.") or suffix
-	else
-		return "%02.0f:%02.0f", h, m
-	end
-end
-
 local Mail_OnEnter = function(self)
 	if (GameTooltip:IsForbidden()) then return end
 
-	GameTooltip:SetOwner(self:GetParent(), "ANCHOR_NONE")
-	GameTooltip:SetPoint("TOPRIGHT", Minimap, "TOPLEFT", -40, 0)
+	GameTooltip_SetDefaultAnchor(GameTooltip, self)
 
 	local sender1, sender2, sender3 = GetLatestThreeSenders()
 	if (sender1 or sender2 or sender3) then
@@ -143,6 +144,7 @@ local Mail_OnEnter = function(self)
 	else
 		GameTooltip:AddLine(L_HAVE_MAIL, unpack(Colors.highlight))
 	end
+
 	GameTooltip:Show()
 end
 
@@ -160,8 +162,7 @@ local Time_UpdateTooltip = function(self)
 	local r, g, b = unpack(Colors.normal)
 	local rh, gh, bh = unpack(Colors.highlight)
 
-	GameTooltip:SetOwner(self:GetParent(), "ANCHOR_NONE")
-	GameTooltip:SetPoint("TOPRIGHT", Minimap, "TOPLEFT", -40, 0)
+	GameTooltip_SetDefaultAnchor(GameTooltip, self)
 	GameTooltip:AddLine(TIMEMANAGER_TOOLTIP_TITLE, unpack(Colors.title))
 	GameTooltip:AddDoubleLine(TIMEMANAGER_TOOLTIP_LOCALTIME, string_format(getTimeStrings(lh, lm, lsuffix, useHalfClock)), rh, gh, bh, r, g, b)
 	GameTooltip:AddDoubleLine(TIMEMANAGER_TOOLTIP_REALMTIME, string_format(getTimeStrings(sh, sm, ssuffix, useHalfClock)), rh, gh, bh, r, g, b)
@@ -225,18 +226,15 @@ Bigmap.UpdateCompass = function(self)
 end
 
 Bigmap.UpdatePerformance = function(self)
-	local performance = self.performance
-	if (not performance) then
-		return
-	end
 
 	local now = GetTime()
 	local fps = GetFramerate()
-	local world
+	local world, home
+
 	if (not performance.nextUpdate) or (now >= performance.nextUpdate) then
 		-- latencyHome: chat, auction house, some addon data
 		-- latencyWorld: combat, data from people around you(specs, gear, enchants, etc.), NPCs, mobs, casting, professions
-		_, _, _, world = GetNetStats()
+		_, _, home, world = GetNetStats()
 		performance.nextUpdate = now + 30
 		performance.latencyWorld = world
 	else
@@ -246,14 +244,16 @@ Bigmap.UpdatePerformance = function(self)
 	local hasFps = fps and fps > 0
 	local hasLatency = world and world > 0
 
-	if (hasLatency and hasFps) then
-		performance:SetFormattedText("|cffaaaaaa%.0f|r|cff888888%s|r |cffaaaaaa%.0f|r|cff888888%s|r", world, L_MS, fps, L_FPS)
-	elseif (hasLatency) then
-		performance:SetFormattedText("|cffaaaaaa%.0f|r|cff888888%s|r", world, L_MS)
-	elseif (hasFps) then
-		performance:SetFormattedText("|cffaaaaaa%.0f|r|cff888888%s|r", fps, L_FPS)
+	if (hasFps) then
+		self.fps:SetFormattedText("|cff888888%.0f %s|r", math_floor(fps), string_upper(string_match(L_FPS, "^.")))
 	else
-		performance:SetText("")
+		self.fps:SetText("")
+	end
+
+	if (hasLatency) then
+		self.latency:SetFormattedText("|cff888888%s|r %.0f - |cff888888%s|r %.0f", string_upper(string_match(L_HOME, "^.")), math_floor(home), string_upper(string_match(L_WORLD, "^.")), math_floor(world))
+	else
+		self.latency:SetText("")
 	end
 
 end
@@ -380,6 +380,7 @@ Bigmap.InitializeMinimap = function(self)
 
 	local MinimapCluster = SetObjectScale(_G.MinimapCluster)
 	local Minimap = _G.Minimap
+	local db = ns.Config.Minimap
 
 	-- Clear Clutter
 	--------------------------------------------------------
@@ -436,10 +437,8 @@ Bigmap.InitializeMinimap = function(self)
 		MinimapBackdrop:SetParent(UIHider)
 	end
 
-
 	-- Setup Main Frames
 	--------------------------------------------------------
-
 	if (ns.IsRetail) then
 		local dummy = CreateFrame("Frame", nil, MinimapCluster)
 		dummy:SetPoint(Minimap:GetPoint())
@@ -454,100 +453,86 @@ Bigmap.InitializeMinimap = function(self)
 		MinimapCluster.Minimap = dummy
 	end
 
-	-- The cluster is the parent to everything.
-	-- This prevents the default zone text from being updated,
-	-- as well as disables its tooltip.
-	--MinimapCluster:UnregisterAllEvents()
-	--MinimapCluster:SetScript("OnEvent", noop)
-	--MinimapCluster:EnableMouse(false)
-	--MinimapCluster:SetSize(320,380) -- default size 192,192
-	--MinimapCluster.defaultHeight = 340
-
 	local minimapHolder = CreateFrame("Frame", ns.Prefix.."MinimapAnchor", Minimap)
-	minimapHolder:SetSize(280,280) -- keep it minimap sized
-	minimapHolder:SetPoint("TOPRIGHT", UIParent, "TOPRIGHT", -60, -60)
+	minimapHolder:SetSize(unpack(db.Size))
+	minimapHolder:SetPoint(unpack(db.Position))
 
 	Minimap:SetFrameStrata("MEDIUM")
 	Minimap:ClearAllPoints()
-	--Minimap:SetPoint("CENTER", MinimapCluster, "TOP", 20, -160) -- can we detach it?
 	Minimap:SetPoint("TOPRIGHT", minimapHolder, "TOPRIGHT", 0, 0)
-	Minimap:SetSize(280,280) -- default is 140,140
-	Minimap:SetMaskTexture(GetMedia("minimap-mask-transparent"))
+	Minimap:SetSize(unpack(db.Size))
+	Minimap:SetMaskTexture(db.MaskTexture)
 	Minimap:EnableMouseWheel(true)
 	Minimap:SetScript("OnMouseWheel", Minimap_OnMouseWheel)
 	Minimap:SetScript("OnMouseUp", Minimap_OnMouseUp)
 
 	-- Custom Widgets
 	--------------------------------------------------------
-	-- Hoverframe to gather some stuff.
-	local hoverFrame = CreateFrame("Frame", nil, Minimap)
-	hoverFrame:SetMouseClickEnabled(false)
-	hoverFrame:SetMouseMotionEnabled(true)
-	hoverFrame:SetPoint("TOPLEFT", Minimap, "BOTTOMLEFT", 0, 0)
-	hoverFrame:SetPoint("BOTTOMRIGHT", 0, 40)
-	hoverFrame:SetAlpha(0)
-	local overMap, overInfo
-	local updateHover = function() hoverFrame:SetAlpha((overMap or overInfo) and 1 or 0) end
-	hoverFrame:SetScript("OnEnter", function() overInfo = true; updateHover() end)
-	hoverFrame:SetScript("OnLeave", function() overInfo = false; updateHover() end)
-	Minimap:SetScript("OnEnter", function(self) overMap = true; updateHover() end)
-	Minimap:SetScript("OnLeave", function(self) overMap = false; updateHover() end)
-	self.HoverFrame = hoverFrame
+	-- Zone Text
+	local zoneName = Minimap:CreateFontString(nil, "OVERLAY", nil, 1)
+	zoneName:SetFontObject(db.ZoneTextFont)
+	zoneName:SetAlpha(db.ZoneTextAlpha)
+	zoneName:SetPoint(unpack(db.ZoneTextPosition))
+	zoneName:SetJustifyH("CENTER")
+	zoneName:SetJustifyV("MIDDLE")
 
-	-- Zone
-	local zoneName = Minimap:CreateFontString()
-	zoneName:SetDrawLayer("OVERLAY", 1)
-	zoneName:SetFontObject(GetFont(15,true))
-	zoneName:SetAlpha(.85)
-	zoneName:SetPoint("TOP", Minimap, "BOTTOM", 0, -26)
 	self.zoneName = zoneName
 
-	-- Performance
-	local performance = Minimap:CreateFontString()
-	performance:SetDrawLayer("OVERLAY", 1)
-	performance:SetFontObject(GetFont(13,true))
-	performance:SetTextColor(.53,.53,.53, .85)
-	performance:SetPoint("TOP", zoneName, "BOTTOM", 0, -4)
-	self.performance = performance
+	-- Latency Text
+	local latency = Minimap:CreateFontString(nil, "OVERLAY", nil, 1)
+	latency:SetFontObject(db.LatencyFont)
+	latency:SetTextColor(unpack(db.LatencyColor))
+	latency:SetPoint(unpack(db.LatencyPosition))
+	latency:SetJustifyH("CENTER")
+	latency:SetJustifyV("MIDDLE")
 
-	-- Time
-	local timeFrame = CreateFrame("Button", nil, Minimap)
-	timeFrame:SetScript("OnEnter", Time_OnEnter)
-	timeFrame:SetScript("OnLeave", Time_OnLeave)
-	timeFrame:SetScript("OnClick", Time_OnClick)
-	timeFrame:RegisterForClicks("AnyUp")
+	self.latency = latency
 
-	local time = timeFrame:CreateFontString()
-	time:SetDrawLayer("OVERLAY", 1)
+	-- Framerate Text
+	local fps = Minimap:CreateFontString(nil, "OVERLAY", nil, 1)
+	fps:SetFontObject(db.FrameRateFont)
+	fps:SetTextColor(unpack(db.FrameRateColor))
+	fps:SetPoint(unpack(db.FrameRatePosition))
+	fps:SetJustifyH("CENTER")
+	fps:SetJustifyV("MIDDLE")
+
+	self.fps = fps
+
+	-- Time Text
+	local time = Minimap:CreateFontString(nil, "OVERLAY", nil, 1)
 	time:SetJustifyH("CENTER")
-	time:SetJustifyV("TOP")
-	time:SetFontObject(GetFont(18,true))
-	time:SetTextColor(unpack(Colors.offwhite))
-	time:SetAlpha(.85)
-	time:SetPoint("TOP", Minimap, "TOP", 0, -30)
-	timeFrame:SetAllPoints(time)
-	self.time = time
+	time:SetJustifyV("MIDDLE")
+	time:SetFontObject(db.ClockFont)
+	time:SetTextColor(unpack(db.ClockColor))
+	time:SetPoint(unpack(db.ClockPosition))
 
-
-	local timeSuffix = timeFrame:CreateFontString()
-	timeSuffix:SetDrawLayer("OVERLAY", 1)
+	local timeSuffix = Minimap:CreateFontString(nil, "OVERLAY", nil, 1)
 	timeSuffix:SetJustifyH("CENTER")
-	timeSuffix:SetJustifyV("TOP")
+	timeSuffix:SetJustifyV("MIDDLE")
 	timeSuffix:SetFontObject(GetFont(11,true))
 	timeSuffix:SetTextColor(unpack(Colors.darkgray))
 	timeSuffix:SetAlpha(.75)
 	timeSuffix:SetPoint("TOPLEFT", time, "TOPRIGHT", 0, -2)
 	time.suffix = timeSuffix
 
+	local timeFrame = CreateFrame("Button", nil, Minimap)
+	timeFrame:SetScript("OnEnter", Time_OnEnter)
+	timeFrame:SetScript("OnLeave", Time_OnLeave)
+	timeFrame:SetScript("OnClick", Time_OnClick)
+	timeFrame:RegisterForClicks("AnyUp")
+	timeFrame:SetAllPoints(time)
+
+	self.time = time
 
 	-- Coordinates
-	local coordinates = Minimap:CreateFontString()
-	coordinates:SetDrawLayer("OVERLAY", 1)
+	local coordinates = Minimap:CreateFontString(nil, "OVERLAY", nil, 1)
 	coordinates:SetJustifyH("CENTER")
-	coordinates:SetJustifyV("BOTTOM")
-	coordinates:SetFontObject(GetFont(12,true))
-	self.coordinates = coordinates
+	coordinates:SetJustifyV("MIDDLE")
+	coordinates:SetFontObject(db.CoordinateFont)
+	coordinates:SetTextColor(unpack(db.CoordinateColor))
+	coordinates:SetPoint(db.CoordinatePlace)
 
+	self.coordinates = coordinates
 
 	-- Mail
 	local mailFrame = CreateFrame("Button", nil, Minimap)
@@ -571,58 +556,59 @@ Bigmap.InitializeMinimap = function(self)
 
 	-- Minimap Backdrop
 	local backdrop = Minimap:CreateTexture(nil, "BACKGROUND")
-	backdrop:SetPoint("TOPLEFT", -2, 2)
-	backdrop:SetPoint("BOTTOMRIGHT", 2, -2)
-	backdrop:SetTexture(GetMedia("minimap-mask-opaque"))
-	backdrop:SetVertexColor(0, 0, 0, .75)
+	backdrop:SetPoint(unpack(db.BackdropPosition))
+	backdrop:SetSize(unpack(db.BackdropSize))
+	backdrop:SetTexture(db.BackdropTexture)
+	backdrop:SetVertexColor(unpack(db.BackdropColor))
 
 	-- Minimap Border
 	local border = Minimap:CreateTexture(nil, "OVERLAY", nil, 0)
-	border:SetPoint("CENTER")
-	border:SetSize(340,340)
-	border:SetTexture(GetMedia("minimap-border"))
+	border:SetPoint(unpack(db.BorderPosition))
+	border:SetSize(unpack(db.BorderSize))
+	border:SetTexture(db.BorderTexture)
+	border:SetVertexColor(unpack(db.BorderColor))
 
 	-- Minimap Highlight
-	local highlight = Minimap:CreateTexture(nil, "OVERLAY", nil, -1)
-	highlight:SetPoint("CENTER")
-	highlight:SetSize(340,340)
-	highlight:SetTexture(GetMedia("minimap-highlight"))
-	highlight:SetAlpha(0)
-	highlight:Hide()
-	highlight.Animation = highlight:CreateAnimationGroup()
-	highlight.Animation:SetLooping("BOUNCE")
-	highlight.Animation.Bounce = highlight.Animation:CreateAnimation("Alpha")
-	highlight.Animation.Bounce:SetFromAlpha(0)
-	highlight.Animation.Bounce:SetToAlpha(1)
-	highlight.Animation.Bounce:SetDuration(1.5)
-	highlight.Animation.Bounce:SetSmoothing("IN_OUT")
-	self.highlight = highlight
+	--local highlight = Minimap:CreateTexture(nil, "OVERLAY", nil, -1)
+	--highlight:SetPoint("CENTER")
+	--highlight:SetSize(340,340)
+	--highlight:SetTexture(GetMedia("minimap-highlight"))
+	--highlight:SetAlpha(0)
+	--highlight:Hide()
+	--highlight.Animation = highlight:CreateAnimationGroup()
+	--highlight.Animation:SetLooping("BOUNCE")
+	--highlight.Animation.Bounce = highlight.Animation:CreateAnimation("Alpha")
+	--highlight.Animation.Bounce:SetFromAlpha(0)
+	--highlight.Animation.Bounce:SetToAlpha(1)
+	--highlight.Animation.Bounce:SetDuration(1.5)
+	--highlight.Animation.Bounce:SetSmoothing("IN_OUT")
+	--self.highlight = highlight
 
-	self.StartHighlight = function()
-		if (not highlight.Animation:IsPlaying()) then
-			highlight:Show()
-			highlight.Animation:Play()
-		end
-	end
+	--self.StartHighlight = function()
+	--	if (not highlight.Animation:IsPlaying()) then
+	--		highlight:Show()
+	--		highlight.Animation:Play()
+	--	end
+	--end
 
-	self.StopHighlight = function()
-		if (highlight.Animation:IsPlaying()) then
-			highlight.Animation:Stop()
-			highlight:Hide()
-		end
-	end
+	--self.StopHighlight = function()
+	--	if (highlight.Animation:IsPlaying()) then
+	--		highlight.Animation:Stop()
+	--		highlight:Hide()
+	--	end
+	--end
 
-	if (not ns.IsRetail) then
-		local GLP = GarrisonLandingPageMinimapButton or ExpansionLandingPageMinimapButton
-		if (GLP) then
-			self:SecureHook(GLP.MinimapLoopPulseAnim, "Play", self.StartHighlight)
-			self:SecureHook(GLP.MinimapLoopPulseAnim, "Stop", self.StopHighlight)
-			self:SecureHook(GLP.MinimapPulseAnim, "Play", self.StartHighlight)
-			self:SecureHook(GLP.MinimapPulseAnim, "Stop", self.StopHighlight)
-			self:SecureHook(GLP.MinimapAlertAnim, "Play", self.StartHighlight)
-			self:SecureHook(GLP.MinimapAlertAnim, "Stop", self.StopHighlight)
-		end
-	end
+	--if (not ns.IsRetail) then
+	--	local GLP = GarrisonLandingPageMinimapButton or ExpansionLandingPageMinimapButton
+	--	if (GLP) then
+	--		self:SecureHook(GLP.MinimapLoopPulseAnim, "Play", self.StartHighlight)
+	--		self:SecureHook(GLP.MinimapLoopPulseAnim, "Stop", self.StopHighlight)
+	--		self:SecureHook(GLP.MinimapPulseAnim, "Play", self.StartHighlight)
+	--		self:SecureHook(GLP.MinimapPulseAnim, "Stop", self.StopHighlight)
+	--		self:SecureHook(GLP.MinimapAlertAnim, "Play", self.StartHighlight)
+	--		self:SecureHook(GLP.MinimapAlertAnim, "Stop", self.StopHighlight)
+	--	end
+	--end
 
 	-- Compass
 	local compassFrame = CreateFrame("Frame", nil, Minimap)
@@ -698,12 +684,6 @@ Bigmap.InitializeMinimap = function(self)
 			Minimap:SetStaticPOIArrowTexture(blank)
 			Minimap:SetPOIArrowTexture(blank)
 		end
-	end
-
-	-- Blip Textures
-	-- *This is a fucking pain to update. Not going to bother for a while.
-	if (GetBuildInfo() == "9.0.5") then
-		Minimap:SetBlipTexture(GetMedia("Blip-Nandini-Extended-905"))
 	end
 
 	-- Dungeon Eye
