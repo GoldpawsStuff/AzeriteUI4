@@ -1,16 +1,10 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/">
 
-	<Include file="Blizzard\Blizzard.xml"/>
-
-	<Include file="ActionBars\ActionBars.xml"/>
-	<Include file="Auras\Auras.xml"/>
-	<Include file="UnitFrames\UnitFrames.xml"/>
-
 	<Script file="ChatFrames.lua"/>
 	<!--<Script file="Clutter.lua"/>-->
 	<Script file="Minimap.lua"/>
 	<!--<Script file="Timers.lua"/>-->
-	<!--<Script file="Tooltips.lua"/>-->
+	<Script file="Tooltips.lua"/>
 	<!--<Script file="Tracker.lua"/>-->
 	<!--<Script file="WorldMap.lua"/>-->
 
