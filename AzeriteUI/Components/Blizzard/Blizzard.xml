@@ -5,7 +5,7 @@
 	<Script file="Minimap.lua"/>
 	<!--<Script file="Timers.lua"/>-->
 	<Script file="Tooltips.lua"/>
-	<!--<Script file="Tracker.lua"/>-->
+	<Script file="Tracker.lua"/>
 	<!--<Script file="WorldMap.lua"/>-->
 
 </Ui>

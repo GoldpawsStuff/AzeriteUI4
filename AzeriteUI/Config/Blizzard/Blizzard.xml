@@ -3,5 +3,6 @@
 	<Script file="Chat.lua"/>
 	<Script file="Minimap.lua"/>
 	<Script file="Tooltips.lua"/>
+	<Script file="Tracker.lua"/>
 
 </Ui>

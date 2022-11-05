@@ -70,14 +70,14 @@ local GetServerTime = ns.API.GetServerTime
 local IsAddOnEnabled = ns.API.IsAddOnEnabled
 
 -- WoW Strings
-local L_FPS = FPS_ABBR -- "fps"
 local L_RESTING = TUTORIAL_TITLE30 -- "Resting"
 local L_NEW = NEW -- "New"
 local L_MAIL = MAIL_LABEL -- "Mail"
 local L_HAVE_MAIL = HAVE_MAIL -- "You have unread mail"
 local L_HAVE_MAIL_FROM = HAVE_MAIL_FROM -- "Unread mail from:"
-local L_HOME = HOME -- "Home"
-local L_WORLD = WORLD -- "World"
+local L_FPS = string_upper(string_match(FPS_ABBR, "^.")) -- "fps"
+local L_HOME = string_upper(string_match(HOME, "^.")) -- "Home"
+local L_WORLD = string_upper(string_match(WORLD, "^.")) -- "World"
 
 -- Constants
 local TORGHAST_ZONE_ID = 2162
@@ -96,9 +96,9 @@ end
 
 local Minimap_OnMouseWheel = function(self, delta)
 	if (delta > 0) then
-		Minimap.ZoomIn:Click()
+		(Minimap.ZoomIn or MinimapZoomIn):Click()
 	elseif (delta < 0) then
-		Minimap.ZoomOut:Click()
+		(Minimap.ZoomOut or MinimapZoomOut):Click()
 	end
 end
 
@@ -187,15 +187,15 @@ local Time_OnClick = function(self, mouseButton)
 	end
 end
 
-Bigmap.UpdateCompass = function(self)
-	local compassFrame = self.compassFrame
-	if (not compassFrame) then
+MinimapMod.UpdateCompass = function(self)
+	local compass = self.compass
+	if (not compass) then
 		return
 	end
 	if (self.rotateMinimap) then
 		local radius = self.compassRadius
 		if (not radius) then
-			local width = compassFrame:GetWidth()
+			local width = compass:GetWidth()
 			if (not width) then
 				return
 			end
@@ -204,61 +204,53 @@ Bigmap.UpdateCompass = function(self)
 
 		local playerFacing = GetPlayerFacing()
 		if (not playerFacing) or (self.supressCompass) or (IN_TORGHAST) then
-			compassFrame:SetAlpha(0)
+			compass:SetAlpha(0)
 		else
-			compassFrame:SetAlpha(1)
+			compass:SetAlpha(1)
 		end
 
 		-- In Torghast, map is always locked. Weird.
 		local angle = (IN_TORGHAST) and 0 or (self.rotateMinimap and playerFacing) and -playerFacing or 0
-		compassFrame.north:SetPoint("CENTER", radius*math_cos(angle + half_pi), radius*math_sin(angle + half_pi))
+		compass.north:SetPoint("CENTER", radius*math_cos(angle + half_pi), radius*math_sin(angle + half_pi))
 
-		--if (not compassFrame:IsShown()) then
-		--	compassFrame:Show()
-		--end
 	else
-		compassFrame:SetAlpha(0)
-
-		--if (compassFrame:IsShown()) then
-		--	compassFrame:Hide()
-		--end
+		compass:SetAlpha(0)
 	end
 end
 
-Bigmap.UpdatePerformance = function(self)
+MinimapMod.UpdatePerformance = function(self)
 
 	local now = GetTime()
 	local fps = GetFramerate()
-	local world, home
+	local world, home, _
 
-	if (not performance.nextUpdate) or (now >= performance.nextUpdate) then
+	if (not self.latency.nextUpdate) or (now >= self.latency.nextUpdate) then
 		-- latencyHome: chat, auction house, some addon data
 		-- latencyWorld: combat, data from people around you(specs, gear, enchants, etc.), NPCs, mobs, casting, professions
 		_, _, home, world = GetNetStats()
-		performance.nextUpdate = now + 30
-		performance.latencyWorld = world
+		self.latency.nextUpdate = now + 30
+		self.latency.latencyWorld = world
 	else
-		world = performance.latencyWorld
+		world = self.latency.latencyWorld
 	end
 
-	local hasFps = fps and fps > 0
-	local hasLatency = world and world > 0
-
-	if (hasFps) then
-		self.fps:SetFormattedText("|cff888888%.0f %s|r", math_floor(fps), string_upper(string_match(L_FPS, "^.")))
+	if (fps and fps > 0) then
+		self.fps:SetFormattedText("|cff888888%.0f %s|r", fps, L_FPS)
 	else
 		self.fps:SetText("")
 	end
 
-	if (hasLatency) then
-		self.latency:SetFormattedText("|cff888888%s|r %.0f - |cff888888%s|r %.0f", string_upper(string_match(L_HOME, "^.")), math_floor(home), string_upper(string_match(L_WORLD, "^.")), math_floor(world))
+	if (home and home > 0 and world and world > 0) then
+		self.latency:SetFormattedText("|cff888888%s|r %.0f - |cff888888%s|r %.0f", L_HOME, home, L_WORLD, world)
+	elseif (world and world > 0) then
+		self.latency:SetFormattedText("|cff888888%s|r %.0f", L_WORLD, world)
 	else
 		self.latency:SetText("")
 	end
 
 end
 
-Bigmap.UpdateClock = function(self)
+MinimapMod.UpdateClock = function(self)
 	local time = self.time
 	if (not time) then
 		return
@@ -284,20 +276,20 @@ Bigmap.UpdateClock = function(self)
 	end
 end
 
-Bigmap.UpdateMail = function(self)
+MinimapMod.UpdateMail = function(self)
 	local mail = self.mail
 	if (not mail) then
 		return
 	end
 	local hasMail = HasNewMail()
 	if (hasMail) then
-		mail:GetParent():Show()
+		mail.frame:Show()
 	else
-		mail:GetParent():Hide()
+		mail.frame:Hide()
 	end
 end
 
-Bigmap.UpdateTimers = function(self)
+MinimapMod.UpdateTimers = function(self)
 	-- In Torghast, map is always locked. Weird.
 	-- *Note that this is only in the tower, not the antechamber.
 	-- *We're resting in the antechamber, and it's a sanctuary. Good indicators.
@@ -324,7 +316,7 @@ Bigmap.UpdateTimers = function(self)
 	end
 end
 
-Bigmap.UpdateZone = function(self)
+MinimapMod.UpdateZone = function(self)
 	local zoneName = self.zoneName
 	if (not zoneName) then
 		return
@@ -345,96 +337,43 @@ Bigmap.UpdateZone = function(self)
 	zoneName:SetText(minimapZoneName)
 end
 
-Bigmap.UpdatePosition = function(self)
+MinimapMod.UpdatePosition = function(self)
 	if (InCombatLockdown()) then
 		return self:RegisterEvent("PLAYER_REGEN_ENABLED", "OnEvent")
 	end
-
-	if (not true) then -- ...?
-		if (ns.IsWrath) then
-			--MinimapCluster:SetMovable(true)
-			--MinimapCluster:SetUserPlaced(true)
-			MinimapCluster.IsUserPlaced = function() return true end
-
-		else
-
-			-- Opt out of the movement system
-			MinimapCluster.layoutParent = nil
-			MinimapCluster.isRightManagedFrame = nil
-			MinimapCluster.ignoreFramePositionManager = true
-			UIParentRightManagedFrameContainer:RemoveManagedFrame(MinimapCluster)
-
-			-- 256, 256
-			MinimapCluster:SetParent(UIParent)
-			MinimapCluster.IsInDefaultPosition = function() end
-
-		end
-
-		MinimapCluster:ClearAllPoints()
-		MinimapCluster:SetPoint("TOPRIGHT", -60, -40)
-	end
-
+	-- Do we still need this at all?
 end
 
-Bigmap.InitializeMinimap = function(self)
+MinimapMod.InitializeMinimap = function(self)
 
-	local MinimapCluster = SetObjectScale(_G.MinimapCluster)
-	local Minimap = _G.Minimap
 	local db = ns.Config.Minimap
+	local Minimap = _G.Minimap
+	local MinimapCluster = SetObjectScale(_G.MinimapCluster)
 
 	-- Clear Clutter
 	--------------------------------------------------------
-	for _,object in pairs({
-		"MinimapCluster",
-		"MiniMapInstanceDifficulty",
-		"GameTimeFrame"
-	}) do
-		if (_G[object]) then
-			_G[object]:UnregisterAllEvents()
-		end
-	end
-	if (not ns.IsRetail) then
-		for _,object in pairs({
-			"GameTimeFrame",
-			--"MinimapCluster",
-				"MinimapBorderTop",
-				"MinimapZoneTextButton",
-				"MiniMapInstanceDifficulty",
-				"GuildInstanceDifficulty",
-				"MiniMapChallengeMode",
-				--"Minimap",
-					"MiniMapMailFrame",
-						--"MiniMapMailBorder",
-					"MinimapBackdrop",
-						--"MinimapBorder",
-						--"MinimapNorthTag",
-						--"MinimapCompassTexture",
-						--"MiniMapWorldMapButton",
-						--"MiniMapTracking",
-							--"MiniMapTrackingFrame",
-							--"MiniMapTrackingButton",
-						--"MinimapZoomIn",
-						--"MinimapZoomOut",
-						--"GarrisonLandingPageMinimapButton",
-		}) do
-			if (_G[object]) then
-				_G[object]:SetParent(UIHider)
-			end
-		end
+	MinimapCluster:UnregisterAllEvents()
+	MinimapBackdrop:SetParent(UIHider)
+	GameTimeFrame:SetParent(UIHider)
+	GameTimeFrame:UnregisterAllEvents()
 
-		Minimap.ZoomIn = MinimapZoomIn
-		Minimap.ZoomOut = MinimapZoomOut
-
-	else
-		GameTimeFrame:SetParent(UIHider)
+	if (ns.IsRetail) then
 		MinimapCluster.BorderTop:SetParent(UIHider)
-		MinimapCluster.ZoneTextButton:SetParent(UIHider)
-		MinimapCluster.Tracking:SetParent(UIHider)
+		MinimapCluster.InstanceDifficulty:SetParent(UIHider)
 		MinimapCluster.MailFrame:SetParent(UIHider)
-		MinimapCluster.BorderTop:SetParent(UIHider)
+		MinimapCluster.Tracking:SetParent(UIHider)
+		MinimapCluster.ZoneTextButton:SetParent(UIHider)
 		Minimap.ZoomIn:SetParent(UIHider)
 		Minimap.ZoomOut:SetParent(UIHider)
-		MinimapBackdrop:SetParent(UIHider)
+	else
+		MinimapBorderTop:SetParent(UIHider)
+		MiniMapInstanceDifficulty:SetParent(UIHider)
+		MiniMapInstanceDifficulty:UnregisterAllEvents()
+		MiniMapMailFrame:SetParent(UIHider)
+		MiniMapTracking:SetParent(UIHider)
+		MinimapZoneTextButton:SetParent(UIHider)
+		MinimapZoomIn:SetParent(UIHider)
+		MinimapZoomOut:SetParent(UIHider)
 	end
 
 	-- Setup Main Frames
@@ -465,6 +404,24 @@ Bigmap.InitializeMinimap = function(self)
 	Minimap:EnableMouseWheel(true)
 	Minimap:SetScript("OnMouseWheel", Minimap_OnMouseWheel)
 	Minimap:SetScript("OnMouseUp", Minimap_OnMouseUp)
+
+	-- Minimap Backdrop
+	local backdrop = Minimap:CreateTexture(nil, "BACKGROUND")
+	backdrop:SetPoint(unpack(db.BackdropPosition))
+	backdrop:SetSize(unpack(db.BackdropSize))
+	backdrop:SetTexture(db.BackdropTexture)
+	backdrop:SetVertexColor(unpack(db.BackdropColor))
+
+	self.backdrop = backdrop
+
+	-- Minimap Border
+	local border = Minimap:CreateTexture(nil, "OVERLAY", nil, 0)
+	border:SetPoint(unpack(db.BorderPosition))
+	border:SetSize(unpack(db.BorderSize))
+	border:SetTexture(db.BorderTexture)
+	border:SetVertexColor(unpack(db.BorderColor))
+
+	self.border = border
 
 	-- Custom Widgets
 	--------------------------------------------------------
@@ -509,10 +466,10 @@ Bigmap.InitializeMinimap = function(self)
 	local timeSuffix = Minimap:CreateFontString(nil, "OVERLAY", nil, 1)
 	timeSuffix:SetJustifyH("CENTER")
 	timeSuffix:SetJustifyV("MIDDLE")
-	timeSuffix:SetFontObject(GetFont(11,true))
-	timeSuffix:SetTextColor(unpack(Colors.darkgray))
+	timeSuffix:SetFontObject(db.ClockFont)
+	timeSuffix:SetTextColor(unpack(Colors.gray))
 	timeSuffix:SetAlpha(.75)
-	timeSuffix:SetPoint("TOPLEFT", time, "TOPRIGHT", 0, -2)
+	timeSuffix:SetPoint("TOPLEFT", time, "TOPRIGHT", 0, 0)
 	time.suffix = timeSuffix
 
 	local timeFrame = CreateFrame("Button", nil, Minimap)
@@ -524,13 +481,27 @@ Bigmap.InitializeMinimap = function(self)
 
 	self.time = time
 
+	-- Compass
+	local compass = CreateFrame("Frame", nil, Minimap)
+	compass:SetFrameLevel(Minimap:GetFrameLevel() + 5)
+	compass:SetPoint("TOPLEFT", db.CompassInset, -db.CompassInset)
+	compass:SetPoint("BOTTOMRIGHT", -db.CompassInset, db.CompassInset)
+
+	local north = compass:CreateFontString(nil, "ARTWORK", nil, 1)
+	north:SetFontObject(db.CompassFont)
+	north:SetTextColor(unpack(db.CompassColor))
+	north:SetText(db.CompassNorthTag)
+	compass.north = north
+
+	self.compass = compass
+
 	-- Coordinates
 	local coordinates = Minimap:CreateFontString(nil, "OVERLAY", nil, 1)
 	coordinates:SetJustifyH("CENTER")
 	coordinates:SetJustifyV("MIDDLE")
 	coordinates:SetFontObject(db.CoordinateFont)
 	coordinates:SetTextColor(unpack(db.CoordinateColor))
-	coordinates:SetPoint(db.CoordinatePlace)
+	coordinates:SetPoint(unpack(db.CoordinatePlace))
 
 	self.coordinates = coordinates
 
@@ -539,211 +510,95 @@ Bigmap.InitializeMinimap = function(self)
 	mailFrame:SetFrameLevel(mailFrame:GetFrameLevel() + 5)
 	mailFrame:SetScript("OnEnter", Mail_OnEnter)
 	mailFrame:SetScript("OnLeave", Mail_OnLeave)
-	mailFrame:Hide()
 
-	local mail = mailFrame:CreateFontString()
-	mail:SetDrawLayer("OVERLAY", 1)
-	mail:SetJustifyH("CENTER")
-	mail:SetJustifyV("BOTTOM")
-	mail:SetFontObject(GetFont(16,true))
-	mail:SetTextColor(unpack(Colors.offwhite))
-	mail:SetAlpha(.85)
+	local mail = Minimap:CreateFontString(nil, "OVERLAY", nil, 1)
+	mail.frame = mailFrame
+	mail:SetFontObject(db.MailFont)
+	mail:SetTextColor(unpack(db.MailColor))
+	mail:SetJustifyH(db.MailJustifyH)
+	mail:SetJustifyV(db.MailJustifyV)
 	mail:SetFormattedText("%s %s", L_NEW, L_MAIL)
-	mail:SetPoint("BOTTOM", Minimap, "BOTTOM", 0, 30)
+	mail:SetPoint(unpack(db.MailPosition))
 	mailFrame:SetAllPoints(mail)
+
 	self.mail = mail
-
-
-	-- Minimap Backdrop
-	local backdrop = Minimap:CreateTexture(nil, "BACKGROUND")
-	backdrop:SetPoint(unpack(db.BackdropPosition))
-	backdrop:SetSize(unpack(db.BackdropSize))
-	backdrop:SetTexture(db.BackdropTexture)
-	backdrop:SetVertexColor(unpack(db.BackdropColor))
-
-	-- Minimap Border
-	local border = Minimap:CreateTexture(nil, "OVERLAY", nil, 0)
-	border:SetPoint(unpack(db.BorderPosition))
-	border:SetSize(unpack(db.BorderSize))
-	border:SetTexture(db.BorderTexture)
-	border:SetVertexColor(unpack(db.BorderColor))
-
-	-- Minimap Highlight
-	--local highlight = Minimap:CreateTexture(nil, "OVERLAY", nil, -1)
-	--highlight:SetPoint("CENTER")
-	--highlight:SetSize(340,340)
-	--highlight:SetTexture(GetMedia("minimap-highlight"))
-	--highlight:SetAlpha(0)
-	--highlight:Hide()
-	--highlight.Animation = highlight:CreateAnimationGroup()
-	--highlight.Animation:SetLooping("BOUNCE")
-	--highlight.Animation.Bounce = highlight.Animation:CreateAnimation("Alpha")
-	--highlight.Animation.Bounce:SetFromAlpha(0)
-	--highlight.Animation.Bounce:SetToAlpha(1)
-	--highlight.Animation.Bounce:SetDuration(1.5)
-	--highlight.Animation.Bounce:SetSmoothing("IN_OUT")
-	--self.highlight = highlight
-
-	--self.StartHighlight = function()
-	--	if (not highlight.Animation:IsPlaying()) then
-	--		highlight:Show()
-	--		highlight.Animation:Play()
-	--	end
-	--end
-
-	--self.StopHighlight = function()
-	--	if (highlight.Animation:IsPlaying()) then
-	--		highlight.Animation:Stop()
-	--		highlight:Hide()
-	--	end
-	--end
-
-	--if (not ns.IsRetail) then
-	--	local GLP = GarrisonLandingPageMinimapButton or ExpansionLandingPageMinimapButton
-	--	if (GLP) then
-	--		self:SecureHook(GLP.MinimapLoopPulseAnim, "Play", self.StartHighlight)
-	--		self:SecureHook(GLP.MinimapLoopPulseAnim, "Stop", self.StopHighlight)
-	--		self:SecureHook(GLP.MinimapPulseAnim, "Play", self.StartHighlight)
-	--		self:SecureHook(GLP.MinimapPulseAnim, "Stop", self.StopHighlight)
-	--		self:SecureHook(GLP.MinimapAlertAnim, "Play", self.StartHighlight)
-	--		self:SecureHook(GLP.MinimapAlertAnim, "Stop", self.StopHighlight)
-	--	end
-	--end
-
-	-- Compass
-	local compassFrame = CreateFrame("Frame", nil, Minimap)
-	compassFrame:SetFrameLevel(Minimap:GetFrameLevel() + 5)
-	compassFrame:SetPoint("TOPLEFT", 14, -14)
-	compassFrame:SetPoint("BOTTOMRIGHT", -14, 14)
-	--compassFrame:Hide()
-
-	local north = compassFrame:CreateFontString()
-	north:SetDrawLayer("ARTWORK", 1)
-	north:SetFontObject(GetFont(16,true))
-	north:SetTextColor(Colors.normal[1], Colors.normal[2], Colors.normal[3], .75)
-	north:SetText("N")
-	compassFrame.north = north
-	self.compassFrame = compassFrame
-
 
 	-- Blizzard Widgets
 	--------------------------------------------------------
 	-- Order Hall / Garrison / Covenant Sanctum
-	if (ns.IsRetail) then
+	local GLP = GarrisonLandingPageMinimapButton or ExpansionLandingPageMinimapButton
+	if (GLP) then
+		GLP:ClearAllPoints()
+		GLP:SetPoint("TOP", UIParent, "TOP", 0, 200) -- off-screen
 
-		local GLP = GarrisonLandingPageMinimapButton or ExpansionLandingPageMinimapButton
-		if (GLP) then
-			GLP:ClearAllPoints()
-			GLP:SetPoint("TOP", UIParent, "TOP", 0, 200) -- off-screen
-
-			---- They change the position of the button through a local function named "ApplyGarrisonTypeAnchor".
-			---- Only way we can override it without messing with method nooping, is to hook into the global function calling it.
-			if (GarrisonLandingPageMinimapButton_UpdateIcon) then
-				hooksecurefunc("GarrisonLandingPageMinimapButton_UpdateIcon", function()
-					GLP:ClearAllPoints()
-					GLP:SetPoint("TOP", UIParent, "TOP", 0, 200)
-				end)
-			elseif (ExpansionLandingPageMinimapButton and ExpansionLandingPageMinimapButton.UpdateIcon) then
-				hooksecurefunc(ExpansionLandingPageMinimapButton, "UpdateIcon", function()
-					GLP:ClearAllPoints()
-					GLP:SetPoint("TOP", UIParent, "TOP", 0, 200)
-				end)
-			end
-		end
-
-		if (not ns.IsRetail) then
-
-			-- Blob Textures
-			-- These alpha values range from 0 to 255, for some obscure reason,
-			-- so a value of 127 would be 127/255 ≃ 0.5ish in the normal API.
-			local blobInside, blobOutside, ringOutside, ringInside = 0,96,0,0
-			Minimap:SetQuestBlobInsideAlpha(blobInside) -- "blue" areas with quest mobs/items in them
-			Minimap:SetQuestBlobOutsideAlpha(blobOutside) -- borders around the "blue" areas
-			Minimap:SetQuestBlobRingAlpha(ringOutside) -- the big fugly edge ring texture!
-			Minimap:SetQuestBlobRingScalar(ringInside) -- ring texture inside quest areas?
-			Minimap:SetArchBlobInsideAlpha(blobInside) -- "blue" areas with quest mobs/items in them
-			Minimap:SetArchBlobOutsideAlpha(blobOutside) -- borders around the "blue" areas
-			Minimap:SetArchBlobRingAlpha(ringOutside) -- the big fugly edge ring texture!
-			Minimap:SetArchBlobRingScalar(ringInside) -- ring texture inside quest areas?
-			Minimap:SetTaskBlobInsideAlpha(blobInside) -- "blue" areas with quest mobs/items in them
-			Minimap:SetTaskBlobOutsideAlpha(blobOutside) -- borders around the "blue" areas
-			Minimap:SetTaskBlobRingAlpha(ringOutside) -- the big fugly edge ring texture!
-			Minimap:SetTaskBlobRingScalar(ringInside) -- ring texture inside quest areas?
-
-			-- Warning: Setting to blank fully kills it!
-			-- Also note that these methods only accepts Blizzard textures,
-			-- not any custom ones found in addon folders.
-			local blank = [[Interface\MINIMAP\UI-QuestBlobMinimap-Inside]]
-			Minimap:SetArchBlobRingTexture(blank)
-			Minimap:SetQuestBlobInsideTexture(blank)
-			Minimap:SetQuestBlobOutsideSelectedTexture([[Interface\MINIMAP\UI-QuestBlobMinimap-Outside]])
-			Minimap:SetQuestBlobRingTexture(blank)
-			Minimap:SetTaskBlobInsideTexture(blank)
-			Minimap:SetTaskBlobOutsideSelectedTexture([[Interface\MINIMAP\UI-BonusObjectiveBlob-Outside]])
-			Minimap:SetTaskBlobRingTexture(blank)
-			Minimap:SetStaticPOIArrowTexture(blank)
-			Minimap:SetPOIArrowTexture(blank)
+		---- They change the position of the button through a local function named "ApplyGarrisonTypeAnchor".
+		---- Only way we can override it without messing with method nooping, is to hook into the global function calling it.
+		if (GarrisonLandingPageMinimapButton_UpdateIcon) then
+			hooksecurefunc("GarrisonLandingPageMinimapButton_UpdateIcon", function()
+				GLP:ClearAllPoints()
+				GLP:SetPoint("TOP", UIParent, "TOP", 0, 200)
+			end)
+		elseif (ExpansionLandingPageMinimapButton and ExpansionLandingPageMinimapButton.UpdateIcon) then
+			hooksecurefunc(ExpansionLandingPageMinimapButton, "UpdateIcon", function()
+				GLP:ClearAllPoints()
+				GLP:SetPoint("TOP", UIParent, "TOP", 0, 200)
+			end)
 		end
 	end
 
 	-- Dungeon Eye
-	local deg2rad = math_pi / 180
-
 	local eyeFrame = CreateFrame("Frame", nil, Minimap)
 	eyeFrame:SetFrameLevel(Minimap:GetFrameLevel() + 10)
-	eyeFrame:SetPoint("CENTER", math_cos(225*deg2rad) * (280/2 + 10), math_sin(225*deg2rad) * (280/2 + 10))
-	eyeFrame:SetSize(64,64)
+	eyeFrame:SetPoint(unpack(db.EyePosition))
+	eyeFrame:SetSize(unpack(db.EyeSize))
 	self.eyeFrame = eyeFrame
 
 	if (ns.IsWrath) then
-		if (MiniMapBattlefieldFrame) then
 
-			local eyeTexture = MiniMapBattlefieldFrame:CreateTexture()
-			eyeTexture:SetDrawLayer("ARTWORK", 1)
-			eyeTexture:SetPoint("CENTER", 0, 0)
-			eyeTexture:SetSize(64,64)
-			eyeTexture:SetTexture(GetMedia("group-finder-eye-orange"))
-			eyeTexture:SetVertexColor(.8, .76, .72)
-			eyeTexture:SetShown(MiniMapBattlefieldFrame:IsShown())
-			self.eyeTexture = eyeTexture
+		local eyeTexture = MiniMapBattlefieldFrame:CreateTexture(nil, "ARTWORK", nil, 1)
+		eyeTexture:SetPoint("CENTER", 0, 0)
+		eyeTexture:SetSize(unpack(db.EyeTextureSize))
+		eyeTexture:SetTexture(db.EyeTexture)
+		eyeTexture:SetVertexColor(unpack(db.EyeTextureColor))
+		eyeTexture:SetShown(MiniMapBattlefieldFrame:IsShown())
+		self.eyeTexture = eyeTexture
 
-			MiniMapBattlefieldFrame:SetParent(eyeFrame)
-			MiniMapBattlefieldFrame:ClearAllPoints()
-			MiniMapBattlefieldFrame:SetPoint("CENTER", 0, 0)
+		MiniMapBattlefieldFrame:SetParent(eyeFrame)
+		MiniMapBattlefieldFrame:ClearAllPoints()
+		MiniMapBattlefieldFrame:SetPoint("CENTER", 0, 0)
 
-			MiniMapBattlefieldFrame:SetFrameLevel(MiniMapBattlefieldFrame:GetFrameLevel() + 10)
-			MiniMapBattlefieldFrame:ClearAllPoints()
-			MiniMapBattlefieldFrame:SetHitRectInsets(-8, -8, -8, -8)
+		MiniMapBattlefieldFrame:SetFrameLevel(MiniMapBattlefieldFrame:GetFrameLevel() + 10)
+		MiniMapBattlefieldFrame:ClearAllPoints()
+		MiniMapBattlefieldFrame:SetHitRectInsets(-8, -8, -8, -8)
 
-			MiniMapBattlefieldBorder:Hide()
-			MiniMapBattlefieldIcon:SetAlpha(0)
-		end
+		MiniMapBattlefieldBorder:Hide()
+		MiniMapBattlefieldIcon:SetAlpha(0)
 
 	else
 
+		-- This was the old retail, need to update for Shadowlands!
 		if (not ns.IsRetail) then
 
-			local eyeTexture = QueueStatusMinimapButton.Eye:CreateTexture()
-			eyeTexture:SetDrawLayer("ARTWORK", 1)
+			local eyeTexture = QueueStatusMinimapButton.Eye:CreateTexture(nil, "ARTWORK", nil, 1)
 			eyeTexture:SetPoint("CENTER", 0, 0)
-			eyeTexture:SetSize(64,64)
-			eyeTexture:SetTexture(GetMedia("group-finder-eye-orange"))
-			eyeTexture:SetVertexColor(.8, .76, .72)
+			eyeTexture:SetSize(unpack(db.EyeTextureSize))
+			eyeTexture:SetTexture(db.EyeTexture)
+			eyeTexture:SetVertexColor(unpackdb.EyeTextureColor)
 			self.eyeTexture = eyeTexture
 
 			QueueStatusMinimapButton:SetHighlightTexture("")
 
 			QueueStatusMinimapButtonBorder:SetAlpha(0)
 			QueueStatusMinimapButtonBorder:SetTexture(nil)
-			QueueStatusMinimapButtonGroupSize:SetFontObject(GetFont(15,true))
+			QueueStatusMinimapButtonGroupSize:SetFontObject(db.EyeGroupSizeFont)
 			QueueStatusMinimapButtonGroupSize:ClearAllPoints()
-			QueueStatusMinimapButtonGroupSize:SetPoint("BOTTOMRIGHT", 0, 0)
+			QueueStatusMinimapButtonGroupSize:SetPoint(unpack(db.EyeGroupSizePosition))
 
 			QueueStatusMinimapButton:SetParent(eyeFrame)
 			QueueStatusMinimapButton:ClearAllPoints()
 			QueueStatusMinimapButton:SetPoint("CENTER", 0, 0)
 
-			QueueStatusMinimapButton.Eye:SetSize(64,64)
+			QueueStatusMinimapButton.Eye:SetSize(unpack(db.EyeTextureSize))
 			QueueStatusMinimapButton.Eye.texture:SetParent(UIHider)
 			QueueStatusMinimapButton.Eye.texture:SetAlpha(0)
 
@@ -751,7 +606,7 @@ Bigmap.InitializeMinimap = function(self)
 			QueueStatusMinimapButton.Highlight:SetTexture(nil)
 
 			QueueStatusFrame:ClearAllPoints()
-			QueueStatusFrame:SetPoint("TOPRIGHT", QueueStatusMinimapButton, "BOTTOMLEFT", 0, 0)
+			QueueStatusFrame:SetPoint(unpack(db.EyeGroupStatusFramePosition))
 		end
 
 	end
@@ -759,10 +614,10 @@ Bigmap.InitializeMinimap = function(self)
 	self:UpdatePosition()
 end
 
-Bigmap.InitializeMBB = function(self)
+MinimapMod.InitializeMBB = function(self)
 end
 
-Bigmap.InitializeNarcissus = function(self)
+MinimapMod.InitializeNarcissus = function(self)
 	local Narci_MinimapButton = SetObjectScale(Narci_MinimapButton)
 	if (not Narci_MinimapButton) then
 		return
@@ -793,7 +648,7 @@ Bigmap.InitializeNarcissus = function(self)
 
 end
 
-Bigmap.InitializeAddon = function(self, addon, ...)
+MinimapMod.InitializeAddon = function(self, addon, ...)
 	if (addon == "ADDON_LOADED") then
 		addon = ...
 	end
@@ -807,7 +662,7 @@ Bigmap.InitializeAddon = function(self, addon, ...)
 	self.Addons[addon] = nil
 end
 
-Bigmap.SetClock = function(self, input)
+MinimapMod.SetClock = function(self, input)
 	local args = { self:GetArgs(string_lower(input)) }
 	for _,arg in ipairs(args) do
 		if (arg == "24") then
@@ -822,7 +677,7 @@ Bigmap.SetClock = function(self, input)
 	end
 end
 
-Bigmap.OnEvent = function(self, event)
+MinimapMod.OnEvent = function(self, event)
 	if (event == "PLAYER_ENTERING_WORLD") then
 		self:UpdateZone()
 		self:UpdateMail()
@@ -851,7 +706,7 @@ Bigmap.OnEvent = function(self, event)
 	end
 end
 
-Bigmap.OnInitialize = function(self)
+MinimapMod.OnInitialize = function(self)
 
 	self:InitializeMinimap()
 	self:RegisterEvent("CVAR_UPDATE", "OnEvent")

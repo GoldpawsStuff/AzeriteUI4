@@ -27,35 +27,12 @@ local Addon, ns = ...
 local Config = ns.Config or {}
 ns.Config = Config
 
-local Colors = ns.Colors
-local GetFont = ns.API.GetFont
-local GetMedia = ns.API.GetMedia
-
-Config.Tooltips = {
-	Position = { "BOTTOMRIGHT", UIParent, "BOTTOMRIGHT", -319, 166 },
-
-	-- Tooltip Backdrop
-	Backdrop = {
-		bgFile = [[Interface\Tooltips\UI-Tooltip-Background]],
-		edgeSize = 32, edgeFile = GetMedia("border-tooltip"),
-		tile = true,
-		insets = { left = 8, right = 8, top = 16, bottom = 16 }
-	},
-	BackdropColor = { .05, .05, .05, .95 },
-	BackdropOffsetLeft = -10,
-	BackdropOffsetRight = 10,
-	BackdropOffsetTop = 18,
-	BackdropOffsetBottom = -18,
-	BackdropOffsetBar = 0,
-	BackdropOffsetBarBottom = -6,
-
-	-- Tooltip statusbar
-	StatusBarSize = 4,
-	StatusBarOffsetV = 1,
-	StatusBarOffsetH = 4,
-	StatusBarTexture = GetMedia("bar-progress"),
-	StatusBarTextPosition = { "CENTER", 0, 0 },
-	StatusBarTextFont = GetFont(13,true),
-	StatusBarTextColor = { ns.Colors.offwhite[1], ns.Colors.offwhite[2], ns.Colors.offwhite[3] }
-
+Config.Tracker = {
+	-- Size of the holder. Set to same width as our Minimap.
+	-- *Wrath WatchFrame is 306 expanded, 204 standard width, Retail ObjectiveTracker 248
+	Size = { 213, 22 },
+	Position = { "BOTTOMRIGHT", UIParent, "BOTTOMRIGHT", -20, 380 },
+	TopOffset = -220, -- Free space at the top of the screen
+	WrathScale = 1.0625,
+	WrathTitleFont = GetFont(12,true),
 }

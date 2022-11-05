@@ -27,6 +27,10 @@ local Addon, ns = ...
 local Config = ns.Config or {}
 ns.Config = Config
 
+local Colors = ns.Colors
+local GetFont = ns.API.GetFont
+local GetMedia = ns.API.GetMedia
+
 Config.Minimap = {
 
 	Size = { 213, 213 },
@@ -43,6 +47,11 @@ Config.Minimap = {
 	BorderTexture = GetMedia("minimap-border"),
 	BorderColor = { Colors.ui[1], Colors.ui[2], Colors.ui[3] },
 
+	CompassInset = 14,
+	CompassFont = GetFont(16,true),
+	CompassColor = { Colors.normal[1], Colors.normal[2], Colors.normal[3], .75 },
+	CompassNorthTag = "N",
+
 	CoordinateColor = { Colors.offwhite[1], Colors.offwhite[2], Colors.offwhite[3], .75 },
 	CoordinateFont = GetFont(12, true),
 	CoordinatePlace = { "BOTTOM", 3, 23 },
@@ -52,19 +61,34 @@ Config.Minimap = {
 	ClockColor = { Colors.offwhite[1], Colors.offwhite[2], Colors.offwhite[3] },
 
 	-- About 8px to the left of the clock.
-	ZoneTextPosition = { "BOTTOMRIGHT", -(226 + 100), -8 }, -- adjust this
+	ZoneTextPosition = { "BOTTOMRIGHT", -(226 + 60), -8 }, -- adjust this
 	ZoneTextFont = GetFont(15,true),
 	ZoneTextAlpha = .85,
 
 	-- About 6px Above the clock, slightly indented towards the left.
-	FrameRatePosition = { "BOTTOMRIGHT", -(226 + 6), -8 + 6 },
+	FrameRatePosition = { "BOTTOMRIGHT", -(226 + 6), -8 + 15 + 6 },
 	FrameRateFont = GetFont(12,true),
 	FrameRateColor = { Colors.offwhite[1], Colors.offwhite[2], Colors.offwhite[3], .5 },
 
 	-- To the left of the framerate, right above the zone text.
-	LatencyPosition = { "BOTTOMRIGHT", -(226 + 100), -8 + 6 }, -- adjust this
+	LatencyPosition = { "BOTTOMRIGHT", -(226 + 60), -8 + 15 + 6 }, -- adjust this
 	LatencyFont = GetFont(12,true),
 	LatencyColor = { Colors.offwhite[1], Colors.offwhite[2], Colors.offwhite[3], .5 },
 
+	MailPosition = { "BOTTOM", 0, 30 },
+	MailJustifyH = "CENTER",
+	MailJustifyV = "MIDDLE",
+	MailFont = GetFont(15, true),
+	MailColor = { Colors.offwhite[1], Colors.offwhite[2], Colors.offwhite[3], .85 },
+
+	-- Dungeon Eye
+	EyePosition = { "CENTER", math.cos(225*(math.pi/180)) * (280/2 + 10), math.sin(225*(math.pi/180)) * (280/2 + 10) },
+	EyeSize = { 64, 64 },
+	EyeTexture = GetMedia("group-finder-eye-green"),
+	EyeTextureColor = { .90, .95, 1 },
+	EyeTextureSize = { 64, 64 },
+	EyeGroupSizePosition = { "BOTTOMRIGHT", 0, 0 },
+	EyeGroupSizeFont = GetFont(15,true),
+	EyeGroupStatusFramePosition = { "TOPRIGHT", QueueStatusMinimapButton, "BOTTOMLEFT", 0, 0 },
 
 }
