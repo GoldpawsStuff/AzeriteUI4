@@ -555,7 +555,7 @@ Tooltips.SetDefaultAnchor = function(self, tooltip, parent)
 	if (not tooltip) or (tooltip:IsForbidden()) then return end
 
 	tooltip:SetOwner(parent, "ANCHOR_NONE")
-	tooltip:SetPoint(ns.Config.Tooltips.Position)
+	tooltip:SetPoint(unpack(ns.Config.Tooltips.Position))
 end
 
 Tooltips.SetUnitColor = function(self, unit)
