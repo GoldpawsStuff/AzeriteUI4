@@ -5,10 +5,13 @@ local oUF = ns.oUF
 local MAX_ARENA_ENEMIES = _G.MAX_ARENA_ENEMIES or 5
 
 -- sourced from FrameXML/TargetFrame.lua
-local MAX_BOSS_FRAMES = 8
+local MAX_BOSS_FRAMES = _G.MAX_BOSS_FRAMES or 5
 
 -- sourced from FrameXML/PartyMemberFrame.lua
 local MAX_PARTY_MEMBERS = _G.MAX_PARTY_MEMBERS or 4
+
+local isArenaHooked = false
+local isPartyHooked = false
 
 local hiddenParent = CreateFrame('Frame', nil, UIParent)
 hiddenParent:SetAllPoints()
@@ -34,12 +37,12 @@ local function handleFrame(baseName, doNotReparent)
 			frame:SetParent(hiddenParent)
 		end
 
-		local health = frame.healthBar or frame.healthbar
+		local health = frame.healthBar or frame.healthbar or frame.HealthBar
 		if(health) then
 			health:UnregisterAllEvents()
 		end
 
-		local power = frame.manabar
+		local power = frame.manabar or frame.ManaBar
 		if(power) then
 			power:UnregisterAllEvents()
 		end
@@ -49,7 +52,7 @@ local function handleFrame(baseName, doNotReparent)
 			spell:UnregisterAllEvents()
 		end
 
-		local altpowerbar = frame.powerBarAlt
+		local altpowerbar = frame.powerBarAlt or frame.PowerBarAlt
 		if(altpowerbar) then
 			altpowerbar:UnregisterAllEvents()
 		end
@@ -57,6 +60,16 @@ local function handleFrame(baseName, doNotReparent)
 		local buffFrame = frame.BuffFrame
 		if(buffFrame) then
 			buffFrame:UnregisterAllEvents()
+		end
+
+		local petFrame = frame.petFrame or frame.PetFrame
+		if(petFrame) then
+			petFrame:UnregisterAllEvents()
+		end
+
+		local totFrame = frame.totFrame
+		if(totFrame) then
+			totFrame:UnregisterAllEvents()
 		end
 	end
 end
@@ -93,36 +106,61 @@ function oUF:DisableBlizzard(unit)
 			handleFrame('Boss' .. id .. 'TargetFrame')
 		else
 			for i = 1, MAX_BOSS_FRAMES do
-				handleFrame(string.format('Boss%dTargetFrame', i))
+				handleFrame('Boss' .. i .. 'TargetFrame')
 			end
 		end
 	elseif(unit:match('party%d?$')) then
-		local id = unit:match('party(%d)')
-		if(id) then
-			handleFrame('PartyMemberFrame' .. id)
+		if (oUF.isRetail) then
+			if(not isPartyHooked) then
+				isPartyHooked = true
+
+				PartyFrame:UnregisterAllEvents()
+
+				for frame in PartyFrame.PartyMemberFramePool:EnumerateActive() do
+					handleFrame(frame)
+				end
+			end
 		else
-			for i = 1, MAX_PARTY_MEMBERS do
-				handleFrame(string.format('PartyMemberFrame%d', i))
+			local id = unit:match('party(%d)')
+			if(id) then
+				handleFrame('PartyMemberFrame' .. id)
+			else
+				for i = 1, MAX_PARTY_MEMBERS do
+					handleFrame(string.format('PartyMemberFrame%d', i))
+				end
 			end
 		end
 	elseif(unit:match('arena%d?$')) then
-		local id = unit:match('arena(%d)')
-		if(id) then
-			if (oUF.isWrath) then
-				handleFrame('ArenaEnemyFrame' .. id)
-			else
-				handleFrame('ArenaEnemyMatchFrame' .. id)
+		if (oUF.isRetail) then
+			if(not isArenaHooked) then
+				isArenaHooked = true
+
+				-- this disables ArenaEnemyFramesContainer
+				SetCVar('showArenaEnemyFrames', '0')
+				SetCVar('showArenaEnemyPets', '0')
+
+				-- but still UAE all containers
+				ArenaEnemyFramesContainer:UnregisterAllEvents()
+				ArenaEnemyPrepFramesContainer:UnregisterAllEvents()
+				ArenaEnemyMatchFramesContainer:UnregisterAllEvents()
+
+				for i = 1, MAX_ARENA_ENEMIES do
+					handleFrame('ArenaEnemyMatchFrame' .. i)
+					handleFrame('ArenaEnemyPrepFrame' .. i)
+				end
 			end
 		else
-			for i = 1, MAX_ARENA_ENEMIES do
-				handleFrame(string.format('ArenaEnemyMatchFrame%d', i))
+			local id = unit:match('arena(%d)')
+			if(id) then
+				handleFrame('ArenaEnemyFrame' .. id)
+			else
+				for i = 1, MAX_ARENA_ENEMIES do
+					handleFrame('ArenaEnemyFrame'.. i)
+				end
 			end
+			SetCVar('showArenaEnemyFrames', '0')
+			_G.Arena_LoadUI = function() end
 		end
-
-		-- this disables ArenaEnemyFramesContainer
-		SetCVar('showArenaEnemyFrames', '0')
-		if(oUF.isWrath) then _G.Arena_LoadUI = function() end end
-
 	elseif(unit:match('nameplate%d+$')) then
 		local frame = C_NamePlate.GetNamePlateForUnit(unit)
 		if(frame and frame.UnitFrame) then
