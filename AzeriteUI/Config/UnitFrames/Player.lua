@@ -100,7 +100,22 @@ Config.Player = {
 	-- Auras
 	-----------------------------------------
 	AurasPosition = { "BOTTOMLEFT", 37, 91 },
-	AurasSize = { 40*8 - 6, 40*2 - 6 },
+	AurasSize = { 40*8 - 4, 40*2 - 4 },
+	AuraSize = 36,
+	AuraSpacing = 4,
+	AurasNumTotal = 16,
+	AurasDisableMouse = false,
+	AurasDisableCooldown = true,
+	AurasOnlyShowPlayer = false,
+	AurasShowStealableBuffs = false,
+	AurasInitialAnchor = "BOTTOMLEFT",
+	AurasSpacingX = 4,
+	AurasSpacingY = 4,
+	AurasGrowthX = "RIGHT",
+	AurasGrowthY = "UP",
+	AurasTooltipAnchor = "ANCHOR_TOPRIGHT",
+	AurasSortMethod = "TIME_REMAINING",
+	AurasSortDirection = "DESCENDING",
 
 	-- Seasonal Overrides & Additions
 	-----------------------------------------

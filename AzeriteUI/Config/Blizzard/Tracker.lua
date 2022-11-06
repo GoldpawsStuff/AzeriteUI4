@@ -27,6 +27,11 @@ local Addon, ns = ...
 local Config = ns.Config or {}
 ns.Config = Config
 
+-- Addon API
+local Colors = ns.Colors
+local GetFont = ns.API.GetFont
+local GetMedia = ns.API.GetMedia
+
 Config.Tracker = {
 	-- Size of the holder. Set to same width as our Minimap.
 	-- *Wrath WatchFrame is 306 expanded, 204 standard width, Retail ObjectiveTracker 248
