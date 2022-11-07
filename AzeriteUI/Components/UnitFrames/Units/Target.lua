@@ -37,12 +37,15 @@ local unpack = unpack
 
 -- WoW API
 local IsLevelAtEffectiveMaxLevel = IsLevelAtEffectiveMaxLevel
+local SetPortraitTexture = SetPortraitTexture
 local UnitClassification = UnitClassification
 local UnitExists = UnitExists
 local UnitFactionGroup = UnitFactionGroup
 local UnitIsMercenary = UnitIsMercenary
 local UnitIsPlayer = UnitIsPlayer
 local UnitIsPVPFreeForAll = UnitIsPVPFreeForAll
+local UnitIsUnit = UnitIsUnit
+local UnitEffectiveLevel = UnitEffectiveLevel or UnitLevel
 local UnitLevel = UnitLevel
 
 -- Addon API
@@ -85,6 +88,8 @@ end
 
 -- Align our custom health prediction texture
 -- based on the plugins provided values.
+-- *Note this function assumes flipped bars,
+--  something we'll always assume for the target frame.
 local HealPredict_PostUpdate = function(element, unit, myIncomingHeal, otherIncomingHeal, absorb, healAbsorb, hasOverAbsorb, hasOverHealAbsorb, curHealth, maxHealth)
 
 	local allIncomingHeal = myIncomingHeal + otherIncomingHeal
@@ -145,7 +150,7 @@ local HealPredict_PostUpdate = function(element, unit, myIncomingHeal, otherInco
 				element:ClearAllPoints()
 				element:SetPoint("BOTTOMLEFT", previewTexture, "BOTTOMRIGHT", 0, 0)
 				element:SetSize(change*previewWidth, previewHeight)
-				element:SetTexCoord(texValue, texValue + texChange, top, bottom)
+				element:SetTexCoord(texValue + texChange, texValue, top, bottom)
 				element:SetVertexColor(0, .7, 0, .25)
 				element:Show()
 
@@ -153,7 +158,7 @@ local HealPredict_PostUpdate = function(element, unit, myIncomingHeal, otherInco
 				element:ClearAllPoints()
 				element:SetPoint("BOTTOMRIGHT", previewTexture, "BOTTOMRIGHT", 0, 0)
 				element:SetSize((-change)*previewWidth, previewHeight)
-				element:SetTexCoord(texValue + texChange, texValue, top, bottom)
+				element:SetTexCoord(texValue, texValue + texChange, top, bottom)
 				element:SetVertexColor(.5, 0, 0, .75)
 				element:Show()
 
@@ -173,7 +178,7 @@ local HealPredict_PostUpdate = function(element, unit, myIncomingHeal, otherInco
 				element:ClearAllPoints()
 				element:SetPoint("BOTTOMRIGHT", previewTexture, "BOTTOMLEFT", 0, 0)
 				element:SetSize(change*previewWidth, previewHeight)
-				element:SetTexCoord(texValue + texChange, texValue, top, bottom)
+				element:SetTexCoord(texValue, texValue + texChange, top, bottom)
 				element:SetVertexColor(0, .7, 0, .25)
 				element:Show()
 
@@ -181,7 +186,7 @@ local HealPredict_PostUpdate = function(element, unit, myIncomingHeal, otherInco
 				element:ClearAllPoints()
 				element:SetPoint("BOTTOMLEFT", previewTexture, "BOTTOMLEFT", 0, 0)
 				element:SetSize((-change)*previewWidth, previewHeight)
-				element:SetTexCoord(texValue, texValue + texChange, top, bottom)
+				element:SetTexCoord(texValue + texChange, texValue, top, bottom)
 				element:SetVertexColor(.5, 0, 0, .75)
 				element:Show()
 
@@ -213,8 +218,43 @@ local Power_UpdateColor = function(self, event, unit)
 	local element = self.Power
 	local pType, pToken, altR, altG, altB = UnitPowerType(unit)
 	if (pToken) then
-		local color = ns.Config.Player.PowerBarColors[pToken]
+		local color = ns.Config.Target.PowerBarColors[pToken]
 		element:SetStatusBarColor(unpack(color))
+	end
+end
+
+-- Hide power crystal when no power exists.
+local Power_UpdateVisibility = function(element, unit, cur, min, max)
+	if (UnitIsDeadOrGhost(unit) or not UnitIsConnected(unit) or max == 0 or min == 0) then
+		element:Hide()
+	else
+		element:Show()
+	end
+end
+
+-- Make the portrait look better for offline or invisible units.
+local Portrait_PostUpdate = function(element, unit, hasStateChanged)
+	if (not element.state) then
+		element:ClearModel()
+		if (not element.fallback2DTexture) then
+			element.fallback2DTexture = element:CreateTexture()
+			element.fallback2DTexture:SetDrawLayer("ARTWORK")
+			element.fallback2DTexture:SetAllPoints()
+			element.fallback2DTexture:SetTexCoord(.1, .9, .1, .9)
+		end
+		SetPortraitTexture(element.fallback2DTexture, unit)
+		element.fallback2DTexture:Show()
+	else
+		if (element.fallback2DTexture) then
+			element.fallback2DTexture:Hide()
+		end
+		element:SetCamDistanceScale(element.distanceScale or 1)
+		element:SetPortraitZoom(1)
+		element:SetPosition(element.positionX or 0, element.positionY or 0, element.positionZ or 0)
+		element:SetRotation(element.rotation and element.rotation*degToRad or 0)
+		element:ClearModel()
+		element:SetUnit(unit)
+		element.guid = guid
 	end
 end
 
@@ -235,27 +275,81 @@ local Cast_UpdateTexts = function(element)
 		element.Text:Show()
 		element.Time:Show()
 		health.Value:Hide()
+		health.Percent:Hide()
 	else
 		element.Text:Hide()
 		element.Time:Hide()
 		health.Value:Show()
+		health.Percent:Show()
 	end
 end
 
--- Only show Horde/Alliance badges
+-- Update NPC classification badge for rares, elites and bosses.
+local Classification_Update = function(self, event, unit, ...)
+	if (unit and unit ~= self.unit) then return end
+
+	local element = self.Classification
+	unit = unit or self.unit
+
+	if (UnitIsPlayer(unit)) then
+		return element:Hide()
+	end
+	local l = UnitEffectiveLevel(unit)
+	local c = (l and l < 1) and "worldboss" or UnitClassification(unit)
+	if (c == "boss" or c == "worldboss") then
+		element:SetTexture(element.bossTexture)
+		element:Show()
+
+	elseif (c == "elite") then
+		element:SetTexture(element.eliteTexture)
+		element:Show()
+
+	elseif (c == "rare" or c == "rareelite") then
+		element:SetTexture(element.rareTexture)
+		element:Show()
+	else
+		element:Hide()
+	end
+end
+
+-- Toggle name size based on ToT visibility
+local Name_PostUpdate = function(self)
+	local name = self.Name
+	if (UnitExists("targettarget") and not UnitIsUnit("targettarget", "target") and not UnitIsUnit("targettarget","player")) then
+		if (not name.usingSmallWidth) then
+			name.usingSmallWidth = true
+			self:Untag(name)
+			self:Tag(name, prefix("[*:Name(30,true,nil,true)]"))
+		end
+	else
+		if (name.usingSmallWidth) then
+			name.usingSmallWidth = nil
+			self:Untag(name)
+			self:Tag(name, prefix("[*:Name(64,true,nil,true)]"))
+		end
+	end
+end
+
+-- Only show Horde/Alliance badges,
+-- keep this hidding for rare-, elite- and boss NPCs.
 local PvPIndicator_Override = function(self, event, unit)
 	if (unit and unit ~= self.unit) then return end
 
 	local element = self.PvPIndicator
 	unit = unit or self.unit
 
+	local l = UnitEffectiveLevel(unit)
+	local c = (l and l < 1) and "worldboss" or UnitClassification(unit)
+	if (c == "boss" or c == "worldboss" or c == "elite" or c == "rare") then
+		return element:Hide()
+	end
+
 	local status
 	local factionGroup = UnitFactionGroup(unit) or "Neutral"
-
 	if (factionGroup ~= "Neutral") then
 		if (UnitIsPVPFreeForAll(unit)) then
 		elseif (UnitIsPVP(unit)) then
-			if (ns.IsRetail and unit == "player" and UnitIsMercenary(unit)) then
+			if (ns.IsRetail and UnitIsMercenary(unit)) then
 				if (factionGroup == "Horde") then
 					factionGroup = "Alliance"
 				elseif (factionGroup == "Alliance") then
@@ -272,17 +366,18 @@ local PvPIndicator_Override = function(self, event, unit)
 	else
 		element:Hide()
 	end
-
 end
 
 -- Update player frame based on player level.
+-- *Note this function assumes flipped bars,
+--  something we'll always assume for the target frame.
 local UnitFrame_UpdateTextures = function(self)
 	local unit = self.unit
 	if (not unit or not UnitExists(unit)) then
 		return
 	end
 
-	local level = UnitLevel(unit)
+	local level = UnitIsUnit(unit, "player") and playerLevel or UnitEffectiveLevel(unit)
 
 	local key
 	if (UnitIsPlayer(unit)) then
@@ -308,12 +403,13 @@ local UnitFrame_UpdateTextures = function(self)
 	health:SetPoint(unpack(db.HealthBarPosition))
 	health:SetSize(unpack(db.HealthBarSize))
 	health:SetStatusBarTexture(db.HealthBarTexture)
-	health:SetStatusBarColor(unpack(db.HealthBarColor))
 	health:SetOrientation(db.HealthBarOrientation)
 	health:SetSparkMap(db.HealthBarSparkMap)
+	health:SetFlippedHorizontally(true)
 
 	local healthPreview = self.Health.Preview
 	healthPreview:SetStatusBarTexture(db.HealthBarTexture)
+	healthPreview:SetFlippedHorizontally(true)
 
 	local healthBackdrop = self.Health.Backdrop
 	healthBackdrop:ClearAllPoints()
@@ -321,6 +417,7 @@ local UnitFrame_UpdateTextures = function(self)
 	healthBackdrop:SetSize(unpack(db.HealthBackdropSize))
 	healthBackdrop:SetTexture(db.HealthBackdropTexture)
 	healthBackdrop:SetVertexColor(unpack(db.HealthBackdropColor))
+	healthBackdrop:SetTexCoord(1,0,0,1)
 
 	local healPredict = self.HealthPrediction
 	healPredict:SetTexture(db.HealthBarTexture)
@@ -341,6 +438,7 @@ local UnitFrame_UpdateTextures = function(self)
 		end
 		absorb:SetOrientation(orientation)
 		absorb:SetSparkMap(db.HealthBarSparkMap)
+		absorb:SetFlippedHorizontally(true)
 	end
 
 	local cast = self.Castbar
@@ -351,14 +449,21 @@ local UnitFrame_UpdateTextures = function(self)
 	cast:SetStatusBarColor(unpack(db.HealthCastOverlayColor))
 	cast:SetOrientation(db.HealthBarOrientation)
 	cast:SetSparkMap(db.HealthBarSparkMap)
+	cast:SetFlippedHorizontally(true)
+
+	local portraitBorder = self.Portrait.Border
+	portraitBorder:SetTexture(db.PortraitBorderTexture)
+	portraitBorder:SetVertexColor(unpack(db.PortraitBorderColor))
 
 	if (key == "Boss" and self.currentStyle ~= "Boss") then
+		local db = ns.Config.Target
 		local auras = self.Auras
 		auras.numTotal = db.AurasNumTotalBoss
 		auras:SetSize(unpack(db.AurasSizeBoss))
 		auras:ForceUpdate()
 
 	elseif (key ~= "Boss" and self.currentStyle == "Boss") then
+		local db = ns.Config.Target
 		local auras = self.Auras
 		auras.numTotal = db.AurasNumTotal
 		auras:SetSize(unpack(db.AurasSize))
@@ -367,10 +472,14 @@ local UnitFrame_UpdateTextures = function(self)
 
 end
 
+local UnitFrame_PostUpdate = function(self)
+	UnitFrame_UpdateTextures(self)
+	Classification_Update(self)
+end
+
 -- Frame Script Handlers
 --------------------------------------------
 local OnEvent = function(self, event, unit, ...)
-
 	if (event == "PLAYER_ENTERING_WORLD") then
 		playerLevel = UnitLevel("player")
 
@@ -385,21 +494,21 @@ local OnEvent = function(self, event, unit, ...)
 			end
 		end
 	end
-
-	UnitFrame_UpdateTextures(self)
+	UnitFrame_PostUpdate(self)
 end
 
-UnitStyles["Player"] = function(self, unit, id)
+UnitStyles["Target"] = function(self, unit, id)
 
-	local db = ns.Config.Player
+	local db = ns.Config.Target
 	self:SetSize(unpack(db.Size))
 	self:SetPoint(unpack(db.Position))
 	self:SetHitRectInsets(unpack(db.HitRectInsets))
+	self:SetFrameLevel(self:GetFrameLevel() + 2)
 
 	-- Overlay for icons and text
 	--------------------------------------------
 	local overlay = CreateFrame("Frame", nil, self)
-	overlay:SetFrameLevel(self:GetFrameLevel() + 5)
+	overlay:SetFrameLevel(self:GetFrameLevel() + 7)
 	overlay:SetAllPoints()
 
 	self.Overlay = overlay
@@ -409,12 +518,18 @@ UnitStyles["Player"] = function(self, unit, id)
 	local health = self:CreateBar()
 	health:SetFrameLevel(health:GetFrameLevel() + 2)
 	health.predictThreshold = .01
+	health.colorDisconnected = true
+	health.colorTapping = true
+	health.colorThreat = true
+	health.colorClass = true
+	health.colorClassPet = true
+	health.colorReaction = true
 
 	self.Health = health
 	self.Health.Override = ns.API.UpdateHealth
 	self.Health.PostUpdate = Health_PostUpdate
 
-	local healthBackdrop = self:CreateTexture(nil, "BACKGROUND", nil, -1)
+	local healthBackdrop = health:CreateTexture(nil, "BACKGROUND", nil, -1)
 
 	self.Health.Backdrop = healthBackdrop
 
@@ -487,12 +602,24 @@ UnitStyles["Player"] = function(self, unit, id)
 	healthValue:SetJustifyH(db.HealthValueJustifyH)
 	healthValue:SetJustifyV(db.HealthValueJustifyV)
 	if (ns.IsRetail) then
-		self:Tag(healthValue, prefix("[*:Health:Big]  [*:Absorb]"))
+		self:Tag(healthValue, prefix("[*:Health]  [*:Absorb]"))
 	else
-		self:Tag(healthValue, prefix("[*:Health:Big]"))
+		self:Tag(healthValue, prefix("[*:Health]"))
 	end
 
 	self.Health.Value = healthValue
+
+	-- Health Percentage
+	--------------------------------------------
+	local healthPerc = health:CreateFontString(nil, "OVERLAY", nil, 1)
+	healthPerc:SetPoint(unpack(db.HealthPercentagePosition))
+	healthPerc:SetFontObject(db.HealthPercentageFont)
+	healthPerc:SetTextColor(unpack(db.HealthPercentageColor))
+	healthPerc:SetJustifyH(db.HealthPercentageJustifyH)
+	healthPerc:SetJustifyV(db.HealthPercentageJustifyV)
+	self:Tag(healthPerc, prefix("[*:HealthPercent]"))
+
+	self.Health.Percent = healthPerc
 
 	-- Absorb Bar (Retail)
 	--------------------------------------------
@@ -504,33 +631,88 @@ UnitStyles["Player"] = function(self, unit, id)
 		self.Absorb = absorb
 	end
 
+	-- Portrait
+	--------------------------------------------
+	local portraitFrame = CreateFrame("Frame", nil, self)
+	portraitFrame:SetFrameLevel(self:GetFrameLevel() - 2)
+	portraitFrame:SetAllPoints()
+
+	local portrait = CreateFrame("PlayerModel", nil, portraitFrame)
+	portrait:SetFrameLevel(portraitFrame:GetFrameLevel())
+	portrait:SetPoint(unpack(db.PortraitPosition))
+	portrait:SetSize(unpack(db.PortraitSize))
+	portrait:SetAlpha(db.PortraitAlpha)
+	portrait.distanceScale = db.PortraitDistanceScale
+	portrait.positionX = db.PortraitPositionX
+	portrait.positionY = db.PortraitPositionY
+	portrait.positionZ = db.PortraitPositionZ
+	portrait.rotation = db.PortraitRotation
+	portrait.showFallback2D = db.PortraitShowFallback2D
+
+	self.Portrait = portrait
+	self.Portrait.PostUpdate = Portrait_PostUpdate
+
+	local portraitBg = portraitFrame:CreateTexture(nil, "BACKGROUND", nil, 0)
+	portraitBg:SetPoint(unpack(db.PortraitBackgroundPosition))
+	portraitBg:SetSize(unpack(db.PortraitBackgroundSize))
+	portraitBg:SetTexture(db.PortraitBackgroundTexture)
+	portraitBg:SetVertexColor(unpack(db.PortraitBackgroundColor))
+
+	self.Portrait.Bg = portraitBg
+
+	local portraitOverlayFrame = CreateFrame("Frame", nil, self)
+	portraitOverlayFrame:SetFrameLevel(self:GetFrameLevel() - 1)
+	portraitOverlayFrame:SetAllPoints()
+
+	local portraitShade = portraitOverlayFrame:CreateTexture(nil, "BACKGROUND", nil, -1)
+	portraitShade:SetPoint(unpack(db.PortraitShadePosition))
+	portraitShade:SetSize(unpack(db.PortraitShadeSize))
+	portraitShade:SetTexture(db.PortraitShadeTexture)
+
+	self.Portrait.Shade = portraitShade
+
+	local portraitBorder = portraitOverlayFrame:CreateTexture(nil, "BACKGROUND", nil, 0)
+	portraitBorder:SetPoint(unpack(db.PortraitBorderPosition))
+	portraitBorder:SetSize(unpack(db.PortraitBorderSize))
+
+	self.Portrait.Border = portraitBorder
+
 	-- Power Crystal
 	--------------------------------------------
 	local power = self:CreateBar()
-	power:SetFrameLevel(self:GetFrameLevel() - 2)
+	power:SetFrameLevel(self:GetFrameLevel() + 5)
+	power:SetPoint(unpack(db.PowerBarPosition))
+	power:SetSize(unpack(db.PowerBarSize))
+	power:SetSparkTexture(db.PowerBarSparkTexture)
+	power:SetOrientation(db.PowerBarOrientation)
+	power:SetStatusBarTexture(db.PowerBarTexture)
+	power:SetAlpha(.75)
 	power.frequentUpdates = true
 	power.displayAltPower = true
+	power.colorPower = true
 
 	self.Power = power
 	self.Power.Override = ns.API.UpdatePower
 	self.Power.PostUpdate = Power_UpdateVisibility
-	self.Power.UpdateColor = ns.Retail and Power_UpdateColor
+	self.Power.UpdateColor = Power_UpdateColor
 
 	local powerBackdrop = power:CreateTexture(nil, "BACKGROUND", nil, -2)
-	local powerCase = power:CreateTexture(nil, "ARTWORK", nil, 1)
+	powerBackdrop:SetPoint(unpack(db.PowerBackdropPosition))
+	powerBackdrop:SetSize(unpack(db.PowerBackdropSize))
+	powerBackdrop:SetTexture(db.PowerBackdropTexture)
+	powerBackdrop:SetVertexColor(unpack(db.PowerBackdropColor))
+	powerBackdrop:SetIgnoreParentAlpha(true)
 
 	self.Power.Backdrop = powerBackdrop
-	self.Power.Case = powerCase
 
-	-- Power Value
+	-- Power Value Text
 	--------------------------------------------
-	local powerValue = power:CreateFontString(nil, "OVERLAY", nil, 1)
+	local powerValue = power:CreateFontString(nil, "OVERLAY", 0, 1)
 	powerValue:SetPoint(unpack(db.PowerValuePosition))
-	powerValue:SetFontObject(db.PowerValueFont)
-	powerValue:SetTextColor(unpack(db.PowerValueColor))
 	powerValue:SetJustifyH(db.PowerValueJustifyH)
 	powerValue:SetJustifyV(db.PowerValueJustifyV)
-	self:Tag(powerValue, prefix("[*:Power]"))
+	powerValue:SetFontObject(db.PowerValueFont)
+	powerValue:SetTextColor(unpack(db.PowerValueColor))
 
 	self.Power.Value = powerValue
 
@@ -556,11 +738,32 @@ UnitStyles["Player"] = function(self, unit, id)
 	self.PvPIndicator = PvPIndicator
 	self.PvPIndicator.Override = PvPIndicator_Override
 
+	-- Classification Badge
+	--------------------------------------------
+	local classification = overlay:CreateTexture(nil, "OVERLAY", nil, -2)
+	classification:SetSize(unpack(db.ClassificationSize))
+	classification:SetPoint(unpack(db.ClassificationPosition))
+	classification.bossTexture = db.ClassificationBossTexture
+	classification.eliteTexture = db.ClassificationEliteTexture
+	classification.rareTexture = db.ClassificationRareTexture
+
+	self.Classification = classification
+
 	-- Target Eye
 	--------------------------------------------
 
-	-- Classification Badge
+	-- Unit Name
 	--------------------------------------------
+	local name = self:CreateFontString(nil, "OVERLAY", nil, 1)
+	--name:SetSize(unpack(db.NameSize))
+	name:SetPoint(unpack(db.NamePosition))
+	name:SetFontObject(db.NameFont)
+	name:SetTextColor(unpack(db.NameColor))
+	name:SetJustifyH(db.NameJustifyH)
+	name:SetJustifyV(db.NameJustifyV)
+	self:Tag(name, prefix("[*:Name(64,true,nil,true)]"))
+
+	self.Name = name
 
 	-- Auras
 	--------------------------------------------
@@ -583,8 +786,8 @@ UnitStyles["Player"] = function(self, unit, id)
 	auras.sortMethod = db.AurasSortMethod
 	auras.sortDirection = db.AurasSortDirection
 	auras.CreateButton = ns.AuraStyles.CreateButton
-	auras.PostUpdateButton = ns.AuraStyles.PlayerPostUpdateButton
-	auras.CustomFilter = ns.AuraFilters.PlayerAuraFilter
+	auras.PostUpdateButton = ns.AuraStyles.TargetPostUpdateButton
+	auras.CustomFilter = ns.AuraFilters.TargetAuraFilter
 	auras.PreSetPosition = ns.AuraSorts.Default
 
 	self.Auras = auras
@@ -597,10 +800,18 @@ UnitStyles["Player"] = function(self, unit, id)
 	end
 
 	-- Add a callback for external style overriders
-	self:AddForceUpdate(UnitFrame_UpdateTextures)
+	self:AddForceUpdate(UnitFrame_PostUpdate)
 
-	-- Register events to handle texture updates.
+	-- Textures need an update when frame is displayed.
+	self.PostUpdate = UnitFrame_PostUpdate
+
+	-- Register events to handle additional texture updates.
 	self:RegisterEvent("PLAYER_ENTERING_WORLD", OnEvent, true)
 	self:RegisterEvent("PLAYER_LEVEL_UP", OnEvent, true)
+	self:RegisterEvent("PLAYER_TARGET_CHANGED", OnEvent, true)
+	self:RegisterEvent("UNIT_CLASSIFICATION_CHANGED", OnEvent)
+
+	-- Toggle name size based on ToT frame.
+	ns.RegisterCallback(self, "UnitFrame_ToT_Updated", Name_PostUpdate)
 
 end
