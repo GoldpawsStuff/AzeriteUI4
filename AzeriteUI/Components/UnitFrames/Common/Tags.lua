@@ -29,9 +29,15 @@ local Events = oUF.Tags.Events
 local Methods = oUF.Tags.Methods
 
 -- Lua API
+local ipairs = ipairs
 local math_max = math.max
+local select = select
 local string_find = string.find
 local string_gsub = string.gsub
+local string_len = string.len
+local string_split = string.split
+local tonumber = tonumber
+local unpack = unpack
 
 -- WoW API
 local UnitBattlePetLevel = UnitBattlePetLevel
@@ -44,7 +50,7 @@ local UnitIsAFK = UnitIsAFK
 local UnitIsBattlePetCompanion = UnitIsBattlePetCompanion
 local UnitIsDeadOrGhost = UnitIsDeadOrGhost
 local UnitIsWildBattlePet = UnitIsWildBattlePet
-local UnitLevel = UnitLevel
+local UnitEffectiveLevel = UnitEffectiveLevel or UnitLevel
 local UnitName = UnitName
 local UnitPower = UnitPower
 local UnitPowerMax = UnitPowerMax
@@ -80,6 +86,52 @@ local prefix = function(msg)
 	return string_gsub(msg, "*", ns.Prefix)
 end
 
+local getargs = function(...)
+	local args = { ... }
+	for i,arg in ipairs(args) do
+		local num = tonumber(arg)
+		if (num) then
+			args[i] = num
+		elseif (arg == "true" or arg == true) then
+			args[i] = true
+		elseif (arg == "false") then
+			args[i] = false
+		elseif (arg == "nil") then
+			args[i] = false
+		end
+	end
+	return unpack(args)
+end
+
+local utf8sub = function(str, i, dots)
+	if not str then return end
+	local bytes = str:len()
+	if bytes <= i then
+		return str
+	else
+		local len, pos = 0, 1
+		while pos <= bytes do
+			len = len + 1
+			local c = str:byte(pos)
+			if c > 0 and c <= 127 then
+				pos = pos + 1
+			elseif c >= 192 and c <= 223 then
+				pos = pos + 2
+			elseif c >= 224 and c <= 239 then
+				pos = pos + 3
+			elseif c >= 240 and c <= 247 then
+				pos = pos + 4
+			end
+			if len == i then break end
+		end
+		if len == i and pos <= bytes then
+			return str:sub(1, pos - 1)..(dots and "..." or "")
+		else
+			return str
+		end
+	end
+end
+
 -- Tags
 ---------------------------------------------------------------------
 Events[prefix("*:Absorb")] = "UNIT_ABSORB_AMOUNT_CHANGED"
@@ -97,7 +149,7 @@ end
 Events[prefix("*:Classification")] = "UNIT_LEVEL PLAYER_LEVEL_UP UNIT_CLASSIFICATION_CHANGED"
 if (oUF.isClassic or oUF.isTBC or oUF.isWrath) then
 	Methods[prefix("*:Classification")] = function(unit)
-		local l = UnitLevel(unit)
+		local l = UnitEffectiveLevel(unit)
 		local c = UnitClassification(unit)
 		if (c == "worldboss" or (not l) or (l < 1)) then
 			return
@@ -109,7 +161,7 @@ if (oUF.isClassic or oUF.isTBC or oUF.isWrath) then
 	end
 else
 	Methods[prefix("*:Classification")] = function(unit)
-		local l = UnitLevel(unit)
+		local l = UnitEffectiveLevel(unit)
 		if (UnitIsWildBattlePet(unit) or UnitIsBattlePetCompanion(unit)) then
 			l = UnitBattlePetLevel(unit)
 		end
@@ -124,79 +176,43 @@ else
 	end
 end
 
-Events[prefix("*:Health")] = "UNIT_HEALTH UNIT_MAXHEALTH UNIT_CONNECTION"
-Methods[prefix("*:Health")] = function(unit)
+Events[prefix("*:Health")] = "UNIT_HEALTH UNIT_MAXHEALTH PLAYER_FLAGS_CHANGED UNIT_CONNECTION"
+Methods[prefix("*:Health")] = function(unit, ...)
+	local useSmart, useFull, hideStatus, showAFK = getargs(...)
 	if (UnitIsDeadOrGhost(unit)) then
-		return L_DEAD
+		return not hideStatus and L_DEAD
 	elseif (not UnitIsConnected(unit)) then
-		return L_OFFLINE
-	else
-		local health = UnitHealth(unit)
-		if (health > 0) then
-			return AbbreviateNumber(health)
-		end
-	end
-end
-
-Events[prefix("*:Health:Full")] = "UNIT_HEALTH UNIT_MAXHEALTH UNIT_CONNECTION"
-Methods[prefix("*:Health:Full")] = function(unit)
-	if (UnitIsDeadOrGhost(unit) or not UnitIsConnected(unit)) then
-		return
-	else
-		local health, maxHealth = UnitHealth(unit), UnitHealthMax(unit)
-		if (maxHealth > 0) then
-			return health..c_gray.."/"..r..maxHealth
-		end
-	end
-end
-
-Events[prefix("*:Health:Smart")] = "UNIT_HEALTH UNIT_MAXHEALTH PLAYER_FLAGS_CHANGED UNIT_CONNECTION"
-Methods[prefix("*:Health:Smart")] = function(unit)
-	if (UnitIsDeadOrGhost(unit)) then
-		return L_DEAD
-	elseif (not UnitIsConnected(unit)) then
-		return L_OFFLINE
-	elseif (UnitIsAFK(unit)) then
+		return not hideStatus and L_OFFLINE
+	elseif (showAFK and UnitIsAFK(unit)) then
 		return L_AFK
 	else
 		local health, maxHealth = UnitHealth(unit), UnitHealthMax(unit)
-		if (maxHealth > 0) then
+		if (maxHealth == 0) then return end
+		if (useSmart) then
 			if (health == maxHealth) then
 				return AbbreviateNumber(health)
 			else
 				local displayValue = health / maxHealth * 100 + .5
 				return displayValue - displayValue%1
 			end
+
+		elseif (useFull) then
+			return health..c_gray.."/"..r..maxHealth
+
+		elseif (health > 0) then
+			return AbbreviateNumber(health)
 		end
 	end
 end
 
-Events[prefix("*:Health:Percent")] = "UNIT_HEALTH UNIT_MAXHEALTH PLAYER_FLAGS_CHANGED UNIT_CONNECTION"
-Methods[prefix("*:Health:Percent")] = function(unit)
+Events[prefix("*:HealthPercent")] = "UNIT_HEALTH UNIT_MAXHEALTH PLAYER_FLAGS_CHANGED UNIT_CONNECTION"
+Methods[prefix("*:HealthPercent")] = function(unit)
 	if (UnitIsDeadOrGhost(unit) or not UnitIsConnected(unit)) then
 		return
 	else
 		local health, maxHealth = UnitHealth(unit), UnitHealthMax(unit)
 		local displayValue = health / maxHealth * 100 + .5
 		return displayValue - displayValue%1
-	end
-end
-
-Events[prefix("*:Health:Big")] = "UNIT_HEALTH UNIT_MAXHEALTH UNIT_CONNECTION"
-Methods[prefix("*:Health:Big")] = function(unit)
-	if (UnitIsDeadOrGhost(unit)) then
-		return L_DEAD
-	elseif (not UnitIsConnected(unit)) then
-		return L_OFFLINE
-	else
-		local health, maxHealth = UnitHealth(unit), UnitHealthMax(unit)
-		if (maxHealth > 0) then
-			if (health == maxHealth) then
-				return AbbreviateNumber(health)
-			else
-				return AbbreviateNumber(health)..c_gray.."/"..r..AbbreviateNumber(maxHealth)
-			end
-		end
 	end
 end
 
@@ -228,18 +244,45 @@ Methods[prefix("*:ManaText:Low")] = function(unit)
 	end
 end
 
-Events[prefix("*:Level:Prefix")] = "UNIT_LEVEL PLAYER_LEVEL_UP UNIT_CLASSIFICATION_CHANGED"
-Methods[prefix("*:Level:Prefix")] = function(unit)
-	local l = Methods[prefix("*:Level")](unit, true)
-	return (l and l ~= T_BOSS) and l.." " or l
-end
-
 Events[prefix("*:Name")] = "UNIT_NAME_UPDATE"
-Methods[prefix("*:Name")] = function(unit, realUnit)
+Methods[prefix("*:Name")] = function(unit, realUnit, ...)
 	local name = UnitName(realUnit or unit)
-	if (name and string_find(name, "%s")) then
+	if (not name) then
+		return
+	end
+
+	local maxChars, showLevel, showLevelLast, showFull = getargs(...)
+	local levelText, levelTextLength, shouldShowLevel
+
+	if (not showFull and string_find(name, "%s")) then
 		name = AbbreviateName(name)
 	end
+
+	if (showLevel) then
+		local level = UnitEffectiveLevel(realUnit or unit)
+		if (level and level > 0) then
+			local _,_,_,colorCode = GetDifficultyColorByLevel(level)
+			levelText = colorCode .. level .. "|r"
+			levelTextLength = level >= 100 and 5 or level >= 10 and 4 or 3
+			shouldShowLevel = true
+		end
+	end
+
+	if (maxChars) then
+		local fullLength = string_len(name) + (shouldShowLevel and levelTextLength or 0)
+		if (fullLength > maxChars) then
+			name = utf8sub(name, showLevel and maxChars - levelTextLength or maxChars)
+		end
+	end
+
+	if (shouldShowLevel) then
+		if (showLevelLast) then
+			name = name .. " |cff888888:|r" .. levelText
+		else
+			name = levelText .. "|cff888888:|r " .. name
+		end
+	end
+
 	return name
 end
 
@@ -293,7 +336,7 @@ end
 Events[prefix("*:Level")] = "UNIT_LEVEL PLAYER_LEVEL_UP UNIT_CLASSIFICATION_CHANGED"
 if (oUF.isClassic or oUF.isTBC or oUF.isWrath) then
 	Methods[prefix("*:Level")] = function(unit, asPrefix)
-		local l = UnitLevel(unit)
+		local l = UnitEffectiveLevel(unit)
 		local c = UnitClassification(unit)
 		if (c == "worldboss" or (not l) or (l < 1)) then
 			return T_BOSS
@@ -310,7 +353,7 @@ if (oUF.isClassic or oUF.isTBC or oUF.isWrath) then
 	end
 else
 	Methods[prefix("*:Level")] = function(unit, asPrefix)
-		local l = UnitLevel(unit)
+		local l = UnitEffectiveLevel(unit)
 		if (UnitIsWildBattlePet(unit) or UnitIsBattlePetCompanion(unit)) then
 			l = UnitBattlePetLevel(unit)
 		end
@@ -328,4 +371,10 @@ else
 			return colorCode..l..r
 		end
 	end
+end
+
+Events[prefix("*:Level:Prefix")] = "UNIT_LEVEL PLAYER_LEVEL_UP UNIT_CLASSIFICATION_CHANGED"
+Methods[prefix("*:Level:Prefix")] = function(unit)
+	local l = Methods[prefix("*:Level")](unit, true)
+	return (l and l ~= T_BOSS) and l.." " or l
 end
