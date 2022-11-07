@@ -146,9 +146,9 @@ ns.AuraStyles.CreateButton = function(element, position)
 	aura.Count = count
 
 	local time = aura.Border:CreateFontString(nil, "OVERLAY")
-	time:SetFontObject(GetFont(12,true))
+	time:SetFontObject(GetFont(14,true))
 	time:SetTextColor(Colors.offwhite[1], Colors.offwhite[2], Colors.offwhite[3])
-	time:SetPoint("TOPLEFT", aura, "TOPLEFT", -3, 3)
+	time:SetPoint("TOPLEFT", aura, "TOPLEFT", -4, 4)
 	aura.Time = time
 
 	-- Using a virtual cooldown element with the timer attached,
