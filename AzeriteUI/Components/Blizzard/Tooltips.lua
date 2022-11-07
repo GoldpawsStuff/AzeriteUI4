@@ -406,7 +406,6 @@ Tooltips.OnTooltipSetUnit = function(self, tooltip)
 	end
 
 	local isPlayer = UnitIsPlayer(unit)
-	local unitLevel = UnitLevel(unit)
 	local unitEffectiveLevel = UnitEffectiveLevel(unit)
 	local unitName, unitRealm = UnitName(unit)
 	local isDead = UnitIsDeadOrGhost(unit)
