@@ -31,6 +31,34 @@ local Colors = ns.Colors
 local GetFont = ns.API.GetFont
 local GetMedia = ns.API.GetMedia
 
+local barSparkMap = {
+	{ ["keyPercent"] =   0/512, ["topOffset"] = -24/64, ["bottomOffset"] = -39/64 },
+	{ ["keyPercent"] =   9/512, ["topOffset"] =   0/64, ["bottomOffset"] = -16/64 },
+	{ ["keyPercent"] = 460/512, ["topOffset"] =   0/64, ["bottomOffset"] = -16/64 },
+	{ ["keyPercent"] = 478/512, ["topOffset"] =   0/64, ["bottomOffset"] =   0/64 },
+	{ ["keyPercent"] = 483/512, ["topOffset"] =   0/64, ["bottomOffset"] =  -3/64 },
+	{ ["keyPercent"] = 507/512, ["topOffset"] =   0/64, ["bottomOffset"] = -46/64 },
+	{ ["keyPercent"] = 512/512, ["topOffset"] = -11/64, ["bottomOffset"] = -54/64 }
+}
+
+local crystalSparkMap = {
+	["top"] = {
+		{ ["keyPercent"] =   0/256, offset =  -65/256 },
+		{ ["keyPercent"] =  72/256, offset =    0/256 },
+		{ ["keyPercent"] = 116/256, offset =  -16/256 },
+		{ ["keyPercent"] = 128/256, offset =  -28/256 },
+		{ ["keyPercent"] = 256/256, offset =  -84/256 },
+	},
+	["bottom"] = {
+		{ ["keyPercent"] =   0/256, offset =  -47/256 },
+		{ ["keyPercent"] =  84/256, offset =    0/256 },
+		{ ["keyPercent"] = 135/256, offset =  -24/256 },
+		{ ["keyPercent"] = 142/256, offset =  -32/256 },
+		{ ["keyPercent"] = 225/256, offset =  -79/256 },
+		{ ["keyPercent"] = 256/256, offset = -168/256 },
+	}
+}
+
 Config.Player = {
 
 	-- General Settings
@@ -105,7 +133,7 @@ Config.Player = {
 	AuraSpacing = 4,
 	AurasNumTotal = 16,
 	AurasDisableMouse = false,
-	AurasDisableCooldown = true,
+	AurasDisableCooldown = false,
 	AurasOnlyShowPlayer = false,
 	AurasShowStealableBuffs = false,
 	AurasInitialAnchor = "BOTTOMLEFT",
@@ -113,7 +141,7 @@ Config.Player = {
 	AurasSpacingY = 4,
 	AurasGrowthX = "RIGHT",
 	AurasGrowthY = "UP",
-	AurasTooltipAnchor = "ANCHOR_TOPRIGHT",
+	AurasTooltipAnchor = "ANCHOR_TOPLEFT",
 	AurasSortMethod = "TIME_REMAINING",
 	AurasSortDirection = "DESCENDING",
 
@@ -163,15 +191,7 @@ Config.Player = {
 		HealthBarTexture = GetMedia("hp_lowmid_bar"),
 		HealthBarColor = { Colors.health[1], Colors.health[2], Colors.health[3] },
 		HealthBarOrientation = "RIGHT",
-		HealthBarSparkMap = {
-			{ ["keyPercent"] =   0/512, ["topOffset"] = -24/64, ["bottomOffset"] = -39/64 },
-			{ ["keyPercent"] =   9/512, ["topOffset"] =   0/64, ["bottomOffset"] = -16/64 },
-			{ ["keyPercent"] = 460/512, ["topOffset"] =   0/64, ["bottomOffset"] = -16/64 },
-			{ ["keyPercent"] = 478/512, ["topOffset"] =   0/64, ["bottomOffset"] =   0/64 },
-			{ ["keyPercent"] = 483/512, ["topOffset"] =   0/64, ["bottomOffset"] =  -3/64 },
-			{ ["keyPercent"] = 507/512, ["topOffset"] =   0/64, ["bottomOffset"] = -46/64 },
-			{ ["keyPercent"] = 512/512, ["topOffset"] = -11/64, ["bottomOffset"] = -54/64 }
-		},
+		HealthBarSparkMap = barSparkMap,
 		HealthBackdropSize = { 716, 188 },
 		HealthBackdropPosition = { "CENTER", 1, -.5 },
 		HealthBackdropTexture = GetMedia("hp_low_case"),
@@ -186,23 +206,7 @@ Config.Player = {
 		PowerBarTexture = ns.IsWrath and GetMedia("power-crystal-ice-front") or GetMedia("power_crystal_front"),
 		PowerBarTexCoord = { 50/255, 206/255, 37/255, 219/255 },
 		PowerBarOrientation = "UP",
-		PowerBarSparkMap = {
-			["top"] = {
-				{ ["keyPercent"] =   0/256, offset =  -65/256 },
-				{ ["keyPercent"] =  72/256, offset =    0/256 },
-				{ ["keyPercent"] = 116/256, offset =  -16/256 },
-				{ ["keyPercent"] = 128/256, offset =  -28/256 },
-				{ ["keyPercent"] = 256/256, offset =  -84/256 },
-			},
-			["bottom"] = {
-				{ ["keyPercent"] =   0/256, offset =  -47/256 },
-				{ ["keyPercent"] =  84/256, offset =    0/256 },
-				{ ["keyPercent"] = 135/256, offset =  -24/256 },
-				{ ["keyPercent"] = 142/256, offset =  -32/256 },
-				{ ["keyPercent"] = 225/256, offset =  -79/256 },
-				{ ["keyPercent"] = 256/256, offset = -168/256 },
-			}
-		},
+		PowerBarSparkMap = crystalSparkMap,
 
 		PowerBackdropSize = { 196, 196 },
 		PowerBackdropPosition = { "CENTER", 0, 0 },
@@ -243,15 +247,7 @@ Config.Player = {
 		HealthBarTexture = GetMedia("hp_lowmid_bar"),
 		HealthBarColor = { Colors.health[1], Colors.health[2], Colors.health[3] },
 		HealthBarOrientation = "RIGHT",
-		HealthBarSparkMap = {
-			{ ["keyPercent"] =   0/512, ["topOffset"] = -24/64, ["bottomOffset"] = -39/64 },
-			{ ["keyPercent"] =   9/512, ["topOffset"] =   0/64, ["bottomOffset"] = -16/64 },
-			{ ["keyPercent"] = 460/512, ["topOffset"] =   0/64, ["bottomOffset"] = -16/64 },
-			{ ["keyPercent"] = 478/512, ["topOffset"] =   0/64, ["bottomOffset"] =   0/64 },
-			{ ["keyPercent"] = 483/512, ["topOffset"] =   0/64, ["bottomOffset"] =  -3/64 },
-			{ ["keyPercent"] = 507/512, ["topOffset"] =   0/64, ["bottomOffset"] = -46/64 },
-			{ ["keyPercent"] = 512/512, ["topOffset"] = -11/64, ["bottomOffset"] = -54/64 }
-		},
+		HealthBarSparkMap = barSparkMap,
 		HealthBackdropSize = { 716, 188 },
 		HealthBackdropPosition = { "CENTER", 1, -.5 },
 		HealthBackdropTexture = GetMedia("hp_mid_case"),
@@ -266,23 +262,7 @@ Config.Player = {
 		PowerBarTexture = ns.IsWrath and GetMedia("power-crystal-ice-front") or GetMedia("power_crystal_front"),
 		PowerBarTexCoord = { 50/255, 206/255, 37/255, 219/255 },
 		PowerBarOrientation = "UP",
-		PowerBarSparkMap = {
-			["top"] = {
-				{ ["keyPercent"] =   0/256, offset =  -65/256 },
-				{ ["keyPercent"] =  72/256, offset =    0/256 },
-				{ ["keyPercent"] = 116/256, offset =  -16/256 },
-				{ ["keyPercent"] = 128/256, offset =  -28/256 },
-				{ ["keyPercent"] = 256/256, offset =  -84/256 },
-			},
-			["bottom"] = {
-				{ ["keyPercent"] =   0/256, offset =  -47/256 },
-				{ ["keyPercent"] =  84/256, offset =    0/256 },
-				{ ["keyPercent"] = 135/256, offset =  -24/256 },
-				{ ["keyPercent"] = 142/256, offset =  -32/256 },
-				{ ["keyPercent"] = 225/256, offset =  -79/256 },
-				{ ["keyPercent"] = 256/256, offset = -168/256 },
-			}
-		},
+		PowerBarSparkMap = crystalSparkMap,
 
 		PowerBackdropSize = { 196, 196 },
 		PowerBackdropPosition = { "CENTER", 0, 0 },
@@ -322,15 +302,7 @@ Config.Player = {
 		HealthBarTexture = GetMedia("hp_cap_bar"),
 		HealthBarColor = { Colors.health[1], Colors.health[2], Colors.health[3] },
 		HealthBarOrientation = "RIGHT",
-		HealthBarSparkMap = {
-			{ ["keyPercent"] =   0/512, ["topOffset"] = -24/64, ["bottomOffset"] = -39/64 },
-			{ ["keyPercent"] =   9/512, ["topOffset"] =   0/64, ["bottomOffset"] = -16/64 },
-			{ ["keyPercent"] = 460/512, ["topOffset"] =   0/64, ["bottomOffset"] = -16/64 },
-			{ ["keyPercent"] = 478/512, ["topOffset"] =   0/64, ["bottomOffset"] =   0/64 },
-			{ ["keyPercent"] = 483/512, ["topOffset"] =   0/64, ["bottomOffset"] =  -3/64 },
-			{ ["keyPercent"] = 507/512, ["topOffset"] =   0/64, ["bottomOffset"] = -46/64 },
-			{ ["keyPercent"] = 512/512, ["topOffset"] = -11/64, ["bottomOffset"] = -54/64 }
-		},
+		HealthBarSparkMap = barSparkMap,
 		HealthBackdropSize = { 716, 188 },
 		HealthBackdropPosition = { "CENTER", 1, -.5 },
 		HealthBackdropTexture = GetMedia("hp_cap_case"),
@@ -345,23 +317,7 @@ Config.Player = {
 		PowerBarTexture = ns.IsWrath and GetMedia("power-crystal-ice-front") or GetMedia("power_crystal_front"),
 		PowerBarTexCoord = { 50/255, 206/255, 37/255, 219/255 },
 		PowerBarOrientation = "UP",
-		PowerBarSparkMap = {
-			["top"] = {
-				{ ["keyPercent"] =   0/256, offset =  -65/256 },
-				{ ["keyPercent"] =  72/256, offset =    0/256 },
-				{ ["keyPercent"] = 116/256, offset =  -16/256 },
-				{ ["keyPercent"] = 128/256, offset =  -28/256 },
-				{ ["keyPercent"] = 256/256, offset =  -84/256 },
-			},
-			["bottom"] = {
-				{ ["keyPercent"] =   0/256, offset =  -47/256 },
-				{ ["keyPercent"] =  84/256, offset =    0/256 },
-				{ ["keyPercent"] = 135/256, offset =  -24/256 },
-				{ ["keyPercent"] = 142/256, offset =  -32/256 },
-				{ ["keyPercent"] = 225/256, offset =  -79/256 },
-				{ ["keyPercent"] = 256/256, offset = -168/256 },
-			}
-		},
+		PowerBarSparkMap = crystalSparkMap,
 
 		PowerBackdropSize = { 196, 196 },
 		PowerBackdropPosition = { "CENTER", 0, 0 },
