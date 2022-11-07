@@ -459,9 +459,9 @@ end
 -- Frame Script Handlers
 --------------------------------------------
 local OnEvent = function(self, event, unit, ...)
-
 	if (event == "PLAYER_ENTERING_WORLD") then
 		playerXPDisabled = IsXPUserDisabled()
+		playerLevel = UnitLevel("player")
 
 	elseif (event == "ENABLE_XP_GAIN") then
 		playerXPDisabled = nil
@@ -480,7 +480,6 @@ local OnEvent = function(self, event, unit, ...)
 			end
 		end
 	end
-
 	UnitFrame_UpdateTextures(self)
 end
 
@@ -582,9 +581,9 @@ UnitStyles["Player"] = function(self, unit, id)
 	healthValue:SetJustifyH(db.HealthValueJustifyH)
 	healthValue:SetJustifyV(db.HealthValueJustifyV)
 	if (ns.IsRetail) then
-		self:Tag(healthValue, prefix("[*:Health:Big]  [*:Absorb]"))
+		self:Tag(healthValue, prefix("[*:Health]  [*:Absorb]"))
 	else
-		self:Tag(healthValue, prefix("[*:Health:Big]"))
+		self:Tag(healthValue, prefix("[*:Health]"))
 	end
 
 	self.Health.Value = healthValue
