@@ -757,11 +757,11 @@ UnitStyles["Player"] = function(self, unit, id)
 
 	-- Love is in the Air
 	if (IsLoveFestival) then
-		combatIndicator:SetSize(unpack(db.LoveFestivalCombatIndicatorSize))
+		combatIndicator:SetSize(unpack(db.Seasonal.LoveFestivalCombatIndicatorSize))
 		combatIndicator:ClearAllPoints()
-		combatIndicator:SetPoint(unpack(db.LoveFestivalCombatIndicatorPosition))
-		combatIndicator:SetTexture(db.LoveFestivalCombatIndicatorTexture)
-		combatIndicator:SetVertexColor(unpack(db.LoveFestivalCombatIndicatorColor))
+		combatIndicator:SetPoint(unpack(db.Seasonal.LoveFestivalCombatIndicatorPosition))
+		combatIndicator:SetTexture(db.Seasonal.LoveFestivalCombatIndicatorTexture)
+		combatIndicator:SetVertexColor(unpack(db.Seasonal.LoveFestivalCombatIndicatorColor))
 	end
 
 	-- Add a callback for external style overriders
