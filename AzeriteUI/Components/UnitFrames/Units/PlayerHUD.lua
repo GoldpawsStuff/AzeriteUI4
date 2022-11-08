@@ -30,19 +30,7 @@ if (not UnitStyles) then
 end
 
 -- Lua API
-local getmetatable = getmetatable
-local math_huge = math.huge
-local pairs = pairs
-local table_sort = table.sort
 local unpack = unpack
-
--- WoW API
-local CancelUnitBuff = CancelUnitBuff
-local CreateFrame = CreateFrame
-local HasPetUI = HasPetUI
-local InCombatLockdown = InCombatLockdown
-local UnitExists = UnitExists
-local UnitIsUnit = UnitIsUnit
 
 -- Addon API
 local Colors = ns.Colors
@@ -55,20 +43,125 @@ local _, playerClass = UnitClass("player")
 
 -- Utility Functions
 --------------------------------------------
-
+-- Simplify the tagging process a little.
+local prefix = function(msg)
+	return string_gsub(msg, "*", ns.Prefix)
+end
 
 -- Element Callbacks
 --------------------------------------------
+local Cast_CustomDelayText = function(element, duration)
+	if (element.casting) then
+		duration = element.max - duration
+	end
+	element.Time:SetFormattedText("%.1f", duration)
+	element.Delay:SetFormattedText("|cffff0000%s%.2f|r", element.casting and "+" or "-", element.delay)
+end
 
+local Cast_CustomTimeText = function(element, duration)
+	if (element.casting) then
+		duration = element.max - duration
+	end
+	element.Time:SetFormattedText("%.1f", duration)
+	element.Delay:SetText()
+end
 
--- Frame Script Handlers
---------------------------------------------
-
-
--- Callbacks
---------------------------------------------
-
+-- Update cast bar color to indicate protected casts.
+local Cast_UpdateInterruptible = function(element, unit)
+	if (element.notInterruptible) then
+		element:SetStatusBarColor(unpack(Colors.red))
+	else
+		element:SetStatusBarColor(unpack(Colors.cast))
+	end
+end
 
 UnitStyles["PlayerHUD"] = function(self, unit, id)
+
+	local db = ns.Config.PlayerHUD
+
+	self:EnableMouse(false)
+
+	-- Cast Bar
+	--------------------------------------------
+	if (not IsAddOnEnabled("Quartz")) then
+
+		local cast = self:CreateBar()
+		cast:SetFrameStrata("MEDIUM")
+		cast:SetPoint(unpack(db.CastBarPosition))
+		cast:SetSize(unpack(db.CastBarSize))
+		cast:SetStatusBarTexture(db.CastBarTexture)
+		cast:SetStatusBarColor(unpack(self.colors.cast))
+		cast:SetOrientation(db.CastBarOrientation)
+		cast:SetSparkMap(db.CastBarSparkMap)
+		cast:DisableSmoothing(true)
+		cast.timeToHold = db.CastBarTimeToHoldFailed
+
+		local castBackdrop = cast:CreateTexture(nil, "BORDER", nil, -1)
+		castBackdrop:SetPoint(unpack(db.CastBarBackgroundPosition))
+		castBackdrop:SetSize(unpack(db.CastBarBackgroundSize))
+		castBackdrop:SetTexture(db.CastBarBackgroundTexture)
+		castBackdrop:SetVertexColor(unpack(db.CastBarBackgroundColor))
+		cast.Backdrop = castBackdrop
+
+		local castSafeZone = cast:CreateTexture(nil, "ARTWORK", nil, 0)
+		castSafeZone:SetTexture(db.CastBarSpellQueueTexture)
+		castSafeZone:SetVertexColor(unpack(db.CastBarSpellQueueColor))
+		cast.SafeZone = castSafeZone
+
+		local castText = cast:CreateFontString(nil, "OVERLAY", nil, 0)
+		castText:SetPoint(unpack(db.CastBarTextPosition))
+		castText:SetFontObject(db.CastBarTextFont)
+		castText:SetTextColor(unpack(db.CastBarTextColor))
+		castText:SetJustifyH(db.CastBarTextJustifyH)
+		castText:SetJustifyV(db.CastBarTextJustifyV)
+		cast.Text = castText
+
+		local castTime = cast:CreateFontString(nil, "OVERLAY", nil, 0)
+		castTime:SetPoint(unpack(db.CastBarValuePosition))
+		castTime:SetFontObject(db.CastBarValueFont)
+		castTime:SetTextColor(unpack(db.CastBarValueColor))
+		castTime:SetJustifyH(db.CastBarValueJustifyH)
+		castTime:SetJustifyV(db.CastBarValueJustifyV)
+		cast.Time = castTime
+
+		local castDelay = cast:CreateFontString(nil, "OVERLAY", nil, 0)
+		castDelay:SetFontObject(GetFont(12,true))
+		castDelay:SetTextColor(unpack(self.colors.red))
+		castDelay:SetPoint("LEFT", castTime, "RIGHT", 0, 0)
+		castDelay:SetJustifyV("MIDDLE")
+		cast.Delay = castDelay
+
+		cast.CustomDelayText = Cast_CustomDelayText
+		cast.CustomTimeText = Cast_CustomTimeText
+		cast.PostCastInterruptible = Cast_UpdateInterruptible
+		cast.PostCastStart = Cast_UpdateInterruptible
+		--cast.PostCastStop = Cast_UpdateInterruptible -- needed?
+
+		self.Castbar = cast
+
+	end
+
+	-- Class Power
+	--------------------------------------------
+	-- 	Supported class powers:
+	-- 	- All     - Combo Points
+	-- 	- Mage    - Arcane Charges
+	-- 	- Monk    - Chi Orbs
+	-- 	- Paladin - Holy Power
+	-- 	- Warlock - Soul Shards
+	--------------------------------------------
+	local SCP = IsAddOnEnabled("SimpleClassPower")
+	if (not SCP) then
+	end
+
+	-- Monk Stagger
+	--------------------------------------------
+	if (playerClass == "MONK") and (not SCP) then
+	end
+
+	-- Death Knight Runes
+	--------------------------------------------
+	if (playerClass == "DEATHKNIGHT") and (ns.IsWrath or (ns.IsRetail and not SCP)) then
+	end
 
 end

@@ -27,9 +27,67 @@ local Addon, ns = ...
 local Config = ns.Config or {}
 ns.Config = Config
 
+-- Addon API
+local Colors = ns.Colors
+local GetFont = ns.API.GetFont
+local GetMedia = ns.API.GetMedia
+
+local castBarSparkMap = {
+	top = {
+		{ keyPercent =   0/128, offset = -16/32 },
+		{ keyPercent =  10/128, offset =   0/32 },
+		{ keyPercent = 119/128, offset =   0/32 },
+		{ keyPercent = 128/128, offset = -16/32 }
+	},
+	bottom = {
+		{ keyPercent =   0/128, offset = -16/32 },
+		{ keyPercent =  10/128, offset =   0/32 },
+		{ keyPercent = 119/128, offset =   0/32 },
+		{ keyPercent = 128/128, offset = -16/32 }
+	}
+}
+
 Config.PlayerHUD = {
 	Default = {
-		Size = {},
-		Position = {}
+		-- Cast Bar
+		CastBarPosition = { "BOTTOM", UIParent, "BOTTOM", 0, 290 },
+		CastBarSize = { 112, 11 },
+		CastBarTexture = GetMedia("cast_bar"),
+		CastBarColor = { Colors.cast[1], Colors.cast[2], Colors.cast[3], .69 },
+		CastBarOrientation = "RIGHT",
+		CastBarSparkMap = castBarSparkMap,
+		CastBarTimeToHoldFailed = .5,
+
+		CastBarBackgroundPosition = { "CENTER", 1, -1 },
+		CastBarBackgroundSize = { 193,93 },
+		CastBarBackgroundTexture = GetMedia("cast_back"),
+		CastBarBackgroundColor = { Colors.ui[1], Colors.ui[2], Colors.ui[3] },
+
+		CastBarShieldPosition = { "CENTER", 1, -2 },
+		CastBarShieldSize = { 193, 93 },
+		CastBarShieldTexture = GetMedia("cast_back_spiked"),
+		CastBarShieldColor = { Colors.ui[1], Colors.ui[2], Colors.ui[3] },
+
+		CastBarSpellQueueTexture = GetMedia("cast_bar"),
+		CastBarSpellQueueColor = { 1, 1, 1, .5 },
+
+		CastBarTextPosition = { "TOP", 0, -26 },
+		CastBarTextJustifyH = "CENTER",
+		CastBarTextJustifyV = "MIDDLE",
+		CastBarTextFont = GetFont(15, true),
+		CastBarTextColor = { Colors.highlight[1], Colors.highlight[2], Colors.highlight[3], .5 },
+
+		CastBarValuePosition = { "CENTER", 0, 0 },
+		CastBarValueJustifyH = "CENTER",
+		CastBarValueJustifyV = "MIDDLE",
+		CastBarValueFont = GetFont(14, true),
+		CastBarValueColor = { Colors.highlight[1], Colors.highlight[2], Colors.highlight[3], .5 },
+
+		-- Class Power
+
+		-- Monk Stagger
+
+		-- Death Knight Runes
+
 	}
 }
