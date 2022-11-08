@@ -38,6 +38,7 @@ local unpack = unpack
 -- WoW API
 local IsLevelAtEffectiveMaxLevel = IsLevelAtEffectiveMaxLevel
 local SetPortraitTexture = SetPortraitTexture
+local UnitCanAttack = UnitCanAttack
 local UnitClassification = UnitClassification
 local UnitExists = UnitExists
 local UnitFactionGroup = UnitFactionGroup
@@ -330,6 +331,51 @@ local Name_PostUpdate = function(self)
 	end
 end
 
+-- Update target indicator texture.
+local TargetIndicator_Update = function(self, event, unit, ...)
+	if (unit and unit ~= self.unit) then return end
+
+	local element = self.TargetIndicator
+	unit = unit or self.unit
+
+	local target = unit .. "target"
+	if (not UnitExists(target) or UnitIsUnit(unit, "player")) then
+		return element:Hide()
+	end
+
+	if (UnitCanAttack("player", unit)) then
+		if (UnitIsUnit(target, "player")) then
+			element:SetTexture(element.enemyTexture)
+		elseif (UnitIsUnit(target, "pet")) then
+			element:SetTexture(element.petTexture)
+		else
+			return element:Hide()
+		end
+	elseif (UnitIsUnit(target, "player")) then
+		element:SetTexture(element.friendTexture)
+	else
+		return element:Hide()
+	end
+
+	element:Show()
+end
+
+local TargetIndicator_Start = function(self)
+	local targetIndicator = self.TargetIndicator
+	if (not targetIndicator.Ticker) then
+		targetIndicator.Ticker = C_Timer.NewTicker(.1, TargetIndicator_Update)
+	end
+end
+
+local TargetIndicator_Stop = function(self)
+	local targetIndicator = self.TargetIndicator
+	if (targetIndicator.Ticker) then
+		targetIndicator.Ticker:Cancel()
+		targetIndicator.Ticker = nil
+		targetIndicator:Hide()
+	end
+end
+
 -- Only show Horde/Alliance badges,
 -- keep this hidding for rare-, elite- and boss NPCs.
 local PvPIndicator_Override = function(self, event, unit)
@@ -475,6 +521,7 @@ end
 local UnitFrame_PostUpdate = function(self)
 	UnitFrame_UpdateTextures(self)
 	Classification_Update(self)
+	TargetIndicator_Update(self)
 end
 
 -- Frame Script Handlers
@@ -749,8 +796,17 @@ UnitStyles["Target"] = function(self, unit, id)
 
 	self.Classification = classification
 
-	-- Target Eye
+	-- Target Indicator
 	--------------------------------------------
+	local targetIndicator = overlay:CreateTexture(nil, "OVERLAY", nil, -2)
+	targetIndicator:SetPoint(unpack(db.TargetIndicatorPosition))
+	targetIndicator:SetSize(unpack(db.TargetIndicatorSize))
+	targetIndicator:SetVertexColor(unpack(db.TargetIndicatorColor))
+	targetIndicator.petTexture = db.TargetIndicatorPetByEnemyTexture
+	targetIndicator.enemyTexture = db.TargetIndicatorYouByEnemyTexture
+	targetIndicator.friendTexture = db.TargetIndicatorYouByFriendTexture
+
+	self.TargetIndicator = targetIndicator
 
 	-- Unit Name
 	--------------------------------------------
@@ -796,7 +852,14 @@ UnitStyles["Target"] = function(self, unit, id)
 	--------------------------------------------
 	-- Love is in the Air
 	if (IsLoveFestival) then
-		-- Targeting Eye
+
+		-- Target Indicator
+		targetIndicator:ClearAllPoints()
+		targetIndicator:SetPoint(unpack(db.Seasonal.LoveFestivalCombatIndicatorPosition))
+		targetIndicator:SetSize(unpack(db.Seasonal.LoveFestivalTargetIndicatorSize))
+		targetIndicator.petTexture = db.Seasonal.LoveFestivalTargetIndicatorPetByEnemyTexture
+		targetIndicator.enemyTexture = db.Seasonal.LoveFestivalTargetIndicatorYouByEnemyTexture
+		targetIndicator.friendTexture = db.Seasonal.LoveFestivalTargetIndicatorYouByFriendTexture
 	end
 
 	-- Add a callback for external style overriders
@@ -813,5 +876,9 @@ UnitStyles["Target"] = function(self, unit, id)
 
 	-- Toggle name size based on ToT frame.
 	ns.RegisterCallback(self, "UnitFrame_ToT_Updated", Name_PostUpdate)
+
+	-- Toggle target indicator timer ticker.
+	self:HookScript("OnShow", TargetIndicator_Start)
+	self:HookScript("OnHide", TargetIndicator_Stop)
 
 end

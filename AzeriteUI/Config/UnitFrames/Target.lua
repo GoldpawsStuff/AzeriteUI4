@@ -33,29 +33,29 @@ local GetFont = ns.API.GetFont
 local GetMedia = ns.API.GetMedia
 
 local barSparkMap = {
-	{ ["keyPercent"] =   0/512, ["topOffset"] = -24/64, ["bottomOffset"] = -39/64 },
-	{ ["keyPercent"] =   9/512, ["topOffset"] =   0/64, ["bottomOffset"] = -16/64 },
-	{ ["keyPercent"] = 460/512, ["topOffset"] =   0/64, ["bottomOffset"] = -16/64 },
-	{ ["keyPercent"] = 478/512, ["topOffset"] =   0/64, ["bottomOffset"] =   0/64 },
-	{ ["keyPercent"] = 483/512, ["topOffset"] =   0/64, ["bottomOffset"] =  -3/64 },
-	{ ["keyPercent"] = 507/512, ["topOffset"] =   0/64, ["bottomOffset"] = -46/64 },
-	{ ["keyPercent"] = 512/512, ["topOffset"] = -11/64, ["bottomOffset"] = -54/64 }
+	{ keyPercent =   0/512, topOffset = -24/64, bottomOffset = -39/64 },
+	{ keyPercent =   9/512, topOffset =   0/64, bottomOffset = -16/64 },
+	{ keyPercent = 460/512, topOffset =   0/64, bottomOffset = -16/64 },
+	{ keyPercent = 478/512, topOffset =   0/64, bottomOffset =   0/64 },
+	{ keyPercent = 483/512, topOffset =   0/64, bottomOffset =  -3/64 },
+	{ keyPercent = 507/512, topOffset =   0/64, bottomOffset = -46/64 },
+	{ keyPercent = 512/512, topOffset = -11/64, bottomOffset = -54/64 }
 }
 
 local bigBarSparkMap = {
-	["top"] = {
-		{ ["keyPercent"] =    0/1024, offset = -24/64 },
-		{ ["keyPercent"] =   13/1024, offset =   0/64 },
-		{ ["keyPercent"] = 1018/1024, offset =   0/64 },
-		{ ["keyPercent"] = 1024/1024, offset = -10/64 }
+	top = {
+		{ keyPercent =    0/1024, offset = -24/64 },
+		{ keyPercent =   13/1024, offset =   0/64 },
+		{ keyPercent = 1018/1024, offset =   0/64 },
+		{ keyPercent = 1024/1024, offset = -10/64 }
 	},
-	["bottom"] = {
-		{ ["keyPercent"] =    0/1024, offset = -39/64 },
-		{ ["keyPercent"] =   13/1024, offset = -16/64 },
-		{ ["keyPercent"] =  949/1024, offset = -16/64 },
-		{ ["keyPercent"] =  977/1024, offset =  -1/64 },
-		{ ["keyPercent"] =  984/1024, offset =  -2/64 },
-		{ ["keyPercent"] = 1024/1024, offset = -52/64 }
+	bottom = {
+		{ keyPercent =    0/1024, offset = -39/64 },
+		{ keyPercent =   13/1024, offset = -16/64 },
+		{ keyPercent =  949/1024, offset = -16/64 },
+		{ keyPercent =  977/1024, offset =  -1/64 },
+		{ keyPercent =  984/1024, offset =  -2/64 },
+		{ keyPercent = 1024/1024, offset = -52/64 }
 	}
 }
 
@@ -157,8 +157,13 @@ Config.Target = {
 	ClassificationHordeTexture = GetMedia("icon_badges_horde"),
 	ClassificationRareTexture = GetMedia("icon_classification_rare"),
 
-	-- Target Eye
-
+	-- Target Indicator
+	TargetIndicatorPosition = { "TOPRIGHT", 38, 36 },
+	TargetIndicatorSize = { 96, 48 },
+	TargetIndicatorColor = { Colors.ui[1], Colors.ui[2], Colors.ui[3] },
+	TargetIndicatorPetByEnemyTexture = GetMedia("icon_target_blue"),
+	TargetIndicatorYouByEnemyTexture = GetMedia("icon_target_red"),
+	TargetIndicatorYouByFriendTexture = GetMedia("icon_target_green"),
 
 	-- Auras
 	-----------------------------------------
@@ -186,10 +191,12 @@ Config.Target = {
 	-----------------------------------------
 	Seasonal = {
 		-- Love Festival Target Eye
-		LoveFestivalTargetEyePosition = { "BOTTOMLEFT", -61, 2 },
-		LoveFestivalTargetEyeSize = { 48, 48 },
-		LoveFestivalTargetEyeTexture = GetMedia("icon-heart-red"),
-		LoveFestivalTargetEyeColor = { Colors.ui[1] *.75, Colors.ui[2] *.75, Colors.ui[3] *.75 },
+		LoveFestivalCombatIndicatorPosition = { "TOPRIGHT", 14, 36 },
+		LoveFestivalTargetIndicatorSize = { 48, 48 },
+		LoveFestivalTargetIndicatorPetByEnemyTexture = GetMedia("icon-heart-blue"),
+		LoveFestivalTargetIndicatorYouByEnemyTexture = GetMedia("icon-heart-red"),
+		LoveFestivalTargetIndicatorYouByFriendTexture = GetMedia("icon-heart-green"),
+		LoveFestivalTargetIndicatorColor = { Colors.ui[1] *.75, Colors.ui[2] *.75, Colors.ui[3] *.75 },
 	},
 
 	-- Orb and Crystal Colors
