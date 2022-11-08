@@ -32,30 +32,30 @@ local GetFont = ns.API.GetFont
 local GetMedia = ns.API.GetMedia
 
 local barSparkMap = {
-	{ ["keyPercent"] =   0/512, ["topOffset"] = -24/64, ["bottomOffset"] = -39/64 },
-	{ ["keyPercent"] =   9/512, ["topOffset"] =   0/64, ["bottomOffset"] = -16/64 },
-	{ ["keyPercent"] = 460/512, ["topOffset"] =   0/64, ["bottomOffset"] = -16/64 },
-	{ ["keyPercent"] = 478/512, ["topOffset"] =   0/64, ["bottomOffset"] =   0/64 },
-	{ ["keyPercent"] = 483/512, ["topOffset"] =   0/64, ["bottomOffset"] =  -3/64 },
-	{ ["keyPercent"] = 507/512, ["topOffset"] =   0/64, ["bottomOffset"] = -46/64 },
-	{ ["keyPercent"] = 512/512, ["topOffset"] = -11/64, ["bottomOffset"] = -54/64 }
+	{ keyPercent =   0/512, topOffset = -24/64, bottomOffset = -39/64 },
+	{ keyPercent =   9/512, topOffset =   0/64, bottomOffset = -16/64 },
+	{ keyPercent = 460/512, topOffset =   0/64, bottomOffset = -16/64 },
+	{ keyPercent = 478/512, topOffset =   0/64, bottomOffset =   0/64 },
+	{ keyPercent = 483/512, topOffset =   0/64, bottomOffset =  -3/64 },
+	{ keyPercent = 507/512, topOffset =   0/64, bottomOffset = -46/64 },
+	{ keyPercent = 512/512, topOffset = -11/64, bottomOffset = -54/64 }
 }
 
 local crystalSparkMap = {
-	["top"] = {
-		{ ["keyPercent"] =   0/256, offset =  -65/256 },
-		{ ["keyPercent"] =  72/256, offset =    0/256 },
-		{ ["keyPercent"] = 116/256, offset =  -16/256 },
-		{ ["keyPercent"] = 128/256, offset =  -28/256 },
-		{ ["keyPercent"] = 256/256, offset =  -84/256 },
+	top = {
+		{ keyPercent =   0/256, offset =  -65/256 },
+		{ keyPercent =  72/256, offset =    0/256 },
+		{ keyPercent = 116/256, offset =  -16/256 },
+		{ keyPercent = 128/256, offset =  -28/256 },
+		{ keyPercent = 256/256, offset =  -84/256 },
 	},
-	["bottom"] = {
-		{ ["keyPercent"] =   0/256, offset =  -47/256 },
-		{ ["keyPercent"] =  84/256, offset =    0/256 },
-		{ ["keyPercent"] = 135/256, offset =  -24/256 },
-		{ ["keyPercent"] = 142/256, offset =  -32/256 },
-		{ ["keyPercent"] = 225/256, offset =  -79/256 },
-		{ ["keyPercent"] = 256/256, offset = -168/256 },
+	bottom = {
+		{ keyPercent =   0/256, offset =  -47/256 },
+		{ keyPercent =  84/256, offset =    0/256 },
+		{ keyPercent = 135/256, offset =  -24/256 },
+		{ keyPercent = 142/256, offset =  -32/256 },
+		{ keyPercent = 225/256, offset =  -79/256 },
+		{ keyPercent = 256/256, offset = -168/256 },
 	}
 }
 
