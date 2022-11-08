@@ -75,6 +75,100 @@ local Cast_UpdateInterruptible = function(element, unit)
 	end
 end
 
+local ClassPower_CreatePoint = function(self, index)
+end
+
+local ClassPower_PostUpdateColor = function(element, r, g, b)
+	for i = 1, #element do
+		local bar = element[i]
+		bar:SetStatusBarColor(r, g, b) -- needed?
+	end
+end
+
+local ClassPower_PostUpdate = function(element, cur, max, hasMaxChanged, powerType)
+	for i = 1, #element do
+		local point = element[i]
+		if (point:IsShown()) then
+			local value = point:GetValue()
+			local min, max = point:GetMinMaxValues()
+			if (element.inCombat) then
+				point:SetAlpha(allReady and 1 or (value < max) and .5 or 1)
+			else
+				point:SetAlpha(allReady and 0 or (value < max) and .5 or 1)
+			end
+		end
+	end
+end
+
+local Runes_PostUpdate = function(element, runemap, hasVehicle, allReady)
+	for i = 1, #element do
+		local rune = element[i]
+		if (rune:IsShown()) then
+			local value = rune:GetValue()
+			local min, max = rune:GetMinMaxValues()
+			if (element.inCombat) then
+				rune:SetAlpha(allReady and 1 or (value < max) and .5 or 1)
+			else
+				rune:SetAlpha(allReady and 0 or (value < max) and .5 or 1)
+			end
+		end
+	end
+end
+
+local Runes_PostUpdateColor = function(element, r, g, b, color, rune)
+	local m = ns.IsWrath and .5 or 1 -- Probably only needed on our current runes
+	if (rune) then
+		rune:SetStatusBarColor(r * m, g * m, b * m)
+		rune.fg:SetVertexColor(r * m, g * m, b * m)
+	else
+		if (not ns.IsWrath) then
+			color = element.__owner.colors.power.RUNES
+			r, g, b = color[1] * m, color[2] * m, color[3] * m
+		end
+		for i = 1, #element do
+			local rune = element[i]
+			if (ns.IsWrath) then
+				color = element.__owner.colors.runes[rune.runeType]
+				r, g, b = color[1] * m, color[2] * m, color[3] * m
+			end
+			rune:SetStatusBarColor(r, g, b)
+			rune.fg:SetVertexColor(r, g, b)
+		end
+	end
+end
+
+-- Script Handlers
+--------------------------------------------
+local UnitFrame_OnEvent = function(self, event)
+	if (event == "PLAYER_REGEN_DISABLED") then
+		local runes = self.Runes
+		if (runes) and (not runes.inCombat) then
+			runes.inCombat = true
+			runes:ForceUpdate()
+		end
+		local classpower = self.ClassPower
+		if (classpower) and (not classpower.inCombat) then
+			classpower.inCombat = true
+			classpower:ForceUpdate()
+		end
+	elseif (event == "PLAYER_REGEN_ENABLED") then
+		local runes = self.Runes
+		if (runes) and (runes.inCombat) then
+			runes.inCombat = false
+			runes:ForceUpdate()
+		end
+		local classpower = self.ClassPower
+		if (classpower) and (classpower.inCombat) then
+			classpower.inCombat = false
+			classpower:ForceUpdate()
+		end
+	end
+end
+
+local UnitFrame_OnHide = function(self)
+	self.inCombat = nil
+end
+
 UnitStyles["PlayerHUD"] = function(self, unit, id)
 
 	local db = ns.Config.PlayerHUD
@@ -152,16 +246,59 @@ UnitStyles["PlayerHUD"] = function(self, unit, id)
 	--------------------------------------------
 	local SCP = IsAddOnEnabled("SimpleClassPower")
 	if (not SCP) then
+
+		local classpower = CreateFrame("Frame", nil, self)
+		classpower.PostUpdate = ClassPower_PostUpdate
+		classpower.PostUpdateColor = ClassPower_PostUpdateColor
+
+		local maxPoints = (ns.IsRetail) and (playerClass == "MONK" or playerClass == "ROGUE") and 6 or 5
+		for i = 1,maxPoints do
+			local point = ClassPower_CreatePoint(classpower, i)
+
+			classpower[i] = point
+		end
+
+		self.ClassPower = classpower
 	end
 
 	-- Monk Stagger
 	--------------------------------------------
 	if (playerClass == "MONK") and (not SCP) then
+
+		local stagger = CreateFrame("Frame", nil, self)
+		stagger.PostUpdate = ClassPower_PostUpdate
+
+		for i = 1,3 do
+			local point = ClassPower_CreatePoint(stagger, i)
+			stagger[i] = point
+		end
+
+		self.Stagger = stagger
 	end
 
 	-- Death Knight Runes
 	--------------------------------------------
 	if (playerClass == "DEATHKNIGHT") and (ns.IsWrath or (ns.IsRetail and not SCP)) then
+
+		local runes = CreateFrame("Frame", nil, self)
+		runes.sortOrder = "ASC"
+		runes.PostUpdate = Runes_PostUpdate
+		runes.PostUpdateColor = Runes_PostUpdateColor
+
+		for i = 1,6 do
+			local rune = ClassPower_CreatePoint(runes, i)
+			runes[i] = rune
+		end
+
+		self.Runes = runes
 	end
+
+	-- Scripts & Events
+	--------------------------------------------
+	self.OnEvent = UnitFrame_OnEvent
+	self.OnHide = UnitFrame_OnHide
+
+	self:RegisterEvent("PLAYER_REGEN_ENABLED", self.OnEvent, true)
+	self:RegisterEvent("PLAYER_REGEN_DISABLED", self.OnEvent, true)
 
 end
