@@ -41,13 +41,6 @@ local IsAddOnEnabled = ns.API.IsAddOnEnabled
 -- Constants
 local _, playerClass = UnitClass("player")
 
--- Utility Functions
---------------------------------------------
--- Simplify the tagging process a little.
-local prefix = function(msg)
-	return string_gsub(msg, "*", ns.Prefix)
-end
-
 -- Element Callbacks
 --------------------------------------------
 local Cast_CustomDelayText = function(element, duration)
@@ -66,38 +59,121 @@ local Cast_CustomTimeText = function(element, duration)
 	element.Delay:SetText()
 end
 
--- Update cast bar color to indicate protected casts.
+-- Update cast bar backdrop to indicate protected casts.
 local Cast_UpdateInterruptible = function(element, unit)
 	if (element.notInterruptible) then
-		element:SetStatusBarColor(unpack(Colors.red))
+		element.Backdrop:Hide()
+		--element:SetStatusBarColor(unpack(Colors.red))
 	else
-		element:SetStatusBarColor(unpack(Colors.cast))
+		element.Backdrop:Show()
+		--element:SetStatusBarColor(unpack(Colors.cast))
 	end
 end
 
-local ClassPower_CreatePoint = function(self, index)
+-- Create a point used for classpowers, stagger and runes.
+local ClassPower_CreatePoint = function(element, index)
+	local db = ns.Config.PlayerHUD
+
+	local point = element.__owner:CreateBar(nil, element)
+	point:SetOrientation(db.ClassPowerPointOrientation)
+	point:SetSparkTexture(db.ClassPowerSparkTexture)
+	point:SetMinMaxValues(0, 1)
+	point:SetValue(1)
+
+	local case = point:CreateTexture(nil, "BACKGROUND", nil, -2)
+	case:SetVertexColor(unpack(db.ClassPowerCaseColor))
+
+	point.case = case
+
+	local slot = point:CreateTexture(nil, "BACKGROUND", nil, -1)
+	slot:SetVertexColor(unpack(db.ClassPowerSlotColor))
+
+	point.slot = slot
+
+	local glow = point:CreateTexture(nil, "ARTWORK", nil, 1)
+	glow:SetAllPoints(point:GetStatusBarTexture())
+
+	point.glow = glow
+
+	return point
 end
 
 local ClassPower_PostUpdateColor = function(element, r, g, b)
-	for i = 1, #element do
-		local bar = element[i]
-		bar:SetStatusBarColor(r, g, b) -- needed?
-	end
+	--for i = 1, #element do
+	--	local point = element[i]
+	--	point:SetStatusBarColor(r, g, b) -- needed?
+	--end
 end
 
-local ClassPower_PostUpdate = function(element, cur, max, hasMaxChanged, powerType)
+-- Update classpower layout and textures.
+-- *also used for one-time setup of stagger and runes.
+local ClassPower_PostUpdate = function(element, cur, max)
+
+	local style
+	if (max == 6) then
+		style = "Runes"
+	elseif (max == 5) then
+		style = playerClass == "MONK" and "Chi" or playerClass == "WARLOCK" and "SoulShards" or "ComboPoints"
+	elseif (max == 4) then
+		style = "ArcaneCharges"
+	elseif (max == 3) then
+		style = "Stagger"
+	end
+
+	if (not style) then
+		return element:Hide()
+	end
+
 	for i = 1, #element do
 		local point = element[i]
 		if (point:IsShown()) then
 			local value = point:GetValue()
 			local min, max = point:GetMinMaxValues()
 			if (element.inCombat) then
-				point:SetAlpha(allReady and 1 or (value < max) and .5 or 1)
+				point:SetAlpha((cur == max) and 1 or (value < max) and .5 or 1)
 			else
-				point:SetAlpha(allReady and 0 or (value < max) and .5 or 1)
+				point:SetAlpha((cur == max) and 0 or (value < max) and .5 or 1)
 			end
 		end
 	end
+
+	if (style ~= element.style) then
+
+		local huddb = ns.Config.PlayerHUD
+		local layoutdb = huddb.ClassPowerLayouts[style]
+		if (layoutdb) then
+			local id = 0
+			for i,info in next,layoutdb do
+				local point = element[i]
+				if (point) then
+
+					point:ClearAllPoints()
+					point:SetPoint(unpack(info.PointPosition))
+					point:SetSize(unpack(info.PointSize))
+					point:SetStatusBarTexture(info.PointTexture)
+
+					point.case:ClearAllPoints()
+					point.case:SetPoint(unpack(info.BackdropPosition))
+					point.case:SetSize(unpack(info.BackdropSize))
+					point.case:SetTexture(info.BackdropTexture)
+
+					point.slot:ClearAllPoints()
+					point.slot:SetPoint(unpack(info.SlotPosition))
+					point.slot:SetSize(unpack(info.SlotSize))
+					point.slot:SetTexture(info.SlotTexture)
+
+					id = id + 1
+				end
+			end
+			-- Should be handled by the element,
+			-- no idea why I'm adding it here.
+			for i = id + 1, #element do
+				element[i]:Hide()
+			end
+		end
+		element.style = style
+	end
+
 end
 
 local Runes_PostUpdate = function(element, runemap, hasVehicle, allReady)
@@ -116,23 +192,20 @@ local Runes_PostUpdate = function(element, runemap, hasVehicle, allReady)
 end
 
 local Runes_PostUpdateColor = function(element, r, g, b, color, rune)
-	local m = ns.IsWrath and .5 or 1 -- Probably only needed on our current runes
 	if (rune) then
-		rune:SetStatusBarColor(r * m, g * m, b * m)
-		rune.fg:SetVertexColor(r * m, g * m, b * m)
+		rune:SetStatusBarColor(r, g, b)
 	else
 		if (not ns.IsWrath) then
 			color = element.__owner.colors.power.RUNES
-			r, g, b = color[1] * m, color[2] * m, color[3] * m
+			r, g, b = color[1], color[2], color[3]
 		end
 		for i = 1, #element do
 			local rune = element[i]
 			if (ns.IsWrath) then
 				color = element.__owner.colors.runes[rune.runeType]
-				r, g, b = color[1] * m, color[2] * m, color[3] * m
+				r, g, b = color[1], color[2], color[3]
 			end
 			rune:SetStatusBarColor(r, g, b)
-			rune.fg:SetVertexColor(r, g, b)
 		end
 	end
 end
@@ -142,23 +215,33 @@ end
 local UnitFrame_OnEvent = function(self, event)
 	if (event == "PLAYER_REGEN_DISABLED") then
 		local runes = self.Runes
-		if (runes) and (not runes.inCombat) then
+		if (runes and not runes.inCombat) then
 			runes.inCombat = true
 			runes:ForceUpdate()
 		end
+		local stagger = self.Stagger
+		if (stagger and not stagger.inCombat) then
+			stagger.inCombat = true
+			stagger:ForceUpdate()
+		end
 		local classpower = self.ClassPower
-		if (classpower) and (not classpower.inCombat) then
+		if (classpower and not classpower.inCombat) then
 			classpower.inCombat = true
 			classpower:ForceUpdate()
 		end
 	elseif (event == "PLAYER_REGEN_ENABLED") then
 		local runes = self.Runes
-		if (runes) and (runes.inCombat) then
+		if (runes and runes.inCombat) then
 			runes.inCombat = false
 			runes:ForceUpdate()
 		end
+		local stagger = self.Stagger
+		if (stagger and stagger.inCombat) then
+			stagger.inCombat = false
+			stagger:ForceUpdate()
+		end
 		local classpower = self.ClassPower
-		if (classpower) and (classpower.inCombat) then
+		if (classpower and classpower.inCombat) then
 			classpower.inCombat = false
 			classpower:ForceUpdate()
 		end
@@ -248,17 +331,14 @@ UnitStyles["PlayerHUD"] = function(self, unit, id)
 	if (not SCP) then
 
 		local classpower = CreateFrame("Frame", nil, self)
-		classpower.PostUpdate = ClassPower_PostUpdate
-		classpower.PostUpdateColor = ClassPower_PostUpdateColor
-
 		local maxPoints = (ns.IsRetail) and (playerClass == "MONK" or playerClass == "ROGUE") and 6 or 5
 		for i = 1,maxPoints do
-			local point = ClassPower_CreatePoint(classpower, i)
-
-			classpower[i] = point
+			classpower[i] = ClassPower_CreatePoint(classpower)
 		end
 
 		self.ClassPower = classpower
+		self.ClassPower.PostUpdate = ClassPower_PostUpdate
+		self.ClassPower.PostUpdateColor = ClassPower_PostUpdateColor
 	end
 
 	-- Monk Stagger
@@ -266,12 +346,11 @@ UnitStyles["PlayerHUD"] = function(self, unit, id)
 	if (playerClass == "MONK") and (not SCP) then
 
 		local stagger = CreateFrame("Frame", nil, self)
-		stagger.PostUpdate = ClassPower_PostUpdate
-
 		for i = 1,3 do
-			local point = ClassPower_CreatePoint(stagger, i)
-			stagger[i] = point
+			stagger[i] = ClassPower_CreatePoint(stagger)
 		end
+
+		ClassPower_PostUpdate(stagger, 0, 3)
 
 		self.Stagger = stagger
 	end
@@ -282,15 +361,15 @@ UnitStyles["PlayerHUD"] = function(self, unit, id)
 
 		local runes = CreateFrame("Frame", nil, self)
 		runes.sortOrder = "ASC"
-		runes.PostUpdate = Runes_PostUpdate
-		runes.PostUpdateColor = Runes_PostUpdateColor
-
 		for i = 1,6 do
-			local rune = ClassPower_CreatePoint(runes, i)
-			runes[i] = rune
+			runes[i] = ClassPower_CreatePoint(runes)
 		end
 
+		ClassPower_PostUpdate(runes, 6, 6)
+
 		self.Runes = runes
+		self.Runes.PostUpdate = Runes_PostUpdate
+		self.Runes.PostUpdateColor = Runes_PostUpdateColor
 	end
 
 	-- Scripts & Events

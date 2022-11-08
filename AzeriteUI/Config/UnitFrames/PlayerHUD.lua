@@ -84,10 +84,170 @@ Config.PlayerHUD = {
 		CastBarValueColor = { Colors.highlight[1], Colors.highlight[2], Colors.highlight[3], .5 },
 
 		-- Class Power
+		-- *also include layout data for Stagger and Runes,
+		--  which are separate elements from ClassPower.
+		ClassPowerPointOrientation = "UP",
+		ClassPowerSparkTexture = GetMedia("blank"),
+		ClassPowerCaseColor = { 211/255, 200/255, 169/255 },
+		ClassPowerSlotColor = { 130/255 *.3, 133/255 *.3, 130/255 *.3, 2/3 },
 
-		-- Monk Stagger
-
-		-- Death Knight Runes
+		-- Note that the following are just layout names.
+		-- They may not always be used for what their name implies.
+		-- The important part is number of points and layout. Not powerType.
+		ClassPowerLayouts = {
+			Stagger = { --[[ 3 ]]
+				[1] = {
+					PointPosition = {}, PointSize = {}, PointTexture = {},
+					BackdropPosition = {}, BackdropSize = {}, BackdropTexture = {},
+					SlotPosition = {}, SlotSize = {}, SlotTexture = {}
+				},
+				[2] = {
+					PointPosition = {}, PointSize = {}, PointTexture = {},
+					BackdropPosition = {}, BackdropSize = {}, BackdropTexture = {},
+					SlotPosition = {}, SlotSize = {}, SlotTexture = {}
+				},
+				[3] = {
+					PointPosition = {}, PointSize = {}, PointTexture = {},
+					BackdropPosition = {}, BackdropSize = {}, BackdropTexture = {},
+					SlotPosition = {}, SlotSize = {}, SlotTexture = {}
+				}
+			},
+			ArcaneCharges = { --[[ 4 ]]
+				[1] = {
+					PointPosition = {}, PointSize = {}, PointTexture = {},
+					BackdropPosition = {}, BackdropSize = {}, BackdropTexture = {},
+					SlotPosition = {}, SlotSize = {}, SlotTexture = {}
+				},
+				[2] = {
+					PointPosition = {}, PointSize = {}, PointTexture = {},
+					BackdropPosition = {}, BackdropSize = {}, BackdropTexture = {},
+					SlotPosition = {}, SlotSize = {}, SlotTexture = {}
+				},
+				[3] = {
+					PointPosition = {}, PointSize = {}, PointTexture = {},
+					BackdropPosition = {}, BackdropSize = {}, BackdropTexture = {},
+					SlotPosition = {}, SlotSize = {}, SlotTexture = {}
+				},
+				[4] = {
+					PointPosition = {}, PointSize = {}, PointTexture = {},
+					BackdropPosition = {}, BackdropSize = {}, BackdropTexture = {},
+					SlotPosition = {}, SlotSize = {}, SlotTexture = {}
+				}
+			},
+			ComboPoints = { --[[ 5 ]]
+				[1] = {
+					PointPosition = {}, PointSize = {}, PointTexture = {},
+					BackdropPosition = {}, BackdropSize = {}, BackdropTexture = {},
+					SlotPosition = {}, SlotSize = {}, SlotTexture = {}
+				},
+				[2] = {
+					PointPosition = {}, PointSize = {}, PointTexture = {},
+					BackdropPosition = {}, BackdropSize = {}, BackdropTexture = {},
+					SlotPosition = {}, SlotSize = {}, SlotTexture = {}
+				},
+				[3] = {
+					PointPosition = {}, PointSize = {}, PointTexture = {},
+					BackdropPosition = {}, BackdropSize = {}, BackdropTexture = {},
+					SlotPosition = {}, SlotSize = {}, SlotTexture = {}
+				},
+				[4] = {
+					PointPosition = {}, PointSize = {}, PointTexture = {},
+					BackdropPosition = {}, BackdropSize = {}, BackdropTexture = {},
+					SlotPosition = {}, SlotSize = {}, SlotTexture = {}
+				},
+				[5] = {
+					PointPosition = {}, PointSize = {}, PointTexture = {},
+					BackdropPosition = {}, BackdropSize = {}, BackdropTexture = {},
+					SlotPosition = {}, SlotSize = {}, SlotTexture = {}
+				}
+			},
+			Chi = { --[[ 5 ]]
+				[1] = {
+					PointPosition = {}, PointSize = {}, PointTexture = {},
+					BackdropPosition = {}, BackdropSize = {}, BackdropTexture = {},
+					SlotPosition = {}, SlotSize = {}, SlotTexture = {}
+				},
+				[2] = {
+					PointPosition = {}, PointSize = {}, PointTexture = {},
+					BackdropPosition = {}, BackdropSize = {}, BackdropTexture = {},
+					SlotPosition = {}, SlotSize = {}, SlotTexture = {}
+				},
+				[3] = {
+					PointPosition = {}, PointSize = {}, PointTexture = {},
+					BackdropPosition = {}, BackdropSize = {}, BackdropTexture = {},
+					SlotPosition = {}, SlotSize = {}, SlotTexture = {}
+				},
+				[4] = {
+					PointPosition = {}, PointSize = {}, PointTexture = {},
+					BackdropPosition = {}, BackdropSize = {}, BackdropTexture = {},
+					SlotPosition = {}, SlotSize = {}, SlotTexture = {}
+				},
+				[5] = {
+					PointPosition = {}, PointSize = {}, PointTexture = {},
+					BackdropPosition = {}, BackdropSize = {}, BackdropTexture = {},
+					SlotPosition = {}, SlotSize = {}, SlotTexture = {}
+				}
+			},
+			SoulShards = { --[[ 5 ]]
+				[1] = {
+					PointPosition = {}, PointSize = {}, PointTexture = {},
+					BackdropPosition = {}, BackdropSize = {}, BackdropTexture = {},
+					SlotPosition = {}, SlotSize = {}, SlotTexture = {}
+				},
+				[2] = {
+					PointPosition = {}, PointSize = {}, PointTexture = {},
+					BackdropPosition = {}, BackdropSize = {}, BackdropTexture = {},
+					SlotPosition = {}, SlotSize = {}, SlotTexture = {}
+				},
+				[3] = {
+					PointPosition = {}, PointSize = {}, PointTexture = {},
+					BackdropPosition = {}, BackdropSize = {}, BackdropTexture = {},
+					SlotPosition = {}, SlotSize = {}, SlotTexture = {}
+				},
+				[4] = {
+					PointPosition = {}, PointSize = {}, PointTexture = {},
+					BackdropPosition = {}, BackdropSize = {}, BackdropTexture = {},
+					SlotPosition = {}, SlotSize = {}, SlotTexture = {}
+				},
+				[5] = {
+					PointPosition = {}, PointSize = {}, PointTexture = {},
+					BackdropPosition = {}, BackdropSize = {}, BackdropTexture = {},
+					SlotPosition = {}, SlotSize = {}, SlotTexture = {}
+				}
+			},
+			Runes = { --[[ 6 ]]
+				[1] = {
+					PointPosition = {}, PointSize = {}, PointTexture = {},
+					BackdropPosition = {}, BackdropSize = {}, BackdropTexture = {},
+					SlotPosition = {}, SlotSize = {}, SlotTexture = {}
+				},
+				[2] = {
+					PointPosition = {}, PointSize = {}, PointTexture = {},
+					BackdropPosition = {}, BackdropSize = {}, BackdropTexture = {},
+					SlotPosition = {}, SlotSize = {}, SlotTexture = {}
+				},
+				[3] = {
+					PointPosition = {}, PointSize = {}, PointTexture = {},
+					BackdropPosition = {}, BackdropSize = {}, BackdropTexture = {},
+					SlotPosition = {}, SlotSize = {}, SlotTexture = {}
+				},
+				[4] = {
+					PointPosition = {}, PointSize = {}, PointTexture = {},
+					BackdropPosition = {}, BackdropSize = {}, BackdropTexture = {},
+					SlotPosition = {}, SlotSize = {}, SlotTexture = {}
+				},
+				[5] = {
+					PointPosition = {}, PointSize = {}, PointTexture = {},
+					BackdropPosition = {}, BackdropSize = {}, BackdropTexture = {},
+					SlotPosition = {}, SlotSize = {}, SlotTexture = {}
+				},
+				[6] = {
+					PointPosition = {}, PointSize = {}, PointTexture = {},
+					BackdropPosition = {}, BackdropSize = {}, BackdropTexture = {},
+					SlotPosition = {}, SlotSize = {}, SlotTexture = {}
+				}
+			},
+		},
 
 	}
 }
