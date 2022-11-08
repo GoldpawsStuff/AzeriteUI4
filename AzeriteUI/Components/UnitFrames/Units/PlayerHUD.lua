@@ -81,19 +81,17 @@ local ClassPower_CreatePoint = function(element, index)
 	point:SetValue(1)
 
 	local case = point:CreateTexture(nil, "BACKGROUND", nil, -2)
+	case:SetPoint("CENTER")
 	case:SetVertexColor(unpack(db.ClassPowerCaseColor))
 
 	point.case = case
 
 	local slot = point:CreateTexture(nil, "BACKGROUND", nil, -1)
+	slot:SetPoint("TOPLEFT", -db.ClassPowerSlotOffset, db.ClassPowerSlotOffset)
+	slot:SetPoint("BOTTOMRIGHT", db.ClassPowerSlotOffset, -db.ClassPowerSlotOffset)
 	slot:SetVertexColor(unpack(db.ClassPowerSlotColor))
 
 	point.slot = slot
-
-	local glow = point:CreateTexture(nil, "ARTWORK", nil, 1)
-	glow:SetAllPoints(point:GetStatusBarTexture())
-
-	point.glow = glow
 
 	return point
 end
@@ -146,21 +144,20 @@ local ClassPower_PostUpdate = function(element, cur, max)
 			for i,info in next,layoutdb do
 				local point = element[i]
 				if (point) then
+					local rotation = info.PointRotation or 0
 
 					point:ClearAllPoints()
-					point:SetPoint(unpack(info.PointPosition))
-					point:SetSize(unpack(info.PointSize))
-					point:SetStatusBarTexture(info.PointTexture)
+					point:SetPoint(unpack(info.Position))
+					point:SetSize(unpack(info.Size))
+					point:SetStatusBarTexture(info.Texture)
+					point:GetStatusBarTexture():SetRotation(rotation)
 
-					point.case:ClearAllPoints()
-					point.case:SetPoint(unpack(info.BackdropPosition))
 					point.case:SetSize(unpack(info.BackdropSize))
 					point.case:SetTexture(info.BackdropTexture)
+					point.case:SetRotation(rotation)
 
-					point.slot:ClearAllPoints()
-					point.slot:SetPoint(unpack(info.SlotPosition))
-					point.slot:SetSize(unpack(info.SlotSize))
-					point.slot:SetTexture(info.SlotTexture)
+					point.slot:SetTexture(info.Texture)
+					point.slot:SetRotation(rotation)
 
 					id = id + 1
 				end
