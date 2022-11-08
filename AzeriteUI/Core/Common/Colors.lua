@@ -143,7 +143,7 @@ Colors.quality.Blizard = Colors.quality[8]
 
 -- Unit specifics
 Colors.health = createColor(245/255, 0/255, 45/255)
-Colors.cast = Colors.quality.Artifact
+Colors.cast = createColor(70/255, 255/255, 131/255)
 Colors.disconnected = createColor(120/255, 120/255, 120/255)
 Colors.tapped = createColor(121/255, 101/255, 96/255)
 Colors.dead = createColor(121/255, 101/255, 96/255)
