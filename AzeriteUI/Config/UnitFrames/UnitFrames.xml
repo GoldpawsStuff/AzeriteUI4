@@ -9,5 +9,6 @@
 	<Script file="Party.lua"/>
 	<Script file="Boss.lua"/>
 	<Script file="Arena.lua"/>
+	<Script file="NamePlates.lua"/>
 
 </Ui>
