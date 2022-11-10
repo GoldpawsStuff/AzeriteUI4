@@ -338,6 +338,18 @@ UnitStyles["Boss"] = function(self, unit, id)
 
 	self.Health.Value = healthValue
 
+	-- Unit Name
+	--------------------------------------------
+	local name = self:CreateFontString(nil, "OVERLAY", nil, 1)
+	name:SetPoint(unpack(db.NamePosition))
+	name:SetFontObject(db.NameFont)
+	name:SetTextColor(unpack(db.NameColor))
+	name:SetJustifyH(db.NameJustifyH)
+	name:SetJustifyV(db.NameJustifyV)
+	self:Tag(name, prefix("[*:Name(16,nil,nil,true)]"))
+
+	self.Name = name
+
 	-- Absorb Bar (Retail)
 	--------------------------------------------
 	if (ns.IsRetail) then

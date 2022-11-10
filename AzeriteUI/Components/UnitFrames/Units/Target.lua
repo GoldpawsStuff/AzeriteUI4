@@ -827,7 +827,6 @@ UnitStyles["Target"] = function(self, unit, id)
 	-- Unit Name
 	--------------------------------------------
 	local name = self:CreateFontString(nil, "OVERLAY", nil, 1)
-	--name:SetSize(unpack(db.NameSize))
 	name:SetPoint(unpack(db.NamePosition))
 	name:SetFontObject(db.NameFont)
 	name:SetTextColor(unpack(db.NameColor))

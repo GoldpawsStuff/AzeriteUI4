@@ -71,6 +71,12 @@ Config.Focus = {
 	HealthBackdropTexture = GetMedia("cast_back"),
 	HealthBackdropColor = { Colors.ui[1], Colors.ui[2], Colors.ui[3] },
 
+	NamePosition = { "BOTTOMLEFT", 12, 46 },
+	NameJustifyH = "LEFT",
+	NameJustifyV = "TOP",
+	NameFont = GetFont(14, true),
+	NameColor = { Colors.highlight[1], Colors.highlight[2], Colors.highlight[3], .75 },
+
 	TargetHighlightPosition = { "CENTER", 1, -2 },
 	TargetHighlightSize = { 193,93 },
 	TargetHighlightTexture = GetMedia("cast_back_outline"),
