@@ -263,6 +263,9 @@ UnitStyles["Focus"] = function(self, unit, id)
 	health:SetOrientation(db.HealthBarOrientation)
 	health:SetSparkMap(db.HealthBarSparkMap)
 	health.predictThreshold = .01
+	health.colorDisconnected = true
+	health.colorTapping = true
+	health.colorThreat = true
 	health.colorClass = true
 	health.colorClassPet = true
 	health.colorHappiness = true

@@ -270,9 +270,8 @@ UnitStyles["Boss"] = function(self, unit, id)
 	health:SetOrientation(db.HealthBarOrientation)
 	health:SetSparkMap(db.HealthBarSparkMap)
 	health.predictThreshold = .01
-	health.colorClass = true
-	health.colorClassPet = true
-	health.colorHappiness = true
+	health.colorTapping = true
+	health.colorThreat = true
 	health.colorReaction = true
 
 	self.Health = health

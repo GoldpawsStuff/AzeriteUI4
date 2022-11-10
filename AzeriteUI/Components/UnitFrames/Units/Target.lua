@@ -584,6 +584,7 @@ UnitStyles["Target"] = function(self, unit, id)
 	health.colorThreat = true
 	health.colorClass = true
 	health.colorClassPet = true
+	health.colorHappiness = true
 	health.colorReaction = true
 
 	self.Health = health
