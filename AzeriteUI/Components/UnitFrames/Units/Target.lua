@@ -89,8 +89,6 @@ end
 
 -- Align our custom health prediction texture
 -- based on the plugins provided values.
--- *Note this function assumes flipped bars,
---  something we'll always assume for the target frame.
 local HealPredict_PostUpdate = function(element, unit, myIncomingHeal, otherIncomingHeal, absorb, healAbsorb, hasOverAbsorb, hasOverHealAbsorb, curHealth, maxHealth)
 
 	local allIncomingHeal = myIncomingHeal + otherIncomingHeal
@@ -151,7 +149,11 @@ local HealPredict_PostUpdate = function(element, unit, myIncomingHeal, otherInco
 				element:ClearAllPoints()
 				element:SetPoint("BOTTOMLEFT", previewTexture, "BOTTOMRIGHT", 0, 0)
 				element:SetSize(change*previewWidth, previewHeight)
-				element:SetTexCoord(texValue + texChange, texValue, top, bottom)
+				if (isFlipped) then
+					element:SetTexCoord(texValue + texChange, texValue, top, bottom)
+				else
+					element:SetTexCoord(texValue, texValue + texChange, top, bottom)
+				end
 				element:SetVertexColor(0, .7, 0, .25)
 				element:Show()
 
@@ -159,7 +161,11 @@ local HealPredict_PostUpdate = function(element, unit, myIncomingHeal, otherInco
 				element:ClearAllPoints()
 				element:SetPoint("BOTTOMRIGHT", previewTexture, "BOTTOMRIGHT", 0, 0)
 				element:SetSize((-change)*previewWidth, previewHeight)
-				element:SetTexCoord(texValue, texValue + texChange, top, bottom)
+				if (isFlipped) then
+					element:SetTexCoord(texValue, texValue + texChange, top, bottom)
+				else
+					element:SetTexCoord(texValue + texChange, texValue, top, bottom)
+				end
 				element:SetVertexColor(.5, 0, 0, .75)
 				element:Show()
 
@@ -179,7 +185,11 @@ local HealPredict_PostUpdate = function(element, unit, myIncomingHeal, otherInco
 				element:ClearAllPoints()
 				element:SetPoint("BOTTOMRIGHT", previewTexture, "BOTTOMLEFT", 0, 0)
 				element:SetSize(change*previewWidth, previewHeight)
-				element:SetTexCoord(texValue, texValue + texChange, top, bottom)
+				if (isFlipped) then
+					element:SetTexCoord(texValue, texValue + texChange, top, bottom)
+				else
+					element:SetTexCoord(texValue + texChange, texValue, top, bottom)
+				end
 				element:SetVertexColor(0, .7, 0, .25)
 				element:Show()
 
@@ -187,7 +197,11 @@ local HealPredict_PostUpdate = function(element, unit, myIncomingHeal, otherInco
 				element:ClearAllPoints()
 				element:SetPoint("BOTTOMLEFT", previewTexture, "BOTTOMLEFT", 0, 0)
 				element:SetSize((-change)*previewWidth, previewHeight)
-				element:SetTexCoord(texValue + texChange, texValue, top, bottom)
+				if (isFlipped) then
+					element:SetTexCoord(texValue + texChange, texValue, top, bottom)
+				else
+					element:SetTexCoord(texValue, texValue + texChange, top, bottom)
+				end
 				element:SetVertexColor(.5, 0, 0, .75)
 				element:Show()
 
@@ -415,8 +429,6 @@ local PvPIndicator_Override = function(self, event, unit)
 end
 
 -- Update player frame based on player level.
--- *Note this function assumes flipped bars,
---  something we'll always assume for the target frame.
 local UnitFrame_UpdateTextures = function(self)
 	local unit = self.unit
 	if (not unit or not UnitExists(unit)) then
@@ -442,6 +454,7 @@ local UnitFrame_UpdateTextures = function(self)
 		return
 	end
 
+	local isFlipped = ns.Config.Target.IsFlippedHorizontally
 	local db = ns.Config.Target[key]
 
 	local health = self.Health
@@ -451,11 +464,11 @@ local UnitFrame_UpdateTextures = function(self)
 	health:SetStatusBarTexture(db.HealthBarTexture)
 	health:SetOrientation(db.HealthBarOrientation)
 	health:SetSparkMap(db.HealthBarSparkMap)
-	health:SetFlippedHorizontally(true)
+	health:SetFlippedHorizontally(isFlipped)
 
 	local healthPreview = self.Health.Preview
 	healthPreview:SetStatusBarTexture(db.HealthBarTexture)
-	healthPreview:SetFlippedHorizontally(true)
+	healthPreview:SetFlippedHorizontally(isFlipped)
 
 	local healthBackdrop = self.Health.Backdrop
 	healthBackdrop:ClearAllPoints()
@@ -463,7 +476,7 @@ local UnitFrame_UpdateTextures = function(self)
 	healthBackdrop:SetSize(unpack(db.HealthBackdropSize))
 	healthBackdrop:SetTexture(db.HealthBackdropTexture)
 	healthBackdrop:SetVertexColor(unpack(db.HealthBackdropColor))
-	healthBackdrop:SetTexCoord(1,0,0,1)
+	healthBackdrop:SetTexCoord(isFlipped and 1 or 0, isFlipped and 0 or 1, 0, 1)
 
 	local healPredict = self.HealthPrediction
 	healPredict:SetTexture(db.HealthBarTexture)
@@ -484,7 +497,7 @@ local UnitFrame_UpdateTextures = function(self)
 		end
 		absorb:SetOrientation(orientation)
 		absorb:SetSparkMap(db.HealthBarSparkMap)
-		absorb:SetFlippedHorizontally(true)
+		absorb:SetFlippedHorizontally(isFlipped)
 	end
 
 	local cast = self.Castbar
@@ -495,7 +508,7 @@ local UnitFrame_UpdateTextures = function(self)
 	cast:SetStatusBarColor(unpack(db.HealthCastOverlayColor))
 	cast:SetOrientation(db.HealthBarOrientation)
 	cast:SetSparkMap(db.HealthBarSparkMap)
-	cast:SetFlippedHorizontally(true)
+	cast:SetFlippedHorizontally(isFlipped)
 
 	local portraitBorder = self.Portrait.Border
 	portraitBorder:SetTexture(db.PortraitBorderTexture)
@@ -547,6 +560,7 @@ end
 UnitStyles["Target"] = function(self, unit, id)
 
 	local db = ns.Config.Target
+
 	self:SetSize(unpack(db.Size))
 	self:SetPoint(unpack(db.Position))
 	self:SetHitRectInsets(unpack(db.HitRectInsets))
@@ -575,6 +589,7 @@ UnitStyles["Target"] = function(self, unit, id)
 	self.Health = health
 	self.Health.Override = ns.API.UpdateHealth
 	self.Health.PostUpdate = Health_PostUpdate
+	self.Health.PostUpdateColor = Health_PostUpdateColor
 
 	local healthBackdrop = health:CreateTexture(nil, "BACKGROUND", nil, -1)
 
@@ -675,7 +690,7 @@ UnitStyles["Target"] = function(self, unit, id)
 		absorb:SetAllPoints(health)
 		absorb:SetFrameLevel(health:GetFrameLevel() + 3)
 
-		self.Absorb = absorb
+		self.Health.Absorb = absorb
 	end
 
 	-- Portrait
@@ -733,7 +748,7 @@ UnitStyles["Target"] = function(self, unit, id)
 	power:SetSparkTexture(db.PowerBarSparkTexture)
 	power:SetOrientation(db.PowerBarOrientation)
 	power:SetStatusBarTexture(db.PowerBarTexture)
-	power:SetAlpha(.75)
+	power:SetAlpha(db.PowerBarAlpha or 1)
 	power.frequentUpdates = true
 	power.displayAltPower = true
 	power.colorPower = true
@@ -746,9 +761,9 @@ UnitStyles["Target"] = function(self, unit, id)
 	local powerBackdrop = power:CreateTexture(nil, "BACKGROUND", nil, -2)
 	powerBackdrop:SetPoint(unpack(db.PowerBackdropPosition))
 	powerBackdrop:SetSize(unpack(db.PowerBackdropSize))
+	powerBackdrop:SetIgnoreParentAlpha(true)
 	powerBackdrop:SetTexture(db.PowerBackdropTexture)
 	powerBackdrop:SetVertexColor(unpack(db.PowerBackdropColor))
-	powerBackdrop:SetIgnoreParentAlpha(true)
 
 	self.Power.Backdrop = powerBackdrop
 
@@ -758,6 +773,7 @@ UnitStyles["Target"] = function(self, unit, id)
 	powerValue:SetPoint(unpack(db.PowerValuePosition))
 	powerValue:SetJustifyH(db.PowerValueJustifyH)
 	powerValue:SetJustifyV(db.PowerValueJustifyV)
+	powerValue:SetIgnoreParentAlpha(true)
 	powerValue:SetFontObject(db.PowerValueFont)
 	powerValue:SetTextColor(unpack(db.PowerValueColor))
 

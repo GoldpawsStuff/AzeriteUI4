@@ -66,6 +66,7 @@ Config.Target = {
 	Size = { 439, 93 },
 	Position = { "TOPRIGHT", -153, -79 },
 	HitRectInsets = { 0, 0, 0, 6 },
+	IsFlippedHorizontally = true,
 
 	-- Health Value Text
 	HealthValuePosition = { "RIGHT", -27, 4 },
@@ -84,6 +85,7 @@ Config.Target = {
 	-- Power Crystal
 	PowerBarPosition = { "CENTER", 439/2 + 79 +2, -6+ 93/2 -62 + 4 +6 },
 	PowerBarSize = { 80, 80 },
+	PowerBarAlpha = .75,
 	PowerBarTexture = GetMedia("power_crystal_small_front"),
 	PowerBarSparkTexture = GetMedia("blank"),
 	PowerBarOrientation = "UP",

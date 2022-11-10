@@ -24,14 +24,38 @@
 
 --]]
 local Addon, ns = ...
-local Config = ns.Config or {}
-ns.Config = Config
+local UnitStyles = ns.UnitStyles
+if (not UnitStyles) then
+	return
+end
+
+-- Lua API
+local unpack = unpack
+
+-- WoW API
+local UnitIsUnit = UnitIsUnit
 
 -- Addon API
 local Colors = ns.Colors
+local Config = ns.Config
 local GetFont = ns.API.GetFont
 local GetMedia = ns.API.GetMedia
 
-Config.Arena = {
+-- Constants
+local playerClass = select(2, UnitClass("player"))
 
-}
+-- Utility Functions
+--------------------------------------------
+-- Simplify the tagging process a little.
+local prefix = function(msg)
+	return string_gsub(msg, "*", ns.Prefix)
+end
+
+-- Element Callbacks
+--------------------------------------------
+
+-- Frame Script Handlers
+--------------------------------------------
+
+UnitStyles["NamePlates"] = function(self, unit, id, ...)
+end

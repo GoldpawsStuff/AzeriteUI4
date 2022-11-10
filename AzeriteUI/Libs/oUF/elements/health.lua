@@ -91,6 +91,8 @@ local function UpdateColor(self, event, unit)
 		color = self.colors.disconnected
 	elseif(element.colorTapping and not UnitPlayerControlled(unit) and UnitIsTapDenied(unit)) then
 		color = self.colors.tapped
+	elseif(element.colorHappiness and not oUF.isRetail and PlayerClass == "HUNTER" and UnitIsUnit(unit, "pet") and GetPetHappiness()) then
+		color = self.colors.happiness[GetPetHappiness()]
 	elseif(element.colorThreat and not UnitPlayerControlled(unit) and UnitThreatSituation('player', unit)) then
 		color =  self.colors.threat[UnitThreatSituation('player', unit)]
 	elseif(element.colorClass and UnitIsPlayer(unit))
@@ -215,8 +217,12 @@ local function SetColorDisconnected(element, state, isForced)
 		element.colorDisconnected = state
 		if(state) then
 			element.__owner:RegisterEvent('UNIT_CONNECTION', ColorPath)
+			element.__owner:RegisterEvent('PARTY_MEMBER_ENABLE', ColorPath)
+			element.__owner:RegisterEvent('PARTY_MEMBER_DISABLE', ColorPath)
 		else
 			element.__owner:UnregisterEvent('UNIT_CONNECTION', ColorPath)
+			element.__owner:UnregisterEvent('PARTY_MEMBER_ENABLE', ColorPath)
+			element.__owner:UnregisterEvent('PARTY_MEMBER_DISABLE', ColorPath)
 		end
 	end
 end
@@ -275,6 +281,18 @@ local function SetColorThreat(element, state, isForced)
 	end
 end
 
+local function SetColorHappiness(element, state, isForced)
+	if(element.colorHappiness ~= state or isForced) then
+		element.colorHappiness = state
+
+		if(state) then
+			element.__owner:RegisterEvent('UNIT_HAPPINESS', ColorPath)
+		else
+			element.__owner:UnregisterEvent('UNIT_HAPPINESS', ColorPath)
+		end
+	end
+end
+
 local function Enable(self)
 	local element = self.Health
 	if(element) then
@@ -287,6 +305,8 @@ local function Enable(self)
 
 		if(element.colorDisconnected) then
 			self:RegisterEvent('UNIT_CONNECTION', ColorPath)
+			self:RegisterEvent('PARTY_MEMBER_ENABLE', ColorPath)
+			self:RegisterEvent('PARTY_MEMBER_DISABLE', ColorPath)
 		end
 
 		if(element.colorSelection) then
@@ -301,7 +321,11 @@ local function Enable(self)
 			self:RegisterEvent('UNIT_THREAT_LIST_UPDATE', ColorPath)
 		end
 
-		self:RegisterEvent('UNIT_HEALTH', Path)
+		if(oUF.isRetail) then
+			self:RegisterEvent('UNIT_HEALTH', Path)
+		else
+			self:RegisterEvent('UNIT_HEALTH_FREQUENT', Path)
+		end
 		self:RegisterEvent('UNIT_MAXHEALTH', Path)
 
 		if(element:IsObjectType('StatusBar') and not element:GetStatusBarTexture()) then
@@ -319,9 +343,15 @@ local function Disable(self)
 	if(element) then
 		element:Hide()
 
-		self:UnregisterEvent('UNIT_HEALTH', Path)
+		if(oUF.isRetail) then
+			self:UnregisterEvent('UNIT_HEALTH', Path)
+		else
+			self:UnregisterEvent('UNIT_HEALTH_FREQUENT', Path)
+		end
 		self:UnregisterEvent('UNIT_MAXHEALTH', Path)
 		self:UnregisterEvent('UNIT_CONNECTION', ColorPath)
+		self:UnregisterEvent('PARTY_MEMBER_ENABLE', ColorPath)
+		self:UnregisterEvent('PARTY_MEMBER_DISABLE', ColorPath)
 		self:UnregisterEvent('UNIT_FACTION', ColorPath)
 		self:UnregisterEvent('UNIT_FLAGS', ColorPath)
 		self:UnregisterEvent('UNIT_THREAT_LIST_UPDATE', ColorPath)

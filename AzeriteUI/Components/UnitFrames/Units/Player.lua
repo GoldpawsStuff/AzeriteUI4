@@ -134,6 +134,7 @@ local HealPredict_PostUpdate = function(element, unit, myIncomingHeal, otherInco
 		local previewTexture = preview:GetStatusBarTexture()
 		local previewWidth, previewHeight = preview:GetSize()
 		local left, right, top, bottom = preview:GetTexCoord()
+		local isFlipped = preview:IsFlippedHorizontally()
 
 		if (growth == "RIGHT") then
 
@@ -149,7 +150,11 @@ local HealPredict_PostUpdate = function(element, unit, myIncomingHeal, otherInco
 				element:ClearAllPoints()
 				element:SetPoint("BOTTOMLEFT", previewTexture, "BOTTOMRIGHT", 0, 0)
 				element:SetSize(change*previewWidth, previewHeight)
-				element:SetTexCoord(texValue, texValue + texChange, top, bottom)
+				if (isFlipped) then
+					element:SetTexCoord(texValue + texChange, texValue, top, bottom)
+				else
+					element:SetTexCoord(texValue, texValue + texChange, top, bottom)
+				end
 				element:SetVertexColor(0, .7, 0, .25)
 				element:Show()
 
@@ -157,7 +162,11 @@ local HealPredict_PostUpdate = function(element, unit, myIncomingHeal, otherInco
 				element:ClearAllPoints()
 				element:SetPoint("BOTTOMRIGHT", previewTexture, "BOTTOMRIGHT", 0, 0)
 				element:SetSize((-change)*previewWidth, previewHeight)
-				element:SetTexCoord(texValue + texChange, texValue, top, bottom)
+				if (isFlipped) then
+					element:SetTexCoord(texValue, texValue + texChange, top, bottom)
+				else
+					element:SetTexCoord(texValue + texChange, texValue, top, bottom)
+				end
 				element:SetVertexColor(.5, 0, 0, .75)
 				element:Show()
 
@@ -177,7 +186,11 @@ local HealPredict_PostUpdate = function(element, unit, myIncomingHeal, otherInco
 				element:ClearAllPoints()
 				element:SetPoint("BOTTOMRIGHT", previewTexture, "BOTTOMLEFT", 0, 0)
 				element:SetSize(change*previewWidth, previewHeight)
-				element:SetTexCoord(texValue + texChange, texValue, top, bottom)
+				if (isFlipped) then
+					element:SetTexCoord(texValue, texValue + texChange, top, bottom)
+				else
+					element:SetTexCoord(texValue + texChange, texValue, top, bottom)
+				end
 				element:SetVertexColor(0, .7, 0, .25)
 				element:Show()
 
@@ -185,7 +198,11 @@ local HealPredict_PostUpdate = function(element, unit, myIncomingHeal, otherInco
 				element:ClearAllPoints()
 				element:SetPoint("BOTTOMLEFT", previewTexture, "BOTTOMLEFT", 0, 0)
 				element:SetSize((-change)*previewWidth, previewHeight)
-				element:SetTexCoord(texValue, texValue + texChange, top, bottom)
+				if (isFlipped) then
+					element:SetTexCoord(texValue + texChange, texValue, top, bottom)
+				else
+					element:SetTexCoord(texValue, texValue + texChange, top, bottom)
+				end
 				element:SetVertexColor(.5, 0, 0, .75)
 				element:Show()
 
@@ -595,7 +612,7 @@ UnitStyles["Player"] = function(self, unit, id)
 		absorb:SetAllPoints(health)
 		absorb:SetFrameLevel(health:GetFrameLevel() + 3)
 
-		self.Absorb = absorb
+		self.Health.Absorb = absorb
 	end
 
 	-- Power Crystal

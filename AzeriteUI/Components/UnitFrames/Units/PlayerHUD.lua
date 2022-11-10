@@ -59,14 +59,16 @@ local Cast_CustomTimeText = function(element, duration)
 	element.Delay:SetText()
 end
 
--- Update cast bar backdrop to indicate protected casts.
+-- Update cast bar color and backdrop to indicate protected casts.
+-- *Note that the shield icon works as an alternate backdrop here,
+--  which is why we're hiding the regular backdrop on protected casts.
 local Cast_UpdateInterruptible = function(element, unit)
 	if (element.notInterruptible) then
 		element.Backdrop:Hide()
-		--element:SetStatusBarColor(unpack(Colors.red))
+		element:SetStatusBarColor(unpack(Colors.red))
 	else
 		element.Backdrop:Show()
-		--element:SetStatusBarColor(unpack(Colors.cast))
+		element:SetStatusBarColor(unpack(Colors.cast))
 	end
 end
 
