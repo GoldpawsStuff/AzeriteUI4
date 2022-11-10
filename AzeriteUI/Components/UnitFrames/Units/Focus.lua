@@ -388,6 +388,5 @@ UnitStyles["Focus"] = function(self, unit, id)
 	-- Register events to handle additional texture updates.
 	self:RegisterEvent("PLAYER_ENTERING_WORLD", OnEvent, true)
 	self:RegisterEvent("PLAYER_TARGET_CHANGED", OnEvent, true)
-	self:RegisterEvent("PLAYER_FOCUS_CHANGED", OnEvent, true)
 
 end
