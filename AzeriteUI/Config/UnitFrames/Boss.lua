@@ -58,7 +58,6 @@ Config.Boss = {
 	GrowthX = 0,
 	GrowthY = -97,
 	HitRectInsets = { 0, 0, 0, 0 },
-	IsFlippedHorizontally = true,
 
 	HealthBarPosition = { "CENTER", 0, 0 },
 	HealthBarSize = { 112, 11 },

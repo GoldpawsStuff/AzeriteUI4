@@ -52,14 +52,15 @@ local barSparkMap = {
 Config.NamePlates = {
 
 	Size = { 80, 32 },
+	Orientation = "LEFT",
+	OrientationReversed = "RIGHT",
 
 	HealthBarPosition = { "TOP", 0, -2 },
 	HealthBarSize = { 84, 14 },
 	HealthBarTexCoord = { 14/256, 242/256, 14/64, 50/64 },
 	HealthBarTexture = GetMedia("nameplate_bar"),
 	HealthBarSparkMap = barSparkMap,
-	HealthBarOrientation = "LEFT",
-	HealthBarOrientationPlayer = "RIGHT",
+
 
 	HealthBackdropPosition = { "CENTER", 0, 0 },
 	HealthBackdropSize = { 94.315789474, 24.888888889 },

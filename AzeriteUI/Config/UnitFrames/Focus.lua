@@ -56,7 +56,6 @@ Config.Focus = {
 	Size = { 136, 47 },
 	Position = { "RIGHT", UIParent, "BOTTOMLEFT", 332, 270 },
 	HitRectInsets = { 0, 0, 0, 0 },
-	IsFlippedHorizontally = nil,
 
 	HealthBarPosition = { "CENTER", 0, 0 },
 	HealthBarSize = { 112, 11 },

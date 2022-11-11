@@ -56,7 +56,6 @@ Config.Pet = {
 	Size = { 136, 47 },
 	Position = { "LEFT", UIParent, "BOTTOMLEFT", 362, 125 },
 	HitRectInsets = { 0, 0, 0, 0 },
-	IsFlippedHorizontally = nil,
 
 	HealthBarPosition = { "CENTER", 0, 0 },
 	HealthBarSize = { 112, 11 },
