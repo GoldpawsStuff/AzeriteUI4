@@ -102,7 +102,7 @@ PetBar.UpdateVisibilityDriver = function(self)
 	end
 	self:SetAttribute("visibility-driver", visdriver)
 
-	UnregisterStateDriver(self, "state-vis")
+	UnregisterStateDriver(self, "vis")
 	self:SetAttribute("state-vis", "0")
 	RegisterStateDriver(self, "vis", visdriver or "hide")
 end

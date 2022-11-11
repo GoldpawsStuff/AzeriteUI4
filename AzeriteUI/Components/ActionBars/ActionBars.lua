@@ -26,11 +26,6 @@
 local Addon, ns = ...
 local ActionBars = ns:NewModule("ActionBars", "LibMoreEvents-1.0")
 
-ActionBars.HasSecondaryBar = function(self)
-	local Bars = self:GetModule("Bars", true)
-	return Bars and Bars:HasSecondaryBar()
-end
-
 ActionBars.OnInitialize = function(self)
 end
 

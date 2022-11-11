@@ -191,7 +191,7 @@ ActionBar.UpdateVisibilityDriver = function(self)
 		end
 	end
 
-	UnregisterStateDriver(self, "state-vis")
+	UnregisterStateDriver(self, "vis")
 	self:SetAttribute("state-vis", "0")
 	RegisterStateDriver(self, "vis", visdriver or "hide")
 end

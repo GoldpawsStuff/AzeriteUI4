@@ -35,7 +35,6 @@ local type = type
 
 -- WoW API
 local CreateFrame = CreateFrame
-local GameTooltip_SetDefaultAnchor = GameTooltip_SetDefaultAnchor
 local GetBindingKey = GetBindingKey
 local GetShapeshiftFormCooldown = GetShapeshiftFormCooldown
 local GetShapeshiftFormInfo = GetShapeshiftFormInfo
@@ -67,8 +66,10 @@ Button.OnEnter = function(self)
 	if (GameTooltip:IsForbidden()) then
 		return
 	end
+
 	GameTooltip_SetDefaultAnchor(GameTooltip, self)
 	GameTooltip:SetShapeshift(self:GetID())
+
 	self.UpdateTooltip = self.OnEnter
 end
 

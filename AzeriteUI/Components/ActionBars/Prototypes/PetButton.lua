@@ -36,7 +36,6 @@ local string_format = string.format
 local AutoCastShine_AutoCastStart = AutoCastShine_AutoCastStart
 local AutoCastShine_AutoCastStop = AutoCastShine_AutoCastStop
 local CooldownFrame_Set = CooldownFrame_Set
-local GameTooltip_SetDefaultAnchor = GameTooltip_SetDefaultAnchor
 local GetBindingKey = GetBindingKey
 local GetBindingText = GetBindingText
 local GetPetActionInfo = GetPetActionInfo
