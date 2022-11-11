@@ -9,12 +9,14 @@
 	<Script file="Prototypes\StanceButton.lua"/>
 	<Script file="Prototypes\StanceBar.lua"/>
 
-	<!--<Script file="Elements\ActionBars.lua"/>
-	<Script file="Elements\PetBar.lua"/>
-	<Script file="Elements\StanceBar.lua"/>
-	<Script file="Elements\ExtraButtons.lua"/>
-	<Script file="Elements\StatusBars.lua"/>
-	<Script file="Elements\MicroMenu.lua"/>
-	<Script file="Elements\MultiCast.lua"/>-->
+	<!--<Script file="Elements\ActionBars.lua"/>-->
+	<!--<Script file="Elements\PetBar.lua"/>-->
+	<!--<Script file="Elements\StanceBar.lua"/>-->
+	<!--<Script file="Elements\ExtraButtons.lua"/>-->
+	<!--<Script file="Elements\StatusBars.lua"/>-->
+	<!--<Script file="Elements\MicroMenu.lua"/>-->
+	<!--<Script file="Elements\MultiCast.lua"/>-->
+
+	<Script file="Compatibility\Bartender.lua"/>
 
 </Ui>
