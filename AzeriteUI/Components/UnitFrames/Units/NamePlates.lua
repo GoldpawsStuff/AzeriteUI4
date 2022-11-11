@@ -209,6 +209,31 @@ local HealPredict_PostUpdate = function(element, unit, myIncomingHeal, otherInco
 
 end
 
+local PRD_Update = function(self)
+	local db = ns.Config.NamePlates
+	local main, reverse = db.Orientation, db.OrientationReversed
+	if (self.isPRD) then
+		main, reverse = reverse, main
+	end
+
+	self.Health:SetOrientation(main)
+	self.Health.Absorb:SetOrientation(reverse)
+	self.Health.Preview:SetOrientation(main)
+	self.Castbar:SetOrientation(main)
+	self.Castbar:ClearAllPoints()
+
+	if (self.isPRD) then
+		-- hide raid target element
+		self.Power:Show()
+		self.Castbar:SetPoint(unpack(db.CastBarPositionPlayer))
+	else
+		-- hide raid target element
+		self.Power:Hide()
+		self.Castbar:SetPoint(unpack(db.CastBarPosition))
+	end
+
+end
+
 -- Update targeting highlight outline
 local TargetHighlight_Update = function(self, event, unit, ...)
 	if (unit and unit ~= self.unit) then return end
@@ -230,6 +255,7 @@ end
 
 local UnitFrame_PostUpdate = function(self)
 	TargetHighlight_Update(self)
+	PRD_Update(self)
 end
 
 -- Frame Script Handlers
@@ -259,7 +285,6 @@ UnitStyles["NamePlates"] = function(self, unit, id)
 	health:SetFrameLevel(health:GetFrameLevel() + 2)
 	health:SetPoint(unpack(db.HealthBarPosition))
 	health:SetSize(unpack(db.HealthBarSize))
-	health:SetFlippedHorizontally(db.IsFlippedHorizontally)
 	health:SetStatusBarTexture(db.HealthBarTexture)
 	health:SetOrientation(db.HealthBarOrientation)
 	health:SetSparkMap(db.HealthBarSparkMap)
@@ -286,7 +311,6 @@ UnitStyles["NamePlates"] = function(self, unit, id)
 	healthPreview:SetFrameLevel(health:GetFrameLevel() - 1)
 	healthPreview:SetStatusBarTexture(db.HealthBarTexture)
 	healthPreview:SetOrientation(db.HealthBarOrientation)
-	healthPreview:SetFlippedHorizontally(db.IsFlippedHorizontally)
 	healthPreview:SetSparkTexture("")
 	healthPreview:SetAlpha(.5)
 	healthPreview:DisableSmoothing(true)
