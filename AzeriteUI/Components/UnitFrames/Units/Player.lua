@@ -101,12 +101,12 @@ local HealPredict_PostUpdate = function(element, unit, myIncomingHeal, otherInco
 		-- Dev switch to test absorbs with normal healing
 		--allIncomingHeal, allNegativeHeals = allNegativeHeals, allIncomingHeal
 
-		-- Hide elementions if the change is very small, or if the unit is at max health.
+		-- Hide predictions if the change is very small, or if the unit is at max health.
 		change = (allIncomingHeal - allNegativeHeals)/maxHealth
 		if ((curHealth < maxHealth) and (change > (element.health.predictThreshold or .05))) then
 			local endPoint = startPoint + change
 
-			-- Crop heal elemention overflows
+			-- Crop heal prediction overflows
 			if (endPoint > 1) then
 				endPoint = 1
 				change = endPoint - startPoint
