@@ -31,6 +31,7 @@ end
 
 -- Lua API
 local unpack = unpack
+local string_gsub = string.gsub
 
 -- WoW API
 local UnitIsUnit = UnitIsUnit
@@ -242,7 +243,7 @@ UnitStyles["ToT"] = function(self, unit, id)
 	self:SetSize(unpack(db.Size))
 	self:SetPoint(unpack(db.Position))
 	self:SetHitRectInsets(unpack(db.HitRectInsets))
-	self:SetFrameLevel(self:GetFrameLevel() + 2)
+	self:SetFrameLevel(self:GetFrameLevel() + 10)
 
 	-- Overlay for icons and text
 	--------------------------------------------
@@ -322,15 +323,15 @@ UnitStyles["ToT"] = function(self, unit, id)
 
 	-- Health Value
 	--------------------------------------------
-	local healthValue = health:CreateFontString(nil, "OVERLAY", nil, 1)
-	healthValue:SetPoint(unpack(db.HealthValuePosition))
-	healthValue:SetFontObject(db.HealthValueFont)
-	healthValue:SetTextColor(unpack(db.HealthValueColor))
-	healthValue:SetJustifyH(db.HealthValueJustifyH)
-	healthValue:SetJustifyV(db.HealthValueJustifyV)
-	self:Tag(healthValue, prefix("[*:Health(true)]"))
+	--local healthValue = health:CreateFontString(nil, "OVERLAY", nil, 1)
+	--healthValue:SetPoint(unpack(db.HealthValuePosition))
+	--healthValue:SetFontObject(db.HealthValueFont)
+	--healthValue:SetTextColor(unpack(db.HealthValueColor))
+	--healthValue:SetJustifyH(db.HealthValueJustifyH)
+	--healthValue:SetJustifyV(db.HealthValueJustifyV)
+	--self:Tag(healthValue, prefix("[*:Health(true)]"))
 
-	self.Health.Value = healthValue
+	--self.Health.Value = healthValue
 
 	-- Absorb Bar (Retail)
 	--------------------------------------------
@@ -359,7 +360,7 @@ UnitStyles["ToT"] = function(self, unit, id)
 
 	-- Target Highlight
 	--------------------------------------------
-	local targetHighlight = self:CreateTexture(nil, "BACKGROUND", -2)
+	local targetHighlight = overlay:CreateTexture(nil, "BACKGROUND", -2)
 	targetHighlight:SetPoint(unpack(db.TargetHighlightPosition))
 	targetHighlight:SetSize(unpack(db.TargetHighlightSize))
 	targetHighlight:SetTexture(db.TargetHighlightTexture)

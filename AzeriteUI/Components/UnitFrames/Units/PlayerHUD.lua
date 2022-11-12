@@ -76,7 +76,7 @@ end
 local ClassPower_CreatePoint = function(element, index)
 	local db = ns.Config.PlayerHUD
 
-	local point = element.__owner:CreateBar(nil, element)
+	local point = element:GetParent():CreateBar(nil, element)
 	point:SetOrientation(db.ClassPowerPointOrientation)
 	point:SetSparkTexture(db.ClassPowerSparkTexture)
 	point:SetMinMaxValues(0, 1)

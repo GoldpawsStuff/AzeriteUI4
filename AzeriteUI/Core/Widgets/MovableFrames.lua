@@ -43,8 +43,6 @@ local Colors = ns.Colors
 local GetFont = ns.API.GetFont
 local GetPosition = ns.API.GetPosition
 local GetScale = ns.API.GetScale
-local SetObjectScale = ns.API.SetObjectScale
-local UIHider = ns.Hider
 
 -- Private event frame
 local Frame = CreateFrame("Frame")
@@ -96,9 +94,15 @@ Anchor.Create = function(self, frame, savedPosition)
 	anchor:SetScript("OnEnter", Anchor.OnEnter)
 	anchor:SetScript("OnLeave", Anchor.OnLeave)
 
-	Anchors[#Anchors + 1] = anchor
+	if (next(savedPosition)) then
+		anchor:ResetToSaved()
+	end
 
-	Frame:RegisterEvent("PLAYER_REGEN_DISABLED")
+	if (not next(Anchors)) then
+		Frame:RegisterEvent("PLAYER_REGEN_DISABLED")
+	end
+
+	Anchors[#Anchors + 1] = anchor
 
 	return anchor
 end
@@ -132,6 +136,22 @@ Anchor.ResetLastChange = function(self)
 	self.savedPosition[3] = y
 
 	self.currentPosition = { point, x, y }
+
+	self.frame:ClearAllPoints()
+	self.frame:SetPoint(point, UIParent, point, x, y)
+
+	self:ClearAllPoints()
+	self:SetPoint(point, UIParent, point, x, y)
+	self:SetSize(width, height)
+	self:UpdateText()
+end
+
+-- Reset to saved position.
+Anchor.ResetToSaved = function(self)
+	local point, x, y = unpack(self.savedPosition)
+
+	self.currentPosition = { point, x, y }
+	self.lastPosition = { point, x, y }
 
 	self.frame:ClearAllPoints()
 	self.frame:SetPoint(point, UIParent, point, x, y)
@@ -259,6 +279,7 @@ end
 -- Public API
 --------------------------------------
 Widgets.RegisterFrameForMovement = function(frame, db)
+	if (InCombatLockdown()) then return end
 	return Anchor:Create(frame, db).savedPosition
 end
 

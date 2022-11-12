@@ -31,6 +31,7 @@ end
 
 -- Lua API
 local unpack = unpack
+local string_gsub = string.gsub
 
 -- WoW API
 local UnitIsUnit = UnitIsUnit
