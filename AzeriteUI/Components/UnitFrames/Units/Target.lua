@@ -379,7 +379,7 @@ end
 local TargetIndicator_Start = function(self)
 	local targetIndicator = self.TargetIndicator
 	if (not targetIndicator.Ticker) then
-		targetIndicator.Ticker = C_Timer.NewTicker(.1, TargetIndicator_Update)
+		targetIndicator.Ticker = C_Timer.NewTicker(.1, function() TargetIndicator_Update(self) end)
 	end
 end
 
@@ -537,6 +537,7 @@ local UnitFrame_PostUpdate = function(self)
 	UnitFrame_UpdateTextures(self)
 	Classification_Update(self)
 	TargetIndicator_Update(self)
+	TargetIndicator_Start(self)
 end
 
 -- Frame Script Handlers
@@ -892,6 +893,7 @@ UnitStyles["Target"] = function(self, unit, id)
 
 	-- Textures need an update when frame is displayed.
 	self.PostUpdate = UnitFrame_PostUpdate
+	self.OnHide = TargetIndicator_Stop
 
 	-- Register events to handle additional texture updates.
 	self:RegisterEvent("PLAYER_ENTERING_WORLD", OnEvent, true)
@@ -901,9 +903,5 @@ UnitStyles["Target"] = function(self, unit, id)
 
 	-- Toggle name size based on ToT frame.
 	ns.RegisterCallback(self, "UnitFrame_ToT_Updated", Name_PostUpdate)
-
-	-- Toggle target indicator timer ticker.
-	self:HookScript("OnShow", TargetIndicator_Start)
-	self:HookScript("OnHide", TargetIndicator_Stop)
 
 end

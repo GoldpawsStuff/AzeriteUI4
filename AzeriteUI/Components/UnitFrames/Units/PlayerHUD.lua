@@ -124,6 +124,10 @@ local ClassPower_PostUpdate = function(element, cur, max)
 		return element:Hide()
 	end
 
+	if (not element:IsShown()) then
+		element:Show()
+	end
+
 	for i = 1, #element do
 		local point = element[i]
 		if (point:IsShown()) then
@@ -142,6 +146,7 @@ local ClassPower_PostUpdate = function(element, cur, max)
 		local huddb = ns.Config.PlayerHUD
 		local layoutdb = huddb.ClassPowerLayouts[style]
 		if (layoutdb) then
+
 			local id = 0
 			for i,info in next,layoutdb do
 				local point = element[i]
@@ -334,6 +339,8 @@ UnitStyles["PlayerHUD"] = function(self, unit, id)
 		for i = 1,maxPoints do
 			classpower[i] = ClassPower_CreatePoint(classpower)
 		end
+
+		--ClassPower_PostUpdate(classpower, 0, maxPoints)
 
 		self.ClassPower = classpower
 		self.ClassPower.PostUpdate = ClassPower_PostUpdate

@@ -116,6 +116,26 @@ Config.NamePlates = {
 	NameFont = GetFont(12,true),
 	NameColor = { Colors.highlight[1], Colors.highlight[2], Colors.highlight[3], .5 },
 
+	-- Auras
+	-----------------------------------------
+	AurasPosition = { "BOTTOM", 0, 40 },
+	AurasSize = { 30*3 - 4, 30*2 - 4 },
+	AuraSize = 26,
+	AuraSpacing = 4,
+	AurasNumTotal = 6,
+	AurasDisableMouse = true,
+	AurasDisableCooldown = false,
+	AurasOnlyShowPlayer = true,
+	AurasShowStealableBuffs = false,
+	AurasInitialAnchor = "BOTTOMLEFT",
+	AurasSpacingX = 4,
+	AurasSpacingY = 4,
+	AurasGrowthX = "RIGHT",
+	AurasGrowthY = "UP",
+	AurasTooltipAnchor = "ANCHOR_TOPLEFT",
+	AurasSortMethod = "TIME_REMAINING",
+	AurasSortDirection = "DESCENDING",
+
 	ClassificationPosition = { "RIGHT", 18, -1 },
 	ClassificationSize = { 40, 40 },
 	ClassificationIndicatorBossTexture = GetMedia("icon_badges_boss"),

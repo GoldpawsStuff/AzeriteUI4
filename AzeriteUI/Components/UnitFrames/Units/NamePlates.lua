@@ -452,7 +452,7 @@ UnitStyles["NamePlate"] = function(self, unit, id)
 	name:SetTextColor(unpack(db.NameColor))
 	name:SetJustifyH(db.NameJustifyH)
 	name:SetJustifyV(db.NameJustifyV)
-	self:Tag(name, prefix("[*:Name(16,nil,nil,true)]"))
+	self:Tag(name, prefix("[*:Name(32,nil,nil,true)]"))
 
 	self.Name = name
 
@@ -491,6 +491,32 @@ UnitStyles["NamePlate"] = function(self, unit, id)
 	targetHighlight.colorFocus = db.TargetHighlightFocusColor
 
 	self.TargetHighlight = targetHighlight
+
+		-- Auras
+	--------------------------------------------
+	local auras = CreateFrame("Frame", nil, self)
+	auras:SetSize(unpack(db.AurasSize))
+	auras:SetPoint(unpack(db.AurasPosition))
+	auras.size = db.AuraSize
+	auras.spacing = db.AuraSpacing
+	auras.numTotal = db.AurasNumTotal
+	auras.disableMouse = db.AurasDisableMouse
+	auras.disableCooldown = db.AurasDisableCooldown
+	auras.onlyShowPlayer = db.AurasOnlyShowPlayer
+	auras.showStealableBuffs = db.AurasShowStealableBuffs
+	auras.initialAnchor = db.AurasInitialAnchor
+	auras["spacing-x"] = db.AurasSpacingX
+	auras["spacing-y"] = db.AurasSpacingY
+	auras["growth-x"] = db.AurasGrowthX
+	auras["growth-y"] = db.AurasGrowthY
+	auras.sortMethod = db.AurasSortMethod
+	auras.sortDirection = db.AurasSortDirection
+	auras.CustomFilter = ns.AuraFilters.NameplateAuraFilter
+	auras.CreateButton = ns.AuraStyles.CreateButton
+	auras.PostUpdateButton = ns.AuraStyles.NameplatePostUpdateButton
+	auras.PreSetPosition = ns.AuraSorts.Default
+
+	self.Auras = auras
 
 	-- Add a callback for external style overriders
 	self:AddForceUpdate(UnitFrame_PostUpdate)
