@@ -70,6 +70,12 @@ Config.Focus = {
 	HealthBackdropTexture = GetMedia("cast_back"),
 	HealthBackdropColor = { Colors.ui[1], Colors.ui[2], Colors.ui[3] },
 
+	HealthValuePosition = { "CENTER", 0, 0 },
+	HealthValueJustifyH = "CENTER",
+	HealthValueJustifyV = "MIDDLE",
+	HealthValueFont = GetFont(14, true),
+	HealthValueColor = { Colors.offwhite[1], Colors.offwhite[2], Colors.offwhite[3], .75 },
+
 	NamePosition = { "BOTTOMLEFT", 12, 46 },
 	NameJustifyH = "LEFT",
 	NameJustifyV = "TOP",

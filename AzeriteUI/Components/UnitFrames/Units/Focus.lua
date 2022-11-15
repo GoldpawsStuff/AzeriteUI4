@@ -323,15 +323,15 @@ UnitStyles["Focus"] = function(self, unit, id)
 
 	-- Health Value
 	--------------------------------------------
-	--local healthValue = health:CreateFontString(nil, "OVERLAY", nil, 1)
-	--healthValue:SetPoint(unpack(db.HealthValuePosition))
-	--healthValue:SetFontObject(db.HealthValueFont)
-	--healthValue:SetTextColor(unpack(db.HealthValueColor))
-	--healthValue:SetJustifyH(db.HealthValueJustifyH)
-	--healthValue:SetJustifyV(db.HealthValueJustifyV)
-	--self:Tag(healthValue, prefix("[*:Health(true)]"))
+	local healthValue = health:CreateFontString(nil, "OVERLAY", nil, 1)
+	healthValue:SetPoint(unpack(db.HealthValuePosition))
+	healthValue:SetFontObject(db.HealthValueFont)
+	healthValue:SetTextColor(unpack(db.HealthValueColor))
+	healthValue:SetJustifyH(db.HealthValueJustifyH)
+	healthValue:SetJustifyV(db.HealthValueJustifyV)
+	self:Tag(healthValue, prefix("[*:Health(true)]"))
 
-	--self.Health.Value = healthValue
+	self.Health.Value = healthValue
 
 	-- Unit Name
 	--------------------------------------------
