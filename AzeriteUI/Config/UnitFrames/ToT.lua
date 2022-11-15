@@ -65,6 +65,12 @@ Config.ToT = {
 	HealthAbsorbColor = { 1, 1, 1, .5 },
 	HealthCastOverlayColor = { 1, 1, 1, .5 },
 
+	HealthValuePosition = { "CENTER", 0, 0 },
+	HealthValueJustifyH = "CENTER",
+	HealthValueJustifyV = "MIDDLE",
+	HealthValueFont = GetFont(14, true),
+	HealthValueColor = { Colors.offwhite[1], Colors.offwhite[2], Colors.offwhite[3], .75 },
+
 	HealthBackdropPosition = { "CENTER", 1, -2 },
 	HealthBackdropSize = { 193,93 },
 	HealthBackdropTexture = GetMedia("cast_back"),
