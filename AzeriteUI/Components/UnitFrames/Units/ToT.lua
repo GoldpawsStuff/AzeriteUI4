@@ -72,7 +72,7 @@ local Health_PostUpdateColor = function(element, unit, r, g, b)
 end
 
 -- Align our custom health prediction texture
--- based on the plugins provided values.
+-- based on the plugin's provided values.
 local HealPredict_PostUpdate = function(element, unit, myIncomingHeal, otherIncomingHeal, absorb, healAbsorb, hasOverAbsorb, hasOverHealAbsorb, curHealth, maxHealth)
 
 	local allIncomingHeal = myIncomingHeal + otherIncomingHeal
