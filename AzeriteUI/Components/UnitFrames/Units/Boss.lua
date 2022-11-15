@@ -41,6 +41,7 @@ local Colors = ns.Colors
 local Config = ns.Config
 local GetFont = ns.API.GetFont
 local GetMedia = ns.API.GetMedia
+local SetObjectScale = ns.API.SetObjectScale
 
 -- Constants
 local playerClass = select(2, UnitClass("player"))
@@ -72,7 +73,7 @@ local Health_PostUpdateColor = function(element, unit, r, g, b)
 end
 
 -- Align our custom health prediction texture
--- based on the plugins provided values.
+-- based on the plugin's provided values.
 local HealPredict_PostUpdate = function(element, unit, myIncomingHeal, otherIncomingHeal, absorb, healAbsorb, hasOverAbsorb, hasOverHealAbsorb, curHealth, maxHealth)
 
 	local allIncomingHeal = myIncomingHeal + otherIncomingHeal
@@ -395,4 +396,11 @@ UnitStyles["Boss"] = function(self, unit, id)
 	self:RegisterEvent("PLAYER_TARGET_CHANGED", OnEvent, true)
 	self:RegisterEvent("PLAYER_FOCUS_CHANGED", OnEvent, true)
 
+end
+
+-- This is temporary, just to move the default frames to a better position.
+Boss1TargetFrame:SetPoint("TOPRIGHT", 0, -420) -- Default is "TOPRIGHT", 55, -236
+for i = 1, MAX_BOSS_FRAMES do
+	local frame = SetObjectScale(_G["Boss"..i.."TargetFrame"])
+	frame:Show() -- Remind me... why?
 end
