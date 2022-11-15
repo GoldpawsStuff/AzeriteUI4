@@ -29,6 +29,7 @@ local oUF = ns.oUF
 
 -- Globally available registries
 ns.NamePlates = {}
+ns.ActiveNamePlates = {}
 ns.UnitStyles = {}
 ns.UnitFrames = {}
 ns.UnitFramesByName = {}
@@ -252,8 +253,10 @@ local NamePlate_Callback = function(self, event, unit)
 	elseif (event == "NAME_PLATE_UNIT_ADDED") then
 		self.isPRD = UnitIsUnit(unit, "player")
 		ns.NamePlates[self] = true
+		ns.ActiveNamePlates[self] = true
 	elseif (event == "NAME_PLATE_UNIT_REMOVED") then
 		self.isPRD = nil
+		ns.ActiveNamePlates[self] = nil
 	end
 end
 
@@ -289,12 +292,12 @@ UnitFrames.RegisterStyles = function(self)
 
 		self:SetPoint("CENTER",0,0)
 
-		self:SetScript("OnEnter", OnEnter)
-		self:SetScript("OnLeave", OnLeave)
+		--self:SetScript("OnEnter", OnEnter)
+		--self:SetScript("OnLeave", OnLeave)
 		self:SetScript("OnHide", OnHide)
 
-		self:SetMouseMotionEnabled(true)
-		self:SetMouseClickEnabled(false)
+		--self:SetMouseMotionEnabled(true)
+		--self:SetMouseClickEnabled(false)
 
 		self.ForceUpdate = ForceUpdate
 		self.AddForceUpdate = AddForceUpdate
@@ -367,6 +370,31 @@ UnitFrames.SpawnNamePlates = function(self)
 		oUF:SetActiveStyle(ns.Prefix.."NamePlates")
 		oUF:SpawnNamePlates(ns.Prefix, NamePlate_Callback, NamePlate_Cvars)
 		self:KillNamePlateClutter()
+
+		local next = next
+		local OnLeave, OnEnter = OnLeave, OnEnter
+		local UnitExists, UnitIsUnit = UnitExists, UnitIsUnit
+
+		local frame = CreateFrame("Frame")
+		frame.elapsed = 0
+		frame:SetScript("OnUpdate", function(self, elapsed)
+			self.elapsed = self.elapsed - elapsed
+			if (self.elapsed > 0) then return end
+			self.elapsed = .05
+
+			local isMouseOver
+			local hasMouseOver = UnitExists("mouseover")
+
+			for frame in next,ns.ActiveNamePlates do
+				isMouseOver = UnitIsUnit(frame.unit, "mouseover")
+				if (frame.isMouseOver and not isMouseOver) then
+					OnLeave(frame)
+				elseif (isMouseOver and not frame.isMouseOver) then
+					OnEnter(frame)
+				end
+			end
+		end)
+
 	end)
 end
 
