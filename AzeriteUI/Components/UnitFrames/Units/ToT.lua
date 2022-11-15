@@ -226,8 +226,32 @@ local TargetHighlight_Update = function(self, event, unit, ...)
 
 end
 
-local UnitFrame_PostUpdate = function(self)
-	TargetHighlight_Update(self)
+local Unitframe_PostUpdateAlpha = function(self, event, unit, ...)
+	if (unit and unit ~= self.unit) then return end
+
+	unit = unit or self.unit
+
+	local shouldHide
+	if (UnitIsUnit(unit, unit.."target"))
+	or (not UnitIsPlayer(unit) and level == 1 and UnitHealthMax(unit) < 10) then
+		shouldHide = true
+	end
+
+	if (shouldHide == self.shouldHide) then
+		return
+	end
+
+	self.shouldHide = shouldHide
+	self:SetAlpha(shouldHide and 0 or 1)
+
+	ns:Fire("UnitFrame_ToT_Updated", unit, fullName)
+end
+
+local UnitFrame_PostUpdate = function(self, event, unit, ...)
+	if (unit and unit ~= self.unit) then return end
+
+	Unitframe_PostUpdateAlpha(self, event, unit, ...)
+	TargetHighlight_Update(self, event, unit, ...)
 end
 
 -- Frame Script Handlers
@@ -333,6 +357,18 @@ UnitStyles["ToT"] = function(self, unit, id)
 
 	self.Health.Value = healthValue
 
+	-- Unit Name
+	--------------------------------------------
+	local name = self:CreateFontString(nil, "OVERLAY", nil, 1)
+	name:SetPoint(unpack(db.NamePosition))
+	name:SetFontObject(db.NameFont)
+	name:SetTextColor(unpack(db.NameColor))
+	name:SetJustifyH(db.NameJustifyH)
+	name:SetJustifyV(db.NameJustifyV)
+	self:Tag(name, prefix("[*:Name(16,true,nil,true)]"))
+
+	self.Name = name
+
 	-- Absorb Bar (Retail)
 	--------------------------------------------
 	if (ns.IsRetail) then
@@ -378,5 +414,6 @@ UnitStyles["ToT"] = function(self, unit, id)
 	-- Register events to handle additional texture updates.
 	self:RegisterEvent("PLAYER_ENTERING_WORLD", OnEvent, true)
 	self:RegisterEvent("PLAYER_FOCUS_CHANGED", OnEvent, true)
+	self:RegisterEvent("PLAYER_TARGET_CHANGED", OnEvent, true)
 
 end

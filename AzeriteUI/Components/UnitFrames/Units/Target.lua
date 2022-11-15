@@ -330,6 +330,8 @@ end
 -- Toggle name size based on ToT visibility
 local Name_PostUpdate = function(self)
 	local name = self.Name
+	if (not name) then return end
+
 	if (UnitExists("targettarget") and not UnitIsUnit("targettarget", "target") and not UnitIsUnit("targettarget","player")) then
 		if (not name.usingSmallWidth) then
 			name.usingSmallWidth = true
