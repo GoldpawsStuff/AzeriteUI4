@@ -177,7 +177,7 @@ else
 end
 
 Events[prefix("*:Health")] = "UNIT_HEALTH UNIT_MAXHEALTH PLAYER_FLAGS_CHANGED UNIT_CONNECTION"
-Methods[prefix("*:Health")] = function(unit, ...)
+Methods[prefix("*:Health")] = function(unit, realUnit, ...)
 	local useSmart, useFull, hideStatus, showAFK = getargs(...)
 	if (UnitIsDeadOrGhost(unit)) then
 		return not hideStatus and L_DEAD
