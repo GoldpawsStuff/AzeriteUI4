@@ -49,9 +49,9 @@ local SetCVar = SetCVar
 local UnitIsUnit = UnitIsUnit
 
 -- Addon API
+local IsAddOnEnabled = ns.API.IsAddOnEnabled
 local SetObjectScale = ns.API.SetObjectScale
 local SetEffectiveObjectScale = ns.API.SetEffectiveObjectScale
-local IsAddOnEnabled = ns.API.IsAddOnEnabled
 
 -- Utility
 -----------------------------------------------------
@@ -188,32 +188,6 @@ end
 -- NamePlates
 -----------------------------------------------------
 local NamePlate_Cvars = {
-	-- Visibility
-	-- *Don't adjust these, let the user decide.
-	--["nameplateShowAll"] = 1, -- 0 = only in combat, 1 = always
-	--["nameplateShowEnemies"] = 1, -- applies to all enemies and players
-	--["nameplateShowEnemyGuardians"] = 0,
-	--["nameplateShowEnemyMinions"] = 0,
-	--["nameplateShowEnemyMinus"] = 1, -- Small azerite oozes and similar. useful.
-	--["nameplateShowEnemyPets"] = 0,
-	--["nameplateShowEnemyTotems"] = 0,
-	--["nameplateShowFriends"] = 0, -- applies to all friendly units
-	--["nameplateShowFriendlyPets"] = 0,
-	--["nameplateShowFriendlyGuardians"] = 0,
-	--["nameplateShowFriendlyMinions"] = 0,
-	--["nameplateShowFriendlyTotems"] = 0,
-	--["nameplateShowFriendlyNPCs"] = 1,
-	--["nameplateOtherAtBase"] = 0,
-	--["showVKeyCastbarOnlyOnTarget"] = 0, -- blizzard nameplate castbars. we use others.
-
-	-- Personal Resource Display
-	-- *Don't adjust these, let the user decide.
-	--["nameplateShowSelf"] = 0, -- Show the Personal Resource Display
-	--["NameplatePersonalShowAlways"] = 0, -- Determines if the the personal nameplate is always shown.
-	--["NameplatePersonalShowInCombat"] = 0, -- Determines if the the personal nameplate is shown when you enter combat.
-	--["NameplatePersonalShowWithTarget"] = 0, -- 0 = targeting has no effect, 1 = show on hostile target, 2 = show on any target
-	--["nameplateResourceOnTarget"] = 0, -- Nameplate class resource overlay mode. 0=self, 1=target
-
 	-- If these are enabled the GameTooltip will become protected,
 	-- and all sort of taints and bugs will occur.
 	-- This happens on specs that can dispel when hovering over nameplate auras.
@@ -315,6 +289,13 @@ UnitFrames.RegisterStyles = function(self)
 
 		self:SetPoint("CENTER",0,0)
 
+		self:SetScript("OnEnter", OnEnter)
+		self:SetScript("OnLeave", OnLeave)
+		self:SetScript("OnHide", OnHide)
+
+		self:SetMouseMotionEnabled(true)
+		self:SetMouseClickEnabled(false)
+
 		self.ForceUpdate = ForceUpdate
 		self.AddForceUpdate = AddForceUpdate
 		self.RemoveForceUpdate = RemoveForceUpdate
@@ -392,7 +373,7 @@ end
 UnitFrames.SetNamePlateSizes = function()
 	if (InCombatLockdown()) then return end
 
-	local w,h = 90,45 -- 110,45
+	local w,h = unpack(ns.Config.NamePlates.Size)
 	C_NamePlate.SetNamePlateFriendlySize(w,h)
 	C_NamePlate.SetNamePlateEnemySize(w,h)
 	C_NamePlate.SetNamePlateSelfSize(w,h)
@@ -412,8 +393,6 @@ UnitFrames.KillNamePlateClutter = function(self)
 
 	local BlizzPlateManaBar = ClassNameplateManaBarFrame -- NamePlateDriverFrame.classNamePlatePowerBar
 	if (BlizzPlateManaBar) then
-		--BlizzPlateManaBar:Hide()
-		--BlizzPlateManaBar:UnregisterAllEvents()
 		BlizzPlateManaBar:SetAlpha(0)
 	end
 
