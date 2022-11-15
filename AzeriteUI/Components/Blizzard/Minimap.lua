@@ -283,8 +283,10 @@ MinimapMod.UpdateMail = function(self)
 	end
 	local hasMail = HasNewMail()
 	if (hasMail) then
+		mail:Show()
 		mail.frame:Show()
 	else
+		mail:Hide()
 		mail.frame:Hide()
 	end
 end
