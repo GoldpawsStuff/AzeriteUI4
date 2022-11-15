@@ -195,8 +195,8 @@ local NamePlate_Cvars = {
 	-- We create our own auras anyway, so we don't need these.
 	["nameplateShowDebuffsOnFriendly"] = 0,
 
-	["nameplateLargeTopInset"] = .25, -- default .1
-	["nameplateOtherTopInset"] = .25, -- default .08
+	["nameplateLargeTopInset"] = .15, -- default .1
+	["nameplateOtherTopInset"] = .15, -- default .08
 	["nameplateLargeBottomInset"] = .15, -- default .15
 	["nameplateOtherBottomInset"] = .15, -- default .1
 	["nameplateClassResourceTopInset"] = 0,
@@ -371,6 +371,8 @@ UnitFrames.SpawnNamePlates = function(self)
 		oUF:SpawnNamePlates(ns.Prefix, NamePlate_Callback, NamePlate_Cvars)
 		self:KillNamePlateClutter()
 
+		local current
+
 		local next = next
 		local OnLeave, OnEnter = OnLeave, OnEnter
 		local UnitExists, UnitIsUnit = UnitExists, UnitIsUnit
@@ -382,17 +384,28 @@ UnitFrames.SpawnNamePlates = function(self)
 			if (self.elapsed > 0) then return end
 			self.elapsed = .05
 
-			local isMouseOver
 			local hasMouseOver = UnitExists("mouseover")
-
-			for frame in next,ns.ActiveNamePlates do
-				isMouseOver = UnitIsUnit(frame.unit, "mouseover")
-				if (frame.isMouseOver and not isMouseOver) then
-					OnLeave(frame)
-				elseif (isMouseOver and not frame.isMouseOver) then
-					OnEnter(frame)
+			if (hasMouseOver) then
+				if (current) then
+					if (UnitIsUnit(current.unit, "mouseover")) then
+						return
+					end
+					OnLeave(current)
+					current = nil
 				end
+				local isMouseOver
+				for frame in next,ns.ActiveNamePlates do
+					isMouseOver = UnitIsUnit(frame.unit, "mouseover")
+					if (isMouseOver) then
+						current = frame
+						return OnEnter(frame)
+					end
+				end
+			elseif (current) then
+				OnLeave(current)
+				current = nil
 			end
+
 		end)
 
 	end)
