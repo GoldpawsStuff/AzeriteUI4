@@ -34,6 +34,8 @@ local unpack = unpack
 local string_gsub = string.gsub
 
 -- WoW API
+local UnitHealthMax = UnitHealthMax
+local UnitIsPlayer = UnitIsPlayer
 local UnitIsUnit = UnitIsUnit
 
 -- Addon API
@@ -232,7 +234,8 @@ local Unitframe_PostUpdateAlpha = function(self, event, unit, ...)
 	unit = unit or self.unit
 
 	local shouldHide
-	if (UnitIsUnit(unit, unit.."target"))
+	if (UnitIsUnit(unit, "player"))
+	or (UnitIsUnit(unit, unit.."target"))
 	or (not UnitIsPlayer(unit) and level == 1 and UnitHealthMax(unit) < 10) then
 		shouldHide = true
 	end
