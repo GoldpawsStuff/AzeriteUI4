@@ -341,7 +341,7 @@ UnitStyles["ToT"] = function(self, unit, id)
 	castbar:SetSparkMap(db.HealthBarSparkMap)
 	castbar:SetStatusBarTexture(db.HealthBarTexture)
 	castbar:SetStatusBarColor(db.HealthCastOverlayColor)
-	castbar:DisableSmoothing()
+	castbar:DisableSmoothing(true)
 
 	self.Castbar = castbar
 
