@@ -292,7 +292,7 @@ Methods[prefix("*:Power")] = function(unit)
 		return
 	else
 		local power = UnitPower(unit)
-		return power > 0 and power
+		return power > 0 and AbbreviateNumber(power)
 	end
 end
 
