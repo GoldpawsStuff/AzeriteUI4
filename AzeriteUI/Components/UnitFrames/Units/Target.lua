@@ -598,6 +598,12 @@ UnitStyles["Target"] = function(self, unit, id)
 
 	self.Health.Backdrop = healthBackdrop
 
+	local healthOverlay = CreateFrame("Frame", nil, health)
+	healthOverlay:SetFrameLevel(overlay:GetFrameLevel())
+	healthOverlay:SetAllPoints()
+
+	self.Health.Overlay = healthOverlay
+
 	local healthPreview = self:CreateBar(nil, health)
 	healthPreview:SetAllPoints(health)
 	healthPreview:SetFrameLevel(health:GetFrameLevel() - 1)
@@ -624,13 +630,13 @@ UnitStyles["Target"] = function(self, unit, id)
 	--------------------------------------------
 	local castbar = self:CreateBar()
 	castbar:SetFrameLevel(self:GetFrameLevel() + 5)
-	castbar:DisableSmoothing()
+	castbar:DisableSmoothing(true)
 
 	self.Castbar = castbar
 
 	-- Cast Name
 	--------------------------------------------
-	local castText = health:CreateFontString(nil, "OVERLAY", nil, 1)
+	local castText = healthOverlay:CreateFontString(nil, "OVERLAY", nil, 1)
 	castText:SetPoint(unpack(db.HealthValuePosition))
 	castText:SetFontObject(db.HealthValueFont)
 	castText:SetTextColor(unpack(db.CastBarTextColor))
@@ -645,7 +651,7 @@ UnitStyles["Target"] = function(self, unit, id)
 
 	-- Cast Time
 	--------------------------------------------
-	local castTime = health:CreateFontString(nil, "OVERLAY", nil, 1)
+	local castTime = healthOverlay:CreateFontString(nil, "OVERLAY", nil, 1)
 	castTime:SetPoint(unpack(db.CastBarValuePosition))
 	castTime:SetFontObject(db.CastBarValueFont)
 	castTime:SetTextColor(unpack(db.CastBarTextColor))
@@ -660,7 +666,7 @@ UnitStyles["Target"] = function(self, unit, id)
 
 	-- Health Value
 	--------------------------------------------
-	local healthValue = health:CreateFontString(nil, "OVERLAY", nil, 1)
+	local healthValue = healthOverlay:CreateFontString(nil, "OVERLAY", nil, 1)
 	healthValue:SetPoint(unpack(db.HealthValuePosition))
 	healthValue:SetFontObject(db.HealthValueFont)
 	healthValue:SetTextColor(unpack(db.HealthValueColor))
@@ -676,7 +682,7 @@ UnitStyles["Target"] = function(self, unit, id)
 
 	-- Health Percentage
 	--------------------------------------------
-	local healthPerc = health:CreateFontString(nil, "OVERLAY", nil, 1)
+	local healthPerc = healthOverlay:CreateFontString(nil, "OVERLAY", nil, 1)
 	healthPerc:SetPoint(unpack(db.HealthPercentagePosition))
 	healthPerc:SetFontObject(db.HealthPercentageFont)
 	healthPerc:SetTextColor(unpack(db.HealthPercentageColor))
@@ -779,6 +785,7 @@ UnitStyles["Target"] = function(self, unit, id)
 	powerValue:SetIgnoreParentAlpha(true)
 	powerValue:SetFontObject(db.PowerValueFont)
 	powerValue:SetTextColor(unpack(db.PowerValueColor))
+	self:Tag(powerValue, prefix("[*:Power]"))
 
 	self.Power.Value = powerValue
 

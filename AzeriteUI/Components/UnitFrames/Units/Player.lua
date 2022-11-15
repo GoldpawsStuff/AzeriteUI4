@@ -510,7 +510,7 @@ UnitStyles["Player"] = function(self, unit, id)
 	-- Overlay for icons and text
 	--------------------------------------------
 	local overlay = CreateFrame("Frame", nil, self)
-	overlay:SetFrameLevel(self:GetFrameLevel() + 5)
+	overlay:SetFrameLevel(self:GetFrameLevel() + 7)
 	overlay:SetAllPoints()
 
 	self.Overlay = overlay
@@ -528,6 +528,12 @@ UnitStyles["Player"] = function(self, unit, id)
 	local healthBackdrop = self:CreateTexture(nil, "BACKGROUND", nil, -1)
 
 	self.Health.Backdrop = healthBackdrop
+
+	local healthOverlay = CreateFrame("Frame", nil, health)
+	healthOverlay:SetFrameLevel(overlay:GetFrameLevel())
+	healthOverlay:SetAllPoints()
+
+	self.Health.Overlay = healthOverlay
 
 	local healthPreview = self:CreateBar(nil, health)
 	healthPreview:SetAllPoints(health)
@@ -555,13 +561,13 @@ UnitStyles["Player"] = function(self, unit, id)
 	--------------------------------------------
 	local castbar = self:CreateBar()
 	castbar:SetFrameLevel(self:GetFrameLevel() + 5)
-	castbar:DisableSmoothing()
+	castbar:DisableSmoothing(true)
 
 	self.Castbar = castbar
 
 	-- Cast Name
 	--------------------------------------------
-	local castText = health:CreateFontString(nil, "OVERLAY", nil, 1)
+	local castText = healthOverlay:CreateFontString(nil, "OVERLAY", nil, 1)
 	castText:SetPoint(unpack(db.HealthValuePosition))
 	castText:SetFontObject(db.HealthValueFont)
 	castText:SetTextColor(unpack(db.CastBarTextColor))
@@ -576,7 +582,7 @@ UnitStyles["Player"] = function(self, unit, id)
 
 	-- Cast Time
 	--------------------------------------------
-	local castTime = health:CreateFontString(nil, "OVERLAY", nil, 1)
+	local castTime = healthOverlay:CreateFontString(nil, "OVERLAY", nil, 1)
 	castTime:SetPoint(unpack(db.CastBarValuePosition))
 	castTime:SetFontObject(db.CastBarValueFont)
 	castTime:SetTextColor(unpack(db.CastBarTextColor))
@@ -591,7 +597,7 @@ UnitStyles["Player"] = function(self, unit, id)
 
 	-- Health Value
 	--------------------------------------------
-	local healthValue = health:CreateFontString(nil, "OVERLAY", nil, 1)
+	local healthValue = healthOverlay:CreateFontString(nil, "OVERLAY", nil, 1)
 	healthValue:SetPoint(unpack(db.HealthValuePosition))
 	healthValue:SetFontObject(db.HealthValueFont)
 	healthValue:SetTextColor(unpack(db.HealthValueColor))
