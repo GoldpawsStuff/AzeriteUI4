@@ -61,7 +61,6 @@ Config.NamePlates = {
 	HealthBarTexture = GetMedia("nameplate_bar"),
 	HealthBarSparkMap = barSparkMap,
 
-
 	HealthBackdropPosition = { "CENTER", 0, 0 },
 	HealthBackdropSize = { 94.315789474, 24.888888889 },
 	HealthBackdropTexture = GetMedia("nameplate_backdrop"),
@@ -69,7 +68,7 @@ Config.NamePlates = {
 	HealthValuePosition = { "TOP", 0, -18 },
 	HealthValueJustifyH = "CENTER",
 	HealthValueJustifyV = "MIDDLE",
-	HealthValueFontObject = GetFont(12,true),
+	HealthValueFont = GetFont(12,true),
 	HealthValueColor = { Colors.highlight[1], Colors.highlight[2], Colors.highlight[3], .5 },
 
 	CastBarPosition = { "TOP", 0, -20 },
@@ -106,7 +105,7 @@ Config.NamePlates = {
 	PowerBarOrientation = "RIGHT",
 	PowerBarTexture = GetMedia("nameplate_bar"),
 	PowerBarSparkMap = barSparkMap,
-	PowerBarBackdropPlace = { "CENTER", 0, 0 },
+	PowerBarBackdropPosition = { "CENTER", 0, 0 },
 	PowerBarBackdropSize = { 94.315789474, 24.888888889 },
 	PowerBarBackdropTexture = GetMedia("nameplate_backdrop"),
 
@@ -131,6 +130,7 @@ Config.NamePlates = {
 	RaidTargetSize = { 64, 64 },
 	RaidTargetTexture = GetMedia("raid_target_icons"),
 
+	TargetHighlightPosition = { "CENTER", 0, 0 },
 	TargetHighlightSize = { 99.031578947, 29.866666667 },
 	TargetHighlightTexture = GetMedia("nameplate_outline"),
 	TargetHighlightFocusColor = { 144/255, 195/255, 255/255, 1 },

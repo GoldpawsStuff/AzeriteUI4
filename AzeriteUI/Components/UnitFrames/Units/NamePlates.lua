@@ -30,6 +30,7 @@ if (not UnitStyles) then
 end
 
 -- Lua API
+local string_gsub = string.gsub
 local unpack = unpack
 
 -- WoW API
@@ -210,26 +211,35 @@ local HealPredict_PostUpdate = function(element, unit, myIncomingHeal, otherInco
 end
 
 local PRD_Update = function(self)
+
 	local db = ns.Config.NamePlates
 	local main, reverse = db.Orientation, db.OrientationReversed
+
 	if (self.isPRD) then
 		main, reverse = reverse, main
 	end
 
 	self.Health:SetOrientation(main)
-	self.Health.Absorb:SetOrientation(reverse)
+	if (self.Health.Absorb) then self.Health.Absorb:SetOrientation(reverse) end
 	self.Health.Preview:SetOrientation(main)
 	self.Castbar:SetOrientation(main)
 	self.Castbar:ClearAllPoints()
 
 	if (self.isPRD) then
-		-- hide raid target element
-		self.Power:Show()
+		if (self.Power) then self:EnableElement("Power") end
 		self.Castbar:SetPoint(unpack(db.CastBarPositionPlayer))
+		self.Health.Value:Hide()
+		self.Name:Hide()
 	else
-		-- hide raid target element
-		self.Power:Hide()
+		if (self.Power) then self:DisableElement("Power") end
 		self.Castbar:SetPoint(unpack(db.CastBarPosition))
+		if (self.isMouseOver or self.inCombat or self.isTarget or self.isFocus) then
+			self.Health.Value:Show()
+			self.Name:Show()
+		else
+			self.Health.Value:Hide()
+			self.Name:Hide()
+		end
 	end
 
 end
@@ -241,10 +251,10 @@ local TargetHighlight_Update = function(self, event, unit, ...)
 	local element = self.TargetHighlight
 	unit = unit or self.unit
 
-	if (UnitIsUnit(unit, "focus")) then
+	if (self.isFocus) then
 		element:SetVertexColor(unpack(element.colorFocus))
 		element:Show()
-	elseif (UnitIsUnit(unit, "target")) then
+	elseif (self.isTarget) then
 		element:SetVertexColor(unpack(element.colorTarget))
 		element:Show()
 	else
@@ -253,18 +263,59 @@ local TargetHighlight_Update = function(self, event, unit, ...)
 
 end
 
-local UnitFrame_PostUpdate = function(self)
-	TargetHighlight_Update(self)
-	PRD_Update(self)
+local UnitFrame_PostUpdateElements = function(self, event, unit, ...)
+	if (self.isMouseOver or self.isTarget or self.inCombat) then
+		self:SetIgnoreParentAlpha(self.isMouseOver)
+		self.Health.Value:Show()
+		self.Name:Show()
+	else
+		self:SetIgnoreParentAlpha(false)
+		self.Health.Value:Hide()
+		self.Name:Hide()
+	end
+end
+
+local UnitFrame_PostUpdate = function(self, event, unit, ...)
+
+	unit = unit or self.unit
+
+	self.isTarget = UnitIsUnit(unit, "target")
+	self.isFocus = UnitIsUnit(unit, "focus")
+
+	if (InCombatLockdown()) then self.inCombat = true end
+
+	--if (ns.IsRetail) then
+	PRD_Update(self, event, unit, ...)
+	--end
+
+	TargetHighlight_Update(self, event, unit, ...)
+	UnitFrame_PostUpdateElements(self, event, unit, ...)
 end
 
 -- Frame Script Handlers
 --------------------------------------------
 local OnEvent = function(self, event, unit, ...)
-	UnitFrame_PostUpdate(self)
+	if (event == "PLAYER_REGEN_DISABLED") then
+		self.inCombat = true
+	elseif (event == "PLAYER_REGEN_ENABLED") then
+		self.inCombat = nil
+	elseif (event == "PLAYER_TARGET_CHANGED") then
+		self.isTarget = UnitIsUnit(unit or self.unit, "target")
+		TargetHighlight_Update(self, event, unit, ...)
+	elseif (event == "PLAYER_FOCUS_CHANGED") then
+		self.isFocus = UnitIsUnit(unit or self.unit, "focus")
+		TargetHighlight_Update(self, event, unit, ...)
+	end
+	UnitFrame_PostUpdateElements(self, event, unit, ...)
 end
 
-UnitStyles["NamePlates"] = function(self, unit, id)
+local OnHide = function(self)
+	self.inCombat = nil
+	self.isFocus = nil
+	self.isTarget = nil
+end
+
+UnitStyles["NamePlate"] = function(self, unit, id)
 
 	local db = ns.Config.NamePlates
 
@@ -286,11 +337,16 @@ UnitStyles["NamePlates"] = function(self, unit, id)
 	health:SetPoint(unpack(db.HealthBarPosition))
 	health:SetSize(unpack(db.HealthBarSize))
 	health:SetStatusBarTexture(db.HealthBarTexture)
+	health:SetTexCoord(unpack(db.HealthBarTexCoord))
 	health:SetOrientation(db.HealthBarOrientation)
 	health:SetSparkMap(db.HealthBarSparkMap)
 	health.predictThreshold = .01
+	health.colorDisconnected = true
 	health.colorTapping = true
 	health.colorThreat = true
+	health.colorClass = true
+	health.colorClassPet = true
+	health.colorHappiness = true
 	health.colorReaction = true
 
 	self.Health = health
@@ -302,9 +358,14 @@ UnitStyles["NamePlates"] = function(self, unit, id)
 	healthBackdrop:SetPoint(unpack(db.HealthBackdropPosition))
 	healthBackdrop:SetSize(unpack(db.HealthBackdropSize))
 	healthBackdrop:SetTexture(db.HealthBackdropTexture)
-	healthBackdrop:SetVertexColor(unpack(db.HealthBackdropColor))
 
 	self.Health.Backdrop = healthBackdrop
+
+	local healthOverlay = CreateFrame("Frame", nil, health)
+	healthOverlay:SetFrameLevel(overlay:GetFrameLevel())
+	healthOverlay:SetAllPoints()
+
+	self.Health.Overlay = healthOverlay
 
 	local healthPreview = self:CreateBar(nil, health)
 	healthPreview:SetAllPoints(health)
@@ -345,7 +406,7 @@ UnitStyles["NamePlates"] = function(self, unit, id)
 
 	-- Health Value
 	--------------------------------------------
-	local healthValue = health:CreateFontString(nil, "OVERLAY", nil, 1)
+	local healthValue = healthOverlay:CreateFontString(nil, "OVERLAY", nil, 1)
 	healthValue:SetPoint(unpack(db.HealthValuePosition))
 	healthValue:SetFontObject(db.HealthValueFont)
 	healthValue:SetTextColor(unpack(db.HealthValueColor))
@@ -354,6 +415,29 @@ UnitStyles["NamePlates"] = function(self, unit, id)
 	self:Tag(healthValue, prefix("[*:Health(true)]"))
 
 	self.Health.Value = healthValue
+
+	-- Power
+	--------------------------------------------
+	local power = self:CreateBar()
+	power:SetFrameLevel(health:GetFrameLevel() + 2)
+	power:SetPoint(unpack(db.PowerBarPosition))
+	power:SetSize(unpack(db.PowerBarSize))
+	power:SetStatusBarTexture(db.PowerBarTexture)
+	power:SetTexCoord(unpack(db.PowerBarTexCoord))
+	power:SetOrientation(db.PowerBarOrientation)
+	power:SetSparkMap(db.PowerBarSparkMap)
+	power.frequentUpdates = true
+	power.displayAltPower = true
+	power.colorPower = true
+
+	self.Power = power
+
+	local powerBackdrop = power:CreateTexture(nil, "BACKGROUND", nil, -1)
+	powerBackdrop:SetPoint(unpack(db.PowerBarBackdropPosition))
+	powerBackdrop:SetSize(unpack(db.PowerBarBackdropSize))
+	powerBackdrop:SetTexture(db.PowerBarBackdropTexture)
+
+	self.Power.Backdrop = powerBackdrop
 
 	-- Unit Name
 	--------------------------------------------
@@ -394,7 +478,7 @@ UnitStyles["NamePlates"] = function(self, unit, id)
 
 	-- Target Highlight
 	--------------------------------------------
-	local targetHighlight = self:CreateTexture(nil, "BACKGROUND", -2)
+	local targetHighlight = healthOverlay:CreateTexture(nil, "BACKGROUND", -2)
 	targetHighlight:SetPoint(unpack(db.TargetHighlightPosition))
 	targetHighlight:SetSize(unpack(db.TargetHighlightSize))
 	targetHighlight:SetTexture(db.TargetHighlightTexture)
@@ -406,12 +490,16 @@ UnitStyles["NamePlates"] = function(self, unit, id)
 	-- Add a callback for external style overriders
 	self:AddForceUpdate(UnitFrame_PostUpdate)
 
-	-- Textures need an update when frame is displayed.
 	self.PostUpdate = UnitFrame_PostUpdate
+	self.OnEnter = UnitFrame_PostUpdateElements
+	self.OnLeave = UnitFrame_PostUpdateElements
+	self.OnHide = OnHide
 
 	-- Register events to handle additional texture updates.
-	self:RegisterEvent("PLAYER_ENTERING_WORLD", OnEvent, true)
+	self:RegisterEvent("PLAYER_ENTERING_WORLD", UnitFrame_PostUpdate, true)
 	self:RegisterEvent("PLAYER_TARGET_CHANGED", OnEvent, true)
 	self:RegisterEvent("PLAYER_FOCUS_CHANGED", OnEvent, true)
+	self:RegisterEvent("PLAYER_REGEN_ENABLED", OnEvent, true)
+	self:RegisterEvent("PLAYER_REGEN_DISABLED", OnEvent, true)
 
 end
