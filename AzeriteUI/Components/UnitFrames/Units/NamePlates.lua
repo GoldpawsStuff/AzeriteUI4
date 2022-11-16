@@ -38,6 +38,8 @@ local unpack = unpack
 -- WoW API
 local InCombatLockdown = InCombatLockdown
 local UnitIsUnit = UnitIsUnit
+local UnitPower = UnitPower
+local UnitPowerMax = UnitPowerMax
 
 -- Addon API
 local Colors = ns.Colors
@@ -213,6 +215,53 @@ local HealPredict_PostUpdate = function(element, unit, myIncomingHeal, otherInco
 
 end
 
+-- Update power bar visibility if a frame
+-- is the perrsonal resource display.
+-- This callback only handles elements below the health bar.
+local Power_PostUpdate = function(element, unit, cur, min, max)
+	local self = element.__owner
+
+	unit = unit or self.unit
+	if (not unit) then
+		return
+	end
+
+	local shouldShow
+
+	if (self.isPRD) then
+		if (not cur) then
+			cur, max = UnitPower(unit), UnitPowerMax(unit)
+		end
+		if (cur and cur == 0) and (max and max == 0) then
+			shouldShow = nil
+		else
+			shouldShow = true
+		end
+	end
+
+	local power = self.Power
+
+	if (shouldShow) then
+		if (power.isHidden) then
+			power:SetAlpha(1)
+			power.isHidden = false
+
+			local cast = self.Castbar
+			cast:ClearAllPoints()
+			cast:SetPoint(unpack(db.CastBarPositionPlayer))
+		end
+	else
+		if (not power.isHidden) then
+			power:SetAlpha(0)
+			power.isHidden = true
+
+			local cast = self.Castbar
+			cast:ClearAllPoints()
+			cast:SetPoint(unpack(db.CastBarPosition))
+		end
+	end
+end
+
 -- Update targeting highlight outline
 local TargetHighlight_Update = function(self, event, unit, ...)
 	if (unit and unit ~= self.unit) then return end
@@ -227,8 +276,8 @@ local TargetHighlight_Update = function(self, event, unit, ...)
 	end
 end
 
--- Messy callback that handles positions of elements
--- that change position within their frame.
+-- Messy callback that handles positions
+-- of elements above the health bar.
 local UnitFrame_PostUpdatePositions = function(self)
 	local db = ns.Config.NamePlates
 
@@ -316,7 +365,7 @@ local UnitFrame_PostUpdateElements = function(self, event, unit, ...)
 end
 
 -- This is called on UpdateAllElements,
--- so we put all our position changes here.
+-- which is called when a frame is shown or its unit changed.
 local UnitFrame_PostUpdate = function(self, event, unit, ...)
 	if (unit and unit ~= self.unit) then return end
 
@@ -329,22 +378,12 @@ local UnitFrame_PostUpdate = function(self, event, unit, ...)
 	local db = ns.Config.NamePlates
 	local main, reverse = db.Orientation, db.OrientationReversed
 
-	self.Castbar:ClearAllPoints()
-
-	if (ns.IsRetail and self.isPRD) then
+	if (self.isPRD) then
 		main, reverse = reverse, main
-
 		self:DisableElement("RaidTargetIndicator")
-		self:EnableElement("Power")
-		self.Power:ForceUpdate()
-		self.Castbar:SetPoint(unpack(db.CastBarPositionPlayer))
 	else
-		if (ns.IsRetail) then
-			self:DisableElement("Power")
-			self:EnableElement("RaidTargetIndicator")
-			self.RaidTargetIndicator:ForceUpdate()
-		end
-		self.Castbar:SetPoint(unpack(db.CastBarPosition))
+		self:EnableElement("RaidTargetIndicator")
+		self.RaidTargetIndicator:ForceUpdate()
 	end
 
 	self.Castbar:SetOrientation(main)
@@ -515,11 +554,15 @@ UnitStyles["NamePlate"] = function(self, unit, id)
 	power:SetStatusBarTexture(db.PowerBarTexture)
 	power:SetTexCoord(unpack(db.PowerBarTexCoord))
 	power:SetSparkMap(db.PowerBarSparkMap)
+	power:SetAlpha(0)
+	power.isHidden = true
 	power.frequentUpdates = true
 	power.displayAltPower = true
 	power.colorPower = true
 
 	self.Power = power
+	self.Power.Override = ns.API.UpdatePower
+	self.Power.PostUpdate = Power_PostUpdate
 
 	local powerBackdrop = power:CreateTexture(nil, "BACKGROUND", nil, -1)
 	powerBackdrop:SetPoint(unpack(db.PowerBarBackdropPosition))
