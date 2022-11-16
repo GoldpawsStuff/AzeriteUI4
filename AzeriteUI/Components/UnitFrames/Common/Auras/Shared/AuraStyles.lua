@@ -67,61 +67,6 @@ local OnClick = function(self, button, down)
 	end
 end
 
-ns.AuraStyles.CreateButtonWithBar = function(element, position)
-	local aura = CreateFrame("Button", element:GetDebugName() .. "Button" .. position, element)
-	aura:RegisterForClicks("RightButtonUp")
-
-	local icon = aura:CreateTexture(nil, "BACKGROUND", nil, 1)
-	icon:SetAllPoints()
-	icon:SetMask(GetMedia("actionbutton-mask-square"))
-	aura.Icon = icon
-
-	local border = CreateFrame("Frame", nil, aura, ns.BackdropTemplate)
-	border:SetBackdrop({ edgeFile = GetMedia("border-aura"), edgeSize = 12 })
-	border:SetBackdropBorderColor(Colors.xp[1], Colors.xp[2], Colors.xp[3])
-	border:SetPoint("TOPLEFT", -6, 6)
-	border:SetPoint("BOTTOMRIGHT", 6, -6)
-	border:SetFrameLevel(aura:GetFrameLevel() + 2)
-	aura.Border = border
-
-	local count = aura.Border:CreateFontString(nil, "OVERLAY")
-	count:SetFontObject(GetFont(14,true))
-	count:SetTextColor(Colors.offwhite[1], Colors.offwhite[2], Colors.offwhite[3])
-	count:SetPoint("BOTTOMRIGHT", aura, "BOTTOMRIGHT", -2, 3)
-	aura.Count = count
-
-	local time = aura.Border:CreateFontString(nil, "OVERLAY")
-	time:SetFontObject(GetFont(14,true))
-	time:SetTextColor(Colors.offwhite[1], Colors.offwhite[2], Colors.offwhite[3])
-	time:SetPoint("TOPLEFT", aura, "TOPLEFT", -4, 4)
-	aura.Time = time
-
-	local bar = element.__owner:CreateBar(nil, aura)
-	bar:SetPoint("TOP", aura, "BOTTOM", 0, 0)
-	bar:SetPoint("LEFT", aura, "LEFT", 1, 0)
-	bar:SetPoint("RIGHT", aura, "RIGHT", -1, 0)
-	bar:SetHeight(6)
-	bar:SetStatusBarTexture(GetMedia("bar-small"))
-	bar.bg = bar:CreateTexture(nil, "BACKGROUND", nil, -7)
-	bar.bg:SetPoint("TOPLEFT", -1, 1)
-	bar.bg:SetPoint("BOTTOMRIGHT", 1, -1)
-	bar.bg:SetColorTexture(.05, .05, .05, .85)
-	aura.Bar = bar
-
-	-- Using a virtual cooldown element with the bar and timer attached,
-	-- allowing them to piggyback on oUF's cooldown updates.
-	aura.Cooldown = ns.Widgets.RegisterCooldown(bar, time)
-
-	-- Replacing oUF's aura tooltips, as they are not secure.
-	if (not element.disableMouse) then
-		aura.UpdateTooltip = UpdateTooltip
-		aura:SetScript("OnEnter", OnEnter)
-		aura:SetScript("OnLeave", OnLeave)
-	end
-
-	return aura
-end
-
 ns.AuraStyles.CreateButton = function(element, position)
 	local aura = CreateFrame("Button", element:GetDebugName() .. "Button" .. position, element)
 	aura:RegisterForClicks("RightButtonUp")
@@ -161,6 +106,34 @@ ns.AuraStyles.CreateButton = function(element, position)
 		aura:SetScript("OnEnter", OnEnter)
 		aura:SetScript("OnLeave", OnLeave)
 	end
+
+	return aura
+end
+
+ns.AuraStyles.CreateSmallButton = function(element, position)
+	local aura = ns.AuraStyles.CreateButton(element, position)
+
+	aura.Time:SetFontObject(GetFont(12,true))
+
+	return aura
+end
+
+ns.AuraStyles.CreateButtonWithBar = function(element, position)
+	local aura = ns.AuraStyles.CreateButton(element, position)
+
+	local bar = element.__owner:CreateBar(nil, aura)
+	bar:SetPoint("TOP", aura, "BOTTOM", 0, 0)
+	bar:SetPoint("LEFT", aura, "LEFT", 1, 0)
+	bar:SetPoint("RIGHT", aura, "RIGHT", -1, 0)
+	bar:SetHeight(6)
+	bar:SetStatusBarTexture(GetMedia("bar-small"))
+	bar.bg = bar:CreateTexture(nil, "BACKGROUND", nil, -7)
+	bar.bg:SetPoint("TOPLEFT", -1, 1)
+	bar.bg:SetPoint("BOTTOMRIGHT", 1, -1)
+	bar.bg:SetColorTexture(.05, .05, .05, .85)
+	aura.Bar = bar
+
+	aura.Cooldown = ns.Widgets.RegisterCooldown(aura.Cooldown, bar)
 
 	return aura
 end
