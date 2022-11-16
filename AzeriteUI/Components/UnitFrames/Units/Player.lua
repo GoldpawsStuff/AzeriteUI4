@@ -755,7 +755,8 @@ UnitStyles["Player"] = function(self, unit, id)
 	auras.CreateButton = ns.AuraStyles.CreateButton
 	auras.PostUpdateButton = ns.AuraStyles.PlayerPostUpdateButton
 	auras.CustomFilter = ns.AuraFilters.PlayerAuraFilter
-	auras.PreSetPosition = ns.AuraSorts.Default
+	auras.PreSetPosition = ns.AuraSorts.Default -- only in classic
+	auras.SortAuras = ns.AuraSorts.DefaultFunction -- only in retail
 
 	self.Auras = auras
 

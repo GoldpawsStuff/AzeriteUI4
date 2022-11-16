@@ -870,7 +870,8 @@ UnitStyles["Target"] = function(self, unit, id)
 	auras.CreateButton = ns.AuraStyles.CreateButton
 	auras.PostUpdateButton = ns.AuraStyles.TargetPostUpdateButton
 	auras.CustomFilter = ns.AuraFilters.TargetAuraFilter
-	auras.PreSetPosition = ns.AuraSorts.Default
+	auras.PreSetPosition = ns.AuraSorts.Default -- only in classic
+	auras.SortAuras = ns.AuraSorts.DefaultFunction -- only in retail
 
 	self.Auras = auras
 

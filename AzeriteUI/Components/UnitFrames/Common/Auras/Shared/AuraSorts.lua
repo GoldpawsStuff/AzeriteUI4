@@ -79,6 +79,7 @@ local Aura_Sort = function(a, b)
 	end
 end
 
+ns.AuraSorts.DefaultFunction = Aura_Sort
 ns.AuraSorts.Default = function(element, max)
 	table_sort(element, Aura_Sort)
 	return 1, #element
