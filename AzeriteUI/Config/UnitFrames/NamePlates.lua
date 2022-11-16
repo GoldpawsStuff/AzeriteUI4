@@ -130,6 +130,7 @@ Config.NamePlates = {
 	AuraSize = 26,
 	AuraSpacing = 4,
 	AurasNumTotal = 6,
+	AurasNumPerRow = 3,
 	AurasDisableMouse = true,
 	AurasDisableCooldown = false,
 	AurasOnlyShowPlayer = true,

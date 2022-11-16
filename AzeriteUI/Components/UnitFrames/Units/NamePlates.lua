@@ -30,10 +30,13 @@ if (not UnitStyles) then
 end
 
 -- Lua API
+local math_floor = math.floor
+local select = select
 local string_gsub = string.gsub
 local unpack = unpack
 
 -- WoW API
+local InCombatLockdown = InCombatLockdown
 local UnitIsUnit = UnitIsUnit
 
 -- Addon API
@@ -210,88 +213,148 @@ local HealPredict_PostUpdate = function(element, unit, myIncomingHeal, otherInco
 
 end
 
-local PRD_Update = function(self)
-
-	local db = ns.Config.NamePlates
-	local main, reverse = db.Orientation, db.OrientationReversed
-
-	if (self.isPRD) then
-		main, reverse = reverse, main
-	end
-
-	self.Health:SetOrientation(main)
-	if (self.Health.Absorb) then self.Health.Absorb:SetOrientation(reverse) end
-	self.Health.Preview:SetOrientation(main)
-	self.Castbar:SetOrientation(main)
-	self.Castbar:ClearAllPoints()
-
-	if (self.isPRD) then
-		if (self.Power) then self:EnableElement("Power") end
-		self.Castbar:SetPoint(unpack(db.CastBarPositionPlayer))
-		self.Health.Value:Hide()
-		self.Name:Hide()
-	else
-		if (self.Power) then self:DisableElement("Power") end
-		self.Castbar:SetPoint(unpack(db.CastBarPosition))
-		if (self.isMouseOver or self.inCombat or self.isTarget or self.isFocus) then
-			self.Health.Value:Show()
-			self.Name:Show()
-		else
-			self.Health.Value:Hide()
-			self.Name:Hide()
-		end
-	end
-
-end
-
 -- Update targeting highlight outline
 local TargetHighlight_Update = function(self, event, unit, ...)
 	if (unit and unit ~= self.unit) then return end
 
 	local element = self.TargetHighlight
-	unit = unit or self.unit
 
-	if (self.isFocus) then
-		element:SetVertexColor(unpack(element.colorFocus))
-		element:Show()
-	elseif (self.isTarget) then
-		element:SetVertexColor(unpack(element.colorTarget))
+	if (self.isFocus or self.isTarget) then
+		element:SetVertexColor(unpack(self.isFocus and element.colorFocus or element.colorTarget))
 		element:Show()
 	else
 		element:Hide()
 	end
-
 end
 
-local UnitFrame_PostUpdateElements = function(self, event, unit, ...)
-	if (self.isMouseOver or self.isTarget or self.inCombat) then
-		self:SetIgnoreParentAlpha(self.isMouseOver)
-		if (self.isTarget) then
-			self.Health.Value:Hide()
-			self.Name:Hide()
-		else
-			self.Health.Value:Show()
-			self.Name:Show()
+-- Messy callback that handles positions of elements
+-- that change position within their frame.
+local UnitFrame_PostUpdatePositions = function(self)
+	local db = ns.Config.NamePlates
+
+	local auras = self.Auras
+	local name = self.Name
+	local raidTarget = self.RaidTargetIndicator
+
+	if (self.isPRD) then
+
+		if (auras.numRows or auras.usingNameOffset ~= nil) then
+			auras:ClearAllPoints()
+			auras:SetPoint(unpack(db.AurasPosition))
+			auras.numRows = nil
+			auras.usingNameOffset = nil
 		end
+
 	else
-		self:SetIgnoreParentAlpha(false)
-		self.Health.Value:Hide()
-		self.Name:Hide()
+
+		local hasName = not self.isTarget and (self.isMouseOver or self.inCombat) or false
+		local nameOffset = hasName and (select(2, name:GetFont()) + auras.spacing) or 0
+
+		if (hasName ~= auras.usingNameOffset or auras.usingNameOffset == nil) then
+			if (hasName) then
+				local point, x, y = unpack(db.AurasPosition)
+				auras:ClearAllPoints()
+				auras:SetPoint(point, x, y + nameOffset)
+			else
+				auras:ClearAllPoints()
+				auras:SetPoint(unpack(db.AurasPosition))
+			end
+		end
+
+		local numAuras = (ns.IsRetail) and (#auras.sortedBuffs + #auras.sortedDebuffs) or (auras.visibleBuffs + auras.visibleDebuffs)
+		local numRows = (numAuras > 0) and (math_floor(numAuras / auras.numPerRow)) or 0
+
+		if (numRows ~= auras.numRows or hasName ~= auras.usingNameOffset or auras.usingNameOffset == nil) then
+			if (hasName or numRows > 0) then
+				local auraOffset = (numAuras > 0) and (numRows * (auras.size + auras.spacing)) or 0
+				local point, x, y = unpack(db.RaidTargetPosition)
+				raidTarget:ClearAllPoints()
+				raidTarget:SetPoint(point, x, y + nameOffset + auraOffset)
+			else
+				raidTarget:ClearAllPoints()
+				raidTarget:SetPoint(unpack(db.RaidTargetPosition))
+			end
+		end
+
+		auras.numRows = numRows
+		auras.usingNameOffset = hasName
 	end
 end
 
+-- Element proxy for the position updater above.
+local Auras_PostUpdate = function(element, unit)
+	UnitFrame_PostUpdatePositions(element.__owner)
+end
+
+-- Callback that handles positions of elements
+-- that change position within their frame.
+local UnitFrame_PostUpdateElements = function(self, event, unit, ...)
+	if (unit and unit ~= self.unit) then return end
+
+	if (self.isPRD) then
+		self:SetIgnoreParentAlpha(false)
+		self.Health.Value:Hide()
+		self.Name:Hide()
+	else
+		if (self.isMouseOver or self.isTarget or self.inCombat) then
+			self:SetIgnoreParentAlpha(self.isMouseOver and not self.isTarget)
+			if (self.isTarget) then
+				self.Health.Value:Hide()
+				self.Name:Hide()
+			else
+				self.Health.Value:Show()
+				self.Name:Show()
+			end
+		else
+			self:SetIgnoreParentAlpha(false)
+			self.Health.Value:Hide()
+			self.Name:Hide()
+		end
+	end
+
+	UnitFrame_PostUpdatePositions(self)
+end
+
+-- This is called on UpdateAllElements,
+-- so we put all our position changes here.
 local UnitFrame_PostUpdate = function(self, event, unit, ...)
+	if (unit and unit ~= self.unit) then return end
 
 	unit = unit or self.unit
 
-	self.isTarget = UnitIsUnit(unit, "target")
+	self.inCombat = InCombatLockdown()
 	self.isFocus = UnitIsUnit(unit, "focus")
+	self.isTarget = UnitIsUnit(unit, "target")
 
-	if (InCombatLockdown()) then self.inCombat = true end
+	local db = ns.Config.NamePlates
+	local main, reverse = db.Orientation, db.OrientationReversed
 
-	--if (ns.IsRetail) then
-	PRD_Update(self, event, unit, ...)
-	--end
+	self.Castbar:ClearAllPoints()
+
+	if (ns.IsRetail and self.isPRD) then
+		main, reverse = reverse, main
+
+		self:DisableElement("RaidTargetIndicator")
+		self:EnableElement("Power")
+		self.Power:ForceUpdate()
+		self.Castbar:SetPoint(unpack(db.CastBarPositionPlayer))
+	else
+		if (ns.IsRetail) then
+			self:DisableElement("Power")
+			self:EnableElement("RaidTargetIndicator")
+			self.RaidTargetIndicator:ForceUpdate()
+		end
+		self.Castbar:SetPoint(unpack(db.CastBarPosition))
+	end
+
+	self.Castbar:SetOrientation(main)
+	self.Power:SetOrientation(main)
+	self.Health:SetOrientation(main)
+	self.Health.Preview:SetOrientation(main)
+
+	if (ns.IsRetail) then
+		self.Health.Absorb:SetOrientation(reverse)
+	end
 
 	TargetHighlight_Update(self, event, unit, ...)
 	UnitFrame_PostUpdateElements(self, event, unit, ...)
@@ -300,18 +363,42 @@ end
 -- Frame Script Handlers
 --------------------------------------------
 local OnEvent = function(self, event, unit, ...)
+	if (unit and unit ~= self.unit) then return end
+
+	unit = unit or self.unit
+
 	if (event == "PLAYER_REGEN_DISABLED") then
 		self.inCombat = true
+
+		UnitFrame_PostUpdateElements(self, event, unit, ...)
+
+		return
+
 	elseif (event == "PLAYER_REGEN_ENABLED") then
 		self.inCombat = nil
+
+		UnitFrame_PostUpdateElements(self, event, unit, ...)
+
+		return
+
 	elseif (event == "PLAYER_TARGET_CHANGED") then
-		self.isTarget = UnitIsUnit(unit or self.unit, "target")
+		self.isTarget = UnitIsUnit(unit, "target")
+
 		TargetHighlight_Update(self, event, unit, ...)
+		UnitFrame_PostUpdateElements(self, event, unit, ...)
+
+		return
+
 	elseif (event == "PLAYER_FOCUS_CHANGED") then
-		self.isFocus = UnitIsUnit(unit or self.unit, "focus")
+		self.isFocus = UnitIsUnit(unit, "focus")
+
 		TargetHighlight_Update(self, event, unit, ...)
+		UnitFrame_PostUpdateElements(self, event, unit, ...)
+
+		return
 	end
-	UnitFrame_PostUpdateElements(self, event, unit, ...)
+
+	UnitFrame_PostUpdate(self, event, unit, ...)
 end
 
 local OnHide = function(self)
@@ -343,7 +430,6 @@ UnitStyles["NamePlate"] = function(self, unit, id)
 	health:SetSize(unpack(db.HealthBarSize))
 	health:SetStatusBarTexture(db.HealthBarTexture)
 	health:SetTexCoord(unpack(db.HealthBarTexCoord))
-	health:SetOrientation(db.HealthBarOrientation)
 	health:SetSparkMap(db.HealthBarSparkMap)
 	health.predictThreshold = .01
 	health.colorDisconnected = true
@@ -376,7 +462,6 @@ UnitStyles["NamePlate"] = function(self, unit, id)
 	healthPreview:SetAllPoints(health)
 	healthPreview:SetFrameLevel(health:GetFrameLevel() - 1)
 	healthPreview:SetStatusBarTexture(db.HealthBarTexture)
-	healthPreview:SetOrientation(db.HealthBarOrientation)
 	healthPreview:SetSparkTexture("")
 	healthPreview:SetAlpha(.5)
 	healthPreview:DisableSmoothing(true)
@@ -429,7 +514,6 @@ UnitStyles["NamePlate"] = function(self, unit, id)
 	power:SetSize(unpack(db.PowerBarSize))
 	power:SetStatusBarTexture(db.PowerBarTexture)
 	power:SetTexCoord(unpack(db.PowerBarTexCoord))
-	power:SetOrientation(db.PowerBarOrientation)
 	power:SetSparkMap(db.PowerBarSparkMap)
 	power.frequentUpdates = true
 	power.displayAltPower = true
@@ -492,7 +576,16 @@ UnitStyles["NamePlate"] = function(self, unit, id)
 
 	self.TargetHighlight = targetHighlight
 
-		-- Auras
+	-- Raid Target Indicator
+	--------------------------------------------
+	local raidTarget = self:CreateTexture(nil, "OVERLAY", nil, 1)
+	raidTarget:SetSize(unpack(db.RaidTargetSize))
+	raidTarget:SetPoint(unpack(db.RaidTargetPosition))
+	raidTarget:SetTexture(db.RaidTargetTexture)
+
+	self.RaidTargetIndicator = raidTarget
+
+	-- Auras
 	--------------------------------------------
 	local auras = CreateFrame("Frame", nil, self)
 	auras:SetSize(unpack(db.AurasSize))
@@ -500,6 +593,7 @@ UnitStyles["NamePlate"] = function(self, unit, id)
 	auras.size = db.AuraSize
 	auras.spacing = db.AuraSpacing
 	auras.numTotal = db.AurasNumTotal
+	auras.numPerRow = db.AurasNumPerRow -- for our raid target indicator callback
 	auras.disableMouse = db.AurasDisableMouse
 	auras.disableCooldown = db.AurasDisableCooldown
 	auras.onlyShowPlayer = db.AurasOnlyShowPlayer
@@ -512,11 +606,13 @@ UnitStyles["NamePlate"] = function(self, unit, id)
 	auras.sortMethod = db.AurasSortMethod
 	auras.sortDirection = db.AurasSortDirection
 	auras.CustomFilter = ns.AuraFilters.NameplateAuraFilter
-	auras.CreateButton = ns.AuraStyles.CreateButton
+	auras.CreateButton = ns.AuraStyles.CreateSmallButton
 	auras.PostUpdateButton = ns.AuraStyles.NameplatePostUpdateButton
-	auras.PreSetPosition = ns.AuraSorts.Default
+	auras.PreSetPosition = ns.AuraSorts.Default -- only in classic
+	auras.SortAuras = ns.AuraSorts.DefaultFunction -- only in retail
 
 	self.Auras = auras
+	self.Auras.PostUpdate = Auras_PostUpdate
 
 	-- Add a callback for external style overriders
 	self:AddForceUpdate(UnitFrame_PostUpdate)
@@ -527,7 +623,7 @@ UnitStyles["NamePlate"] = function(self, unit, id)
 	self.OnHide = OnHide
 
 	-- Register events to handle additional texture updates.
-	self:RegisterEvent("PLAYER_ENTERING_WORLD", UnitFrame_PostUpdate, true)
+	self:RegisterEvent("PLAYER_ENTERING_WORLD", OnEvent, true)
 	self:RegisterEvent("PLAYER_TARGET_CHANGED", OnEvent, true)
 	self:RegisterEvent("PLAYER_FOCUS_CHANGED", OnEvent, true)
 	self:RegisterEvent("PLAYER_REGEN_ENABLED", OnEvent, true)
