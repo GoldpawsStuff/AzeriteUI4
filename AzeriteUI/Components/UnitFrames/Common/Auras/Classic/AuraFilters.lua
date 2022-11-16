@@ -90,36 +90,3 @@ ns.AuraFilters.NameplateAuraFilter = function(element, unit, button, name, textu
 		end
 	end
 end
-
--- Temporary overrides for Shadowlands "Classic" below
--- This is just in the transition period before 10.0.
-if (ns.ClientMajor <= 3) then
-	return
-end
-
-ns.AuraFilters.NameplateAuraFilter = function(element, unit, button, name, texture,
-	count, debuffType, duration, expiration, caster, isStealable, nameplateShowSelf, spellID,
-	canApply, isBossDebuff, casterIsPlayer, nameplateShowAll, timeMod, effect1, effect2, effect3)
-
-	button.spell = name
-	button.expiration = expiration
-	button.duration = duration
-	button.noDuration = (not duration or duration == 0)
-	button.isPlayer = caster == "player" or caster == "vehicle"
-
-	if (isBossDebuff) then
-		return true
-	elseif (isStealable) then
-		return true
-	elseif (nameplateShowAll) then
-		return true
-	elseif (nameplateShowSelf and (caster == "player" or caster == "pet" or caster == "vehicle")) then
-		return true
-	elseif (caster == "player" or caster == "pet" or caster == "vehicle") then
-		if (button.isDebuff) then
-			return (not button.noDuration and duration < 61) -- show most ticking DoTs
-		else
-			return (not button.noDuration and duration < 31) -- show short buffs, like HoTs
-		end
-	end
-end
