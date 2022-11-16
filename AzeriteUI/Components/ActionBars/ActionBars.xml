@@ -9,7 +9,7 @@
 	<Script file="Prototypes\StanceButton.lua"/>
 	<Script file="Prototypes\StanceBar.lua"/>
 
-	<!--<Script file="Elements\ActionBars.lua"/>-->
+	<Script file="Elements\Bar1.lua"/>
 	<!--<Script file="Elements\PetBar.lua"/>-->
 	<!--<Script file="Elements\StanceBar.lua"/>-->
 	<!--<Script file="Elements\ExtraButtons.lua"/>-->
