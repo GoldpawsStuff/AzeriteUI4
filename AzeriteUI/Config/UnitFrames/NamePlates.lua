@@ -55,6 +55,8 @@ Config.NamePlates = {
 	Orientation = "LEFT",
 	OrientationReversed = "RIGHT",
 
+	-- Health
+	-----------------------------------------
 	HealthBarPosition = { "TOP", 0, -2 },
 	HealthBarSize = { 84, 14 },
 	HealthBarTexCoord = { 14/256, 242/256, 14/64, 50/64 },
@@ -71,6 +73,8 @@ Config.NamePlates = {
 	HealthValueFont = GetFont(12,true),
 	HealthValueColor = { Colors.highlight[1], Colors.highlight[2], Colors.highlight[3], .5 },
 
+	-- CastBar
+	-----------------------------------------
 	CastBarPosition = { "TOP", 0, -20 },
 	CastBarPositionPlayer = { "TOP", 0, -(2 + 18 + 18) },
 	CastBarSize = { 84, 14 },
@@ -99,16 +103,19 @@ Config.NamePlates = {
 	CastBarNameFont = GetFont(12, true),
 	CastBarNameColor = { Colors.highlight[1], Colors.highlight[2], Colors.highlight[3], .5 },
 
+	-- PRD Power Bar
+	-----------------------------------------
 	PowerBarPosition = { "TOP", 0, -20 },
 	PowerBarSize = { 84, 14 },
 	PowerBarTexCoord = { 14/256, 242/256, 14/64, 50/64 },
-	PowerBarOrientation = "RIGHT",
 	PowerBarTexture = GetMedia("nameplate_bar"),
 	PowerBarSparkMap = barSparkMap,
 	PowerBarBackdropPosition = { "CENTER", 0, 0 },
 	PowerBarBackdropSize = { 94.315789474, 24.888888889 },
 	PowerBarBackdropTexture = GetMedia("nameplate_backdrop"),
 
+	-- Unit Name
+	-----------------------------------------
 	NamePosition = { "TOP", 0, 16 },
 	NameDrawLayer = { "ARTWORK", 1 },
 	NameJustifyH = "CENTER",
@@ -136,26 +143,30 @@ Config.NamePlates = {
 	AurasSortMethod = "TIME_REMAINING",
 	AurasSortDirection = "DESCENDING",
 
+	-- NPC Classification
+	-----------------------------------------
 	ClassificationPosition = { "RIGHT", 18, -1 },
 	ClassificationSize = { 40, 40 },
 	ClassificationIndicatorBossTexture = GetMedia("icon_badges_boss"),
 	ClassificationIndicatorEliteTexture = GetMedia("icon_classification_elite"),
 	ClassificationIndicatorRareTexture = GetMedia("icon_classification_rare"),
 
-	RaidTargetDrawLayer = { "ARTWORK", 0 },
-	RaidTargetPoint = "BOTTOM",
-	RaidTargetRelPoint = "TOP",
-	RaidTargetOffsetX = 0,
-	RaidTargetOffsetY = 6,
+	-- Raid Target Indicator
+	-----------------------------------------
+	RaidTargetPosition = { "BOTTOM", 0, 38 },
 	RaidTargetSize = { 64, 64 },
 	RaidTargetTexture = GetMedia("raid_target_icons"),
 
+	-- Target Highlight
+	-----------------------------------------
 	TargetHighlightPosition = { "CENTER", 0, 0 },
 	TargetHighlightSize = { 99.031578947, 29.866666667 },
 	TargetHighlightTexture = GetMedia("nameplate_outline"),
 	TargetHighlightFocusColor = { 144/255, 195/255, 255/255, 1 },
 	TargetHighlightTargetColor = { 255/255, 239/255, 169/255, 1 },
 
+	-- Threat Glow
+	-----------------------------------------
 	ThreatDrawLayer = { "BACKGROUND", -3 },
 	ThreatPosition = { "CENTER", 0, 0 },
 	ThreatSize = { 94.315789474, 24.888888889 },
