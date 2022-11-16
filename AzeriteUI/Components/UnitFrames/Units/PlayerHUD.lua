@@ -30,7 +30,11 @@ if (not UnitStyles) then
 end
 
 -- Lua API
+local select = select
 local unpack = unpack
+
+-- WoW API
+local GetNetStats = GetNetStats
 
 -- Addon API
 local Colors = ns.Colors
@@ -62,7 +66,7 @@ end
 -- Update cast bar color and backdrop to indicate protected casts.
 -- *Note that the shield icon works as an alternate backdrop here,
 --  which is why we're hiding the regular backdrop on protected casts.
-local Cast_UpdateInterruptible = function(element, unit)
+local Cast_Update = function(element, unit)
 	if (element.notInterruptible) then
 		element.Backdrop:Hide()
 		element:SetStatusBarColor(unpack(Colors.red))
@@ -70,6 +74,8 @@ local Cast_UpdateInterruptible = function(element, unit)
 		element.Backdrop:Show()
 		element:SetStatusBarColor(unpack(Colors.cast))
 	end
+	-- Don't show mega tiny spell queue zones, it just looks cluttered.
+	element.SafeZone:SetShown(((select(4, GetNetStats()) / 1000) / element.max) > .05)
 end
 
 -- Create a point used for classpowers, stagger and runes.
@@ -314,9 +320,9 @@ UnitStyles["PlayerHUD"] = function(self, unit, id)
 
 		cast.CustomDelayText = Cast_CustomDelayText
 		cast.CustomTimeText = Cast_CustomTimeText
-		cast.PostCastInterruptible = Cast_UpdateInterruptible
-		cast.PostCastStart = Cast_UpdateInterruptible
-		--cast.PostCastStop = Cast_UpdateInterruptible -- needed?
+		cast.PostCastInterruptible = Cast_Update
+		cast.PostCastStart = Cast_Update
+		--cast.PostCastStop = Cast_Update -- needed?
 
 		self.Castbar = cast
 
