@@ -108,11 +108,11 @@ ns.Fire = function(self, name, ...)
 end
 
 ns.LockMovableFrames = function(self)
-	ShowMovableFrameAnchors()
+	HideMovableFrameAnchors()
 end
 
 ns.UnlockMovableFrames = function(self)
-	HideMovableFrameAnchors()
+	ShowMovableFrameAnchors()
 end
 
 ns.ResetScale = function(self)
