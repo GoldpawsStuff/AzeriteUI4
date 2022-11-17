@@ -37,7 +37,7 @@ Config.Tracker = {
 	-- *Wrath WatchFrame is 306 expanded, 204 standard width, Retail ObjectiveTracker 248
 	Size = { 213, 22 },
 	Position = { "BOTTOMRIGHT", UIParent, "BOTTOMRIGHT", -20, 380 },
-	TopOffset = -220, -- Free space at the top of the screen
+	TopOffset = -240, -- Free space at the top of the screen
 	WrathScale = 1.0625,
 	WrathTitleFont = GetFont(12,true),
 }
