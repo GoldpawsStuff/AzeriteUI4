@@ -51,6 +51,7 @@ local UnitIsUnit = UnitIsUnit
 
 -- Addon API
 local IsAddOnEnabled = ns.API.IsAddOnEnabled
+local RegisterFrameForMovement = ns.Widgets.RegisterFrameForMovement
 local SetObjectScale = ns.API.SetObjectScale
 local SetEffectiveObjectScale = ns.API.SetEffectiveObjectScale
 
@@ -354,12 +355,14 @@ UnitFrames.SpawnUnitFrames = function(self)
 	oUF:Factory(function(oUF)
 		oUF:SetActiveStyle(ns.Prefix)
 
-		Spawn("player", "Player")
 		Spawn("player", "PlayerHUD")
-		Spawn("target", "Target")
-		Spawn("targettarget", "TargetOfTarget")
-		Spawn("pet", "Pet")
-		Spawn("focus", "Focus")
+
+		RegisterFrameForMovement(Spawn("player", "Player"))
+		RegisterFrameForMovement(Spawn("pet", "Pet"))
+		RegisterFrameForMovement(Spawn("focus", "Focus"))
+		RegisterFrameForMovement(Spawn("target", "Target"))
+		RegisterFrameForMovement(Spawn("targettarget", "ToT"))
+
 	end)
 end
 
