@@ -87,16 +87,13 @@ Config.NamePlates = {
 
 	CastBarBackdropPosition = { "CENTER", 0, 0 },
 	CastBarBackdropSize = { 84*256/(256-28), 14*64/(64-28) },
-	CastBarBackdropDrawLayer = { "BACKGROUND", 0 },
 	CastBarBackdropTexture = GetMedia("nameplate_backdrop"),
 
-	CastBarShieldDrawLayer = { "BACKGROUND", -5 },
 	CastBarShieldPosition = { "CENTER", 0, -1 },
 	CastBarShieldSize = { 124, 69 },
 	CastBarShieldTexture = GetMedia("cast_back_spiked"),
 	CastBarShieldColor = { Colors.ui[1], Colors.ui[2], Colors.ui[3] },
 
-	CastBarNameDrawLayer = { "OVERLAY", 1 },
 	CastBarNamePosition = { "TOP", 0, -18 },
 	CastBarNameJustifyH = "CENTER",
 	CastBarNameJustifyV = "MIDDLE",
@@ -117,7 +114,6 @@ Config.NamePlates = {
 	-- Unit Name
 	-----------------------------------------
 	NamePosition = { "TOP", 0, 16 },
-	NameDrawLayer = { "ARTWORK", 1 },
 	NameJustifyH = "CENTER",
 	NameJustifyV = "MIDDLE",
 	NameFont = GetFont(12,true),
@@ -168,7 +164,6 @@ Config.NamePlates = {
 
 	-- Threat Glow
 	-----------------------------------------
-	ThreatDrawLayer = { "BACKGROUND", -3 },
 	ThreatPosition = { "CENTER", 0, 0 },
 	ThreatSize = { 94.315789474, 24.888888889 },
 	ThreatTexture = GetMedia("nameplate_glow")
