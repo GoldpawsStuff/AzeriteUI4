@@ -53,6 +53,7 @@ local defaults = {
 			useHalfClock = true
 		},
 		unitframes = {
+			storedFrames = {},
 			enablePlayer = true,
 			enablePlayerHUD = true,
 			enableTarget = true,

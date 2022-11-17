@@ -357,11 +357,12 @@ UnitFrames.SpawnUnitFrames = function(self)
 
 		Spawn("player", "PlayerHUD")
 
-		RegisterFrameForMovement(Spawn("player", "Player"))
-		RegisterFrameForMovement(Spawn("pet", "Pet"))
-		RegisterFrameForMovement(Spawn("focus", "Focus"))
-		RegisterFrameForMovement(Spawn("target", "Target"))
-		RegisterFrameForMovement(Spawn("targettarget", "ToT"))
+		local db = ns.db.global.unitframes.storedFrames
+		db.Player = RegisterFrameForMovement(Spawn("player", "Player"), db.Player)
+		db.Pet = RegisterFrameForMovement(Spawn("pet", "Pet"), db.Pet)
+		db.Focus = RegisterFrameForMovement(Spawn("focus", "Focus"), db.Focus)
+		db.Target = RegisterFrameForMovement(Spawn("target", "Target"), db.Target)
+		db.ToT = RegisterFrameForMovement(Spawn("targettarget", "ToT"), db.ToT)
 
 	end)
 end
