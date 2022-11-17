@@ -10,7 +10,12 @@ local MAX_BOSS_FRAMES = _G.MAX_BOSS_FRAMES or 5
 -- sourced from FrameXML/PartyMemberFrame.lua
 local MAX_PARTY_MEMBERS = _G.MAX_PARTY_MEMBERS or 4
 
+-- sourced from FrameXML/RaidFrame.lua
+local MEMBERS_PER_RAID_GROUP = _G.MEMBERS_PER_RAID_GROUP or 5
+
+local hookedFrames = {}
 local isArenaHooked = false
+local isBossHooked = false
 local isPartyHooked = false
 
 local hiddenParent = CreateFrame('Frame', nil, UIParent)
@@ -19,6 +24,12 @@ hiddenParent:Hide()
 
 local function insecureOnShow(self)
 	self:Hide()
+end
+
+local function resetParent(self, parent)
+	if(parent ~= hiddenParent) then
+		self:SetParent(hiddenParent)
+	end
 end
 
 local function handleFrame(baseName, doNotReparent)
@@ -35,6 +46,12 @@ local function handleFrame(baseName, doNotReparent)
 
 		if(not doNotReparent) then
 			frame:SetParent(hiddenParent)
+
+			if(not hookedFrames[frame]) then
+				hooksecurefunc(frame, 'SetParent', resetParent)
+
+				hookedFrames[frame] = true
+			end
 		end
 
 		local health = frame.healthBar or frame.healthbar or frame.HealthBar
@@ -101,12 +118,33 @@ function oUF:DisableBlizzard(unit)
 	elseif(unit == 'targettarget') then
 		handleFrame(TargetFrameToT)
 	elseif(unit:match('boss%d?$')) then
-		local id = unit:match('boss(%d)')
-		if(id) then
-			handleFrame('Boss' .. id .. 'TargetFrame')
+		if(oUF.isRetail) then
+			if(not isBossHooked) then
+				isBossHooked = true
+
+				-- it's needed because the layout manager can bring frames that are
+				-- controlled by containers back from the dead when a user chooses
+				-- to revert all changes
+				-- for now I'll just reparent it, but more might be needed in the
+				-- future, watch it
+				handleFrame(BossTargetFrameContainer)
+
+				-- do not reparent frames controlled by containers, the vert/horiz
+				-- layout code will go insane because it won't be able to calculate
+				-- the size properly, 0 or negative sizes in turn will break the
+				-- layout manager, fun...
+				for i = 1, MAX_BOSS_FRAMES do
+					handleFrame('Boss' .. i .. 'TargetFrame', true)
+				end
+			end
 		else
-			for i = 1, MAX_BOSS_FRAMES do
-				handleFrame('Boss' .. i .. 'TargetFrame')
+			local id = unit:match('boss(%d)')
+			if(id) then
+				handleFrame('Boss' .. id .. 'TargetFrame')
+			else
+				for i = 1, MAX_BOSS_FRAMES do
+					handleFrame('Boss' .. i .. 'TargetFrame')
+				end
 			end
 		end
 	elseif(unit:match('party%d?$')) then
@@ -118,6 +156,10 @@ function oUF:DisableBlizzard(unit)
 
 				for frame in PartyFrame.PartyMemberFramePool:EnumerateActive() do
 					handleFrame(frame)
+				end
+
+				for i = 1, MEMBERS_PER_RAID_GROUP do
+					handleFrame('CompactPartyFrameMember' .. i)
 				end
 			end
 		else
@@ -139,10 +181,10 @@ function oUF:DisableBlizzard(unit)
 				SetCVar('showArenaEnemyFrames', '0')
 				SetCVar('showArenaEnemyPets', '0')
 
-				-- but still UAE all containers
-				ArenaEnemyFramesContainer:UnregisterAllEvents()
-				ArenaEnemyPrepFramesContainer:UnregisterAllEvents()
-				ArenaEnemyMatchFramesContainer:UnregisterAllEvents()
+				-- but still UAE and hide all containers
+				handleFrame(ArenaEnemyFramesContainer)
+				handleFrame(ArenaEnemyPrepFramesContainer)
+				handleFrame(ArenaEnemyMatchFramesContainer)
 
 				for i = 1, MAX_ARENA_ENEMIES do
 					handleFrame('ArenaEnemyMatchFrame' .. i)
