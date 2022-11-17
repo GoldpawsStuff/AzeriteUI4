@@ -27,6 +27,11 @@ local Addon, ns = ...
 local Config = ns.Config or {}
 ns.Config = Config
 
+-- Addon API
+local Colors = ns.Colors
+local GetFont = ns.API.GetFont
+local GetMedia = ns.API.GetMedia
+
 Config.MicroMenu = {
 
 }
