@@ -27,6 +27,11 @@ local Addon, ns = ...
 local Config = ns.Config or {}
 ns.Config = Config
 
+-- Addon API
+local Colors = ns.Colors
+local GetFont = ns.API.GetFont
+local GetMedia = ns.API.GetMedia
+
 Config.Bar1 = {
 
 	Position = { "BOTTOMLEFT", UIParent, "BOTTOMLEFT", 60, 42 },
@@ -40,11 +45,11 @@ Config.Bar1 = {
 		[5] = { "BOTTOMLEFT", 288, 0 }, -- bottom row
 		[6] = { "BOTTOMLEFT", 360, 0 }, -- bottom row
 		[7] = { "BOTTOMLEFT", 432, 0 }, -- bottom row
-		[8] = { "BOTTOMLEFT", 476, 72 }, -- top row
-		[9] = { "BOTTOMLEFT", 504, 0 }, -- bottom row
-		[10] = { "BOTTOMLEFT", 548, 72 }, -- top row
-		[11] = { "BOTTOMLEFT", 576, 0 }, -- bottom row
-		[12] = { "BOTTOMLEFT", 620, 72 }, -- top row
+		[8] = { "BOTTOMLEFT", 504, 0 }, -- bottom row
+		[9] = { "BOTTOMLEFT", 548, 72 }, -- top row
+		[10] = { "BOTTOMLEFT", 576, 0 }, -- bottom row
+		[11] = { "BOTTOMLEFT", 620, 72 }, -- top row
+		[12] = { "BOTTOMLEFT", 648, 0 }, -- bottom row
 	},
 	ButtonSize = { 64, 64 },
 	ButtonHitRects =  { -4, -4, -4, -4 },
@@ -58,7 +63,7 @@ Config.Bar1 = {
 	ButtonIconPosition = { "CENTER", 0, 0 },
 	ButtonIconSize = { 44, 44 },
 
-	ButtonKeybindPosition = { "TOPLEFT", 5, -5 },
+	ButtonKeybindPosition = { "TOPLEFT", -15, -5 },
 	ButtonKeybindJustifyH = "CENTER",
 	ButtonKeybindJustifyV = "BOTTOM",
 	ButtonKeybindFont = GetFont(15, true),
@@ -75,6 +80,11 @@ Config.Bar1 = {
 	ButtonCooldownCountJustifyV = "MIDDLE",
 	ButtonCooldownCountFont = GetFont(16, true),
 	ButtonCooldownCountColor = { Colors.highlight[1], Colors.highlight[2], Colors.highlight[3], .85 },
+
+	ButtonBorderPosition = { "CENTER", 0, 0 },
+	ButtonBorderSize = { 134.295081967, 134.295081967 },
+	ButtonBorderTexture = GetMedia("actionbutton-border"),
+	ButtonBorderColor = { Colors.ui[1], Colors.ui[2], Colors.ui[3], 1 },
 
 	ButtonSpellHighlightPosition = { "CENTER", 0, 0 },
 	ButtonSpellHighlightSize = { 134.295081967, 134.295081967 },

@@ -77,24 +77,6 @@ local buttonOnLeave = function(self)
 	end
 end
 
-local toggleOnEnter = function(self)
-	self.mouseOver = true
-	self:UpdateAlpha()
-end
-
-local toggleOnLeave = function(self)
-	self.mouseOver = nil
-	self:UpdateAlpha()
-end
-
-local toggleUpdateAlpha = function(self)
-	if (self.mouseOver) or (IsShiftKeyDown() and IsControlKeyDown()) or (self.Bar1:IsShown()) then
-		self:SetAlpha(1)
-	else
-		self:SetAlpha(0)
-	end
-end
-
 local style = function(button)
 
 	local db = ns.Config.Bar1
@@ -181,6 +163,13 @@ local style = function(button)
 	overlay:SetFrameLevel(button:GetFrameLevel() + 3)
 	overlay:SetAllPoints()
 	button.overlay = overlay
+
+	local border = overlay:CreateTexture(nil, "BORDER", nil, 1)
+	border:SetPoint(unpack(db.ButtonBorderPosition))
+	border:SetSize(unpack(db.ButtonBorderSize))
+	border:SetTexture(db.ButtonBorderTexture)
+	border:SetVertexColor(unpack(db.ButtonBorderColor))
+	button.iconBorder = border
 
 	-- Custom spell highlight
 	local spellHighlight = overlay:CreateTexture(nil, "ARTWORK", nil, -7)
@@ -285,7 +274,6 @@ Bars.SpawnBar = function(self)
 
 	self.Bar = bar
 
-
 	-- Pet Battle Keybind Fixer
 	-------------------------------------------------------
 	local buttons = bar.buttons
@@ -311,10 +299,19 @@ Bars.SpawnBar = function(self)
 		end
 	]], buttons[1]:GetName(), buttons[2]:GetName(), buttons[3]:GetName(), buttons[4]:GetName(), buttons[5]:GetName(), buttons[6]:GetName()))
 
-	RegisterStateDriver(controller, "petbattle", "[petbattle]petbattle;nopetbattle")
-
 	self.Bar.Controller = controller
 
+	self.Bar.Disable = function(self)
+		ns.ActionBar.Disable(self)
+		self:UpdateBindings()
+		UnregisterStateDriver(controller, "petbattle")
+	end
+
+	self.Bar.Enable = function(self)
+		ns.ActionBar.Enable(self)
+		ClearOverrideBindings(self)
+		RegisterStateDriver(controller, "petbattle", "[petbattle]petbattle;nopetbattle")
+	end
 
 	-- Inform the environment about the spawned bars
 	ns:Fire("ActionBar_Created", ns.Prefix.."PrimaryActionBar")
@@ -334,6 +331,11 @@ end
 Bars.UpdateSettings = function(self, event)
 	if (not self.Bar) then
 		return
+	end
+	if (ns.db.global.actionbars.enableBar1) then
+		self.Bar:Enable()
+	else
+		self.Bar:Disable()
 	end
 end
 
@@ -360,7 +362,7 @@ Bars.OnInitialize = function(self)
 end
 
 Bars.OnEnable = function(self)
-	self:UpdateArtwork()
+
 	self:UpdateBindings()
 
 	self:RegisterEvent("UPDATE_BINDINGS", "UpdateBindings")
