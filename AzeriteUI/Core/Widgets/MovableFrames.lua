@@ -64,10 +64,11 @@ local Anchor_MT = { __index = Anchor }
 -- Constructor
 Anchor.Create = function(self, frame, savedPosition)
 
-	local anchor = setmetatable(CreateFrame("Button", nil, frame), Anchor_MT)
-	anchor:SetFrameStrata("DIALOG")
+	local anchor = setmetatable(CreateFrame("Button", nil, UIParent), Anchor_MT)
 	anchor:Hide()
+	anchor:SetFrameStrata("DIALOG")
 	anchor:SetIgnoreParentAlpha(true)
+	anchor:SetIgnoreParentScale(true)
 	anchor:SetMovable(true)
 	anchor.frame = frame
 	anchor.savedPosition = savedPosition or {}
@@ -75,7 +76,7 @@ Anchor.Create = function(self, frame, savedPosition)
 
 	local overlay = anchor:CreateTexture(nil, "ARTWORK", nil, 1)
 	overlay:SetAllPoints()
-	overlay:SetColorTexture(.25, .5, 1, .5)
+	overlay:SetColorTexture(.25, .5, 1, .75)
 	anchor.Overlay = overlay
 
 	local positionText = anchor:CreateFontString(nil, "OVERLAY", nil, 1)
@@ -86,6 +87,7 @@ Anchor.Create = function(self, frame, savedPosition)
 	positionText:SetPoint("CENTER")
 	anchor.Text = positionText
 
+	anchor:SetHitRectInsets(-20,-20,-20,-20)
 	anchor:RegisterForClicks("AnyUp")
 	anchor:RegisterForDrag("LeftButton")
 	anchor:SetScript("OnDragStart", Anchor.OnDragStart)
@@ -111,7 +113,7 @@ end
 
 -- Compare two anchor points.
 local compare = function(point, x, y, point2, x2, y2)
-	return point == point and math_abs(x - x2) < 0.01 and math_abs(y - y2) < 0.01
+	return (point == point2) and (math_abs(x - x2) < 0.01) and (math_abs(y - y2) < 0.01)
 end
 
 -- 'true' if the frame has moved since last showing the anchor.
@@ -194,7 +196,7 @@ end
 -- Update display text on the anchor.
 Anchor.UpdateText = function(self)
 	local msg = string_format("%s, %.0f, %.0f", unpack(self.currentPosition))
-	if (self:IsMouseOver()) then
+	if (self:IsMouseOver(20,-20,-20,20)) then
 		if (not self:IsInDefaultPosition()) then
 			if (self:HasMoved()) then
 				msg = msg .. Colors.green.colorCode.."\n<Right-Click to undo last change>|r"
@@ -213,10 +215,16 @@ end
 -- Anchor Script Handlers
 --------------------------------------
 Anchor.OnClick = function(self, button)
-	if (button == "LeftButton" and IsShiftKeyDown() and not self:IsInDefaultPosition()) then
-		self:ResetToDefault()
-	elseif (button == "RightButton" and self:HasMoved()) then
-		self:ResetLastChange()
+	if (button == "LeftButton") then
+		self:SetFrameLevel(60)
+		if (IsShiftKeyDown() and not self:IsInDefaultPosition()) then
+			self:ResetToDefault()
+		end
+	elseif (button == "RightButton") then
+		self:SetFrameLevel(40)
+		if (self:HasMoved()) then
+			self:ResetLastChange()
+		end
 	end
 end
 
@@ -242,10 +250,12 @@ end
 
 Anchor.OnEnter = function(self)
 	self:UpdateText()
+	self:SetAlpha(1)
 end
 
 Anchor.OnLeave = function(self)
 	self:UpdateText()
+	self:SetAlpha(.75)
 end
 
 Anchor.OnShow = function(self)
@@ -255,7 +265,11 @@ Anchor.OnShow = function(self)
 	self.currentPosition = { point, x, y }
 
 	local width, height = self.frame:GetSize()
+	local effectiveScale = self.frame:GetEffectiveScale()
 
+	self:SetFrameLevel(50)
+	self:SetAlpha(.75)
+	self:SetScale(effectiveScale)
 	self:ClearAllPoints()
 	self:SetPoint(point, UIParent, point, x, y)
 	self:SetSize(width, height)
