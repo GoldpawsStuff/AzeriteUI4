@@ -42,16 +42,11 @@ local SetActionBarToggles = SetActionBarToggles
 -- WoW Globals
 local CHAT_FRAMES = CHAT_FRAMES
 
--- Doing this. We don't want tutorials, at all.
---NPE_LoadUI = function() end
---NPE_CheckTutorials = function() end
-
 -- Global hider frame
 local UIHider = ns.Hider
 
 -- Utility
 ---------------------------------------------------------
--- Wrapper to avoid bugs
 local SetCVar = function(name, value)
 	local oldValue, defaultValue, account, character, param5, setcvaronly, readonly = GetCVarInfo(name)
 	if (oldValue == nil) or (oldValue == value) then
@@ -64,9 +59,62 @@ local SetCVar = function(name, value)
 	end
 end
 
--- Callbacks
----------------------------------------------------------
-BlizzKill.HandleActionBar = function(self, frame, clearEvents, reanchor, noAnchorChanges)
+local purgeKey = function(t, k)
+	t[k] = nil
+	local c = 42
+	repeat
+		if t[c] == nil then
+			t[c] = nil
+		end
+		c = c + 1
+	until issecurevariable(t, k)
+end
+
+-- Dragonflight
+local hideActionBarFrame = function(frame, clearEvents)
+	if frame then
+		if clearEvents then
+			frame:UnregisterAllEvents()
+		end
+
+		-- remove some EditMode hooks
+		if frame.system then
+			-- purge the show state to avoid any taint concerns
+			purgeKey(frame, "isShownExternal")
+		end
+
+		-- EditMode overrides the Hide function, avoid calling it as it can taint
+		if frame.HideBase then
+			frame:HideBase()
+		else
+			frame:Hide()
+		end
+		frame:SetParent(UIHider)
+	end
+end
+
+-- Dragonflight
+local hideActionButton = function(button)
+	if not button then return end
+
+	button:Hide()
+	button:UnregisterAllEvents()
+	button:SetAttribute("statehidden", true)
+end
+
+-- Dragonflight. Removes a frame from the layout system
+local hideManagedFrame = function(self, frame)
+	if (frame and frame.layoutParent) then
+		frame:SetScript("OnShow", nil) -- prevents the frame from being added
+		frame:OnHide() -- calls the script to remove the frame
+		-- The following is called by the method above,
+		-- with a little luck, this will be true for all managed frames.
+		--frame.layoutParent:RemoveManagedFrame(frame)
+	end
+end
+
+-- Wrath, Classic
+local hideActionBar = function(frame, clearEvents, reanchor, noAnchorChanges)
 	if (frame) then
 		if (clearEvents) then
 			frame:UnregisterAllEvents()
@@ -91,7 +139,8 @@ BlizzKill.HandleActionBar = function(self, frame, clearEvents, reanchor, noAncho
 	end
 end
 
-BlizzKill.HandleFrame = function(self, frame)
+-- All
+local hideFrame = function(frame)
 	if (not frame) then
 		return
 	end
@@ -102,133 +151,6 @@ BlizzKill.HandleFrame = function(self, frame)
 		frame.Show = frame.Hide
 	end
 	frame:Hide()
-end
-
--- Removes a frame from the Dragonflight layout system
-BlizzKill.HandleManagedFrame = function(self, frame)
-	if (frame and frame.layoutParent) then
-		frame:SetScript("OnShow", nil) -- prevents the frame from being added
-		frame:OnHide() -- calls the script to remove the frame
-		-- The following is called by the method above,
-		-- with a little luck, this will be true for all managed frames.
-		--frame.layoutParent:RemoveManagedFrame(frame)
-	end
-end
-
-BlizzKill.HandleMenuOption = function(self, option_shrink, option_name)
-	local option = _G[option_name]
-	if not(option) or not(option.IsObjectType) or not(option:IsObjectType("Frame")) then
-		return
-	end
-	option:SetParent(UIHider)
-	if (option.UnregisterAllEvents) then
-		option:UnregisterAllEvents()
-	end
-	if (option_shrink) then
-		option:SetHeight(0.00001)
-		-- Needed for the options to shrink properly.
-		-- Will mess up alignment for indented options,
-		-- so only use this when the following options is
-		-- horizontally aligned with the removed one.
-		if (option_shrink == true) then
-			option:SetScale(0.00001)
-		end
-	end
-	option.cvar = ""
-	option.uvar = ""
-	option.value = nil
-	option.oldValue = nil
-	option.defaultValue = nil
-	option.setFunc = function() end
-end
-
-BlizzKill.HandleMenuPage = function(self, panel_id, panel_name)
-	local button,window
-	-- remove an entire blizzard options panel,
-	-- and disable its automatic cancel/okay functionality
-	-- this is needed, or the option will be reset when the menu closes
-	-- it is also a major source of taint related to the Compact group frames!
-	if (panel_id) then
-		local category = _G["InterfaceOptionsFrameCategoriesButton" .. panel_id]
-		if (category and category.SetScale) then
-			category:SetScale(0.00001)
-			category:SetAlpha(0)
-			button = true
-		end
-	end
-	if (panel_name) then
-		local panel = _G[panel_name]
-		if (panel) then
-			panel:SetParent(UIHider)
-			if (panel.UnregisterAllEvents) then
-				panel:UnregisterAllEvents()
-			end
-			panel.cancel = function() end
-			panel.okay = function() end
-			panel.refresh = function() end
-			window = true
-		end
-	end
-	-- By removing the menu panels above we're preventing the blizzard UI from calling it,
-	-- and for some reason it is required to be called at least once,
-	-- or the game won't fire off the events that tell the UI that the player has an active pet out.
-	-- In other words: without it both the pet bar and pet unitframe will fail after a /reload
-	if (panel_id == 5) or (panel_name == "InterfaceOptionsActionBarsPanel") then
-		if (SetActionBarToggles) then
-			SetActionBarToggles(nil, nil, nil, nil, nil)
-		end
-	end
-end
-
-BlizzKill.HandleTooltip = function(self, method, tooltip)
-	if (method == "OnTooltipSetUnit") then
-		if (tooltip.IsForbidden) and (tooltip:IsForbidden()) then
-			return
-		end
-		return tooltip:Hide()
-	end
-end
-
-BlizzKill.HandleUnitFrame = function(self, baseName, doNotReparent)
-	local frame
-	if (type(baseName) == "string") then
-		frame = _G[baseName]
-	else
-		frame = baseName
-	end
-	if (frame) then
-		frame:UnregisterAllEvents()
-		frame:Hide()
-
-		if (not doNotReparent) then
-			frame:SetParent(hiddenParent)
-		end
-
-		local health = frame.healthBar or frame.healthbar
-		if (health) then
-			health:UnregisterAllEvents()
-		end
-
-		local power = frame.manabar
-		if (power) then
-			power:UnregisterAllEvents()
-		end
-
-		local spell = frame.castBar or frame.spellbar
-		if (spell) then
-			spell:UnregisterAllEvents()
-		end
-
-		local altpowerbar = frame.powerBarAlt
-		if (altpowerbar) then
-			altpowerbar:UnregisterAllEvents()
-		end
-
-		local buffFrame = frame.BuffFrame
-		if (buffFrame) then
-			buffFrame:UnregisterAllEvents()
-		end
-	end
 end
 
 BlizzKill.NPE_LoadUI = function(self)
@@ -245,61 +167,53 @@ BlizzKill.NPE_LoadUI = function(self)
 	Tutorials.AutoPushSpellWatcher:Complete()
 end
 
--- Kill
----------------------------------------------------------
 BlizzKill.KillActionBars = function(self)
 
 	-- Dragonflight
 	if (ns.IsRetail) then
 
-		self:HandleActionBar(MultiBarBottomLeft, true)
-		self:HandleActionBar(MultiBarBottomRight, true)
-		self:HandleActionBar(MultiBarLeft, true)
-		self:HandleActionBar(MultiBarRight, true)
+		hideActionBarFrame(MainMenuBar, false)
+		hideActionBarFrame(MultiBarBottomLeft, true)
+		hideActionBarFrame(MultiBarBottomRight, true)
+		hideActionBarFrame(MultiBarLeft, true)
+		hideActionBarFrame(MultiBarRight, true)
+		hideActionBarFrame(MultiBar5, true)
+		hideActionBarFrame(MultiBar6, true)
+		hideActionBarFrame(MultiBar7, true)
 
 		-- Hide MultiBar Buttons, but keep the bars alive
 		for i=1,12 do
-			_G["ActionButton" .. i]:Hide()
-			_G["ActionButton" .. i]:UnregisterAllEvents()
-			_G["ActionButton" .. i]:SetAttribute("statehidden", true)
-
-			_G["MultiBarBottomLeftButton" .. i]:Hide()
-			_G["MultiBarBottomLeftButton" .. i]:UnregisterAllEvents()
-			_G["MultiBarBottomLeftButton" .. i]:SetAttribute("statehidden", true)
-
-			_G["MultiBarBottomRightButton" .. i]:Hide()
-			_G["MultiBarBottomRightButton" .. i]:UnregisterAllEvents()
-			_G["MultiBarBottomRightButton" .. i]:SetAttribute("statehidden", true)
-
-			_G["MultiBarRightButton" .. i]:Hide()
-			_G["MultiBarRightButton" .. i]:UnregisterAllEvents()
-			_G["MultiBarRightButton" .. i]:SetAttribute("statehidden", true)
-
-			_G["MultiBarLeftButton" .. i]:Hide()
-			_G["MultiBarLeftButton" .. i]:UnregisterAllEvents()
-			_G["MultiBarLeftButton" .. i]:SetAttribute("statehidden", true)
+			hideActionButton(_G["ActionButton" .. i])
+			hideActionButton(_G["MultiBarBottomLeftButton" .. i])
+			hideActionButton(_G["MultiBarBottomRightButton" .. i])
+			hideActionButton(_G["MultiBarRightButton" .. i])
+			hideActionButton(_G["MultiBarLeftButton" .. i])
+			hideActionButton(_G["MultiBar5Button" .. i])
+			hideActionButton(_G["MultiBar6Button" .. i])
+			hideActionButton(_G["MultiBar7Button" .. i])
 		end
 
-		--MainMenuBar:UnregisterAllEvents()
-		MainMenuBar:SetParent(UIHider)
-		MainMenuBar:Hide()
-		--MainMenuBar:EnableMouse(false)
+		hideActionBarFrame(MicroButtonAndBagsBar, false)
+		hideActionBarFrame(StanceBar, true)
+		hideActionBarFrame(PossessActionBar, true)
+		hideActionBarFrame(MultiCastActionBarFrame, false)
+		hideActionBarFrame(PetActionBar, true)
+		hideActionBarFrame(StatusTrackingBarManager, false)
 
-		self:HandleActionBar(MicroButtonAndBagsBar, false, false, true)
-		self:HandleActionBar(StanceBar, true)
-		self:HandleActionBar(PossessActionBar, true)
-		self:HandleActionBar(MultiCastActionBarFrame, false, false, true)
-		self:HandleActionBar(PetActionBar, true)
-		self:HandleActionBar(StatusTrackingBarManager, false)
+		-- these events drive visibility, we want the MainMenuBar to remain invisible
+		MainMenuBar:UnregisterEvent("PLAYER_REGEN_ENABLED")
+		MainMenuBar:UnregisterEvent("PLAYER_REGEN_DISABLED")
+		MainMenuBar:UnregisterEvent("ACTIONBAR_SHOWGRID")
+		MainMenuBar:UnregisterEvent("ACTIONBAR_HIDEGRID")
 
-		if (IsAddOnLoaded("Blizzard_NewPlayerExperience")) then
+		if IsAddOnLoaded("Blizzard_NewPlayerExperience") then
 			self:NPE_LoadUI()
-		elseif (NPE_LoadUI ~= nil) then
+		elseif NPE_LoadUI ~= nil then
 			self:SecureHook("NPE_LoadUI")
 		end
 	end
 
-	-- Shadowlands, Wrath, Vanilla
+	-- Wrath, Vanilla
 	if (not ns.IsRetail) then
 
 		MultiBarBottomLeft:SetParent(UIHider)
@@ -329,6 +243,7 @@ BlizzKill.KillActionBars = function(self)
 			_G["MultiBarLeftButton" .. i]:UnregisterAllEvents()
 			_G["MultiBarLeftButton" .. i]:SetAttribute("statehidden", true)
 		end
+
 		UIPARENT_MANAGED_FRAME_POSITIONS["MainMenuBar"] = nil
 		UIPARENT_MANAGED_FRAME_POSITIONS["StanceBarFrame"] = nil
 		UIPARENT_MANAGED_FRAME_POSITIONS["PossessBarFrame"] = nil
@@ -336,9 +251,6 @@ BlizzKill.KillActionBars = function(self)
 		UIPARENT_MANAGED_FRAME_POSITIONS["PETACTIONBAR_YPOS"] = nil
 		UIPARENT_MANAGED_FRAME_POSITIONS["ExtraAbilityContainer"] = nil
 
-		--MainMenuBar:UnregisterAllEvents()
-		--MainMenuBar:SetParent(UIHider)
-		--MainMenuBar:Hide()
 		MainMenuBar:EnableMouse(false)
 		MainMenuBar:UnregisterEvent("DISPLAY_SIZE_CHANGED")
 		MainMenuBar:UnregisterEvent("UI_SCALE_CHANGED")
@@ -351,25 +263,21 @@ BlizzKill.KillActionBars = function(self)
 			animations[1]:SetOffset(0,0)
 		end
 
-		self:HandleActionBar(MainMenuBarArtFrame, false, true)
-		self:HandleActionBar(MainMenuBarArtFrameBackground)
-		self:HandleActionBar(MicroButtonAndBagsBar, false, false, true)
+		hideActionBar(MainMenuBarArtFrame, false, true)
+		hideActionBar(MainMenuBarArtFrameBackground)
+		hideActionBar(MicroButtonAndBagsBar, false, false, true)
 
 		if StatusTrackingBarManager then
 			StatusTrackingBarManager:Hide()
-			--StatusTrackingBarManager:SetParent(UIHider)
 		end
 
-		self:HandleActionBar(StanceBarFrame, true, true)
-		self:HandleActionBar(PossessBarFrame, false, true)
-		self:HandleActionBar(MultiCastActionBarFrame, false, false, true)
-		self:HandleActionBar(PetActionBarFrame, true, true)
-		self:HandleActionBar(OverrideActionBar, true)
-		ShowPetActionBar = function() end
+		hideActionBar(StanceBarFrame, true, true)
+		hideActionBar(PossessBarFrame, false, true)
+		hideActionBar(MultiCastActionBarFrame, false, false, true)
+		hideActionBar(PetActionBarFrame, true, true)
+		hideActionBar(OverrideActionBar, true)
 
-		--BonusActionBarFrame:UnregisterAllEvents()
-		--BonusActionBarFrame:Hide()
-		--BonusActionBarFrame:SetParent(UIHider)
+		ShowPetActionBar = function() end
 
 		if (not ns.IsClassic) then
 			if (PlayerTalentFrame) then
@@ -379,11 +287,11 @@ BlizzKill.KillActionBars = function(self)
 			end
 		end
 
-		self:HandleActionBar(MainMenuBarVehicleLeaveButton, true)
-		self:HandleActionBar(MainMenuBarPerformanceBarFrame, false, false, true)
-		self:HandleActionBar(MainMenuExpBar, false, false, true)
-		self:HandleActionBar(ReputationWatchBar, false, false, true)
-		self:HandleActionBar(MainMenuBarMaxLevelBar, false, false, true)
+		hideActionBar(MainMenuBarVehicleLeaveButton, true)
+		hideActionBar(MainMenuBarPerformanceBarFrame, false, false, true)
+		hideActionBar(MainMenuExpBar, false, false, true)
+		hideActionBar(ReputationWatchBar, false, false, true)
+		hideActionBar(MainMenuBarMaxLevelBar, false, false, true)
 
 		if (IsAddOnLoaded("Blizzard_NewPlayerExperience")) then
 			self:NPE_LoadUI()
@@ -391,82 +299,82 @@ BlizzKill.KillActionBars = function(self)
 			self:SecureHook("NPE_LoadUI")
 		end
 
-		-- Attempt to hook the bag bar to the bags
-		-- Retrieve the first slot button and the backpack
-		local backpack = ContainerFrame1
-		local firstSlot = CharacterBag0Slot
-		local reagentSlot = CharacterReagentBag0Slot
+	end
 
-		-- Try to avoid the potential error with Shadowlands anima deposit animations.
-		-- Just give it a simplified version of the default position it is given,
-		-- it will be replaced by UpdateContainerFrameAnchors() later on anyway.
-		if (not backpack:GetPoint()) then
-			backpack:SetPoint("BOTTOMRIGHT", backpack:GetParent(), "BOTTOMRIGHT", -14, 93 )
-		end
+	-- Attempt to hook the bag bar to the bags
+	-- Retrieve the first slot button and the backpack
+	local backpack = ContainerFrame1
+	local firstSlot = CharacterBag0Slot
+	local reagentSlot = CharacterReagentBag0Slot
 
-		-- These should always exist, but Blizz do have a way of changing things,
-		-- and I prefer having functionality not be applied in a future update
-		-- rather than having the UI break from nil bugs.
-		if (firstSlot and backpack) then
-			firstSlot:ClearAllPoints()
-			firstSlot:SetPoint("TOPRIGHT", backpack, "BOTTOMRIGHT", -6, 0)
+	-- Try to avoid the potential error with Shadowlands anima deposit animations.
+	-- Just give it a simplified version of the default position it is given,
+	-- it will be replaced by UpdateContainerFrameAnchors() later on anyway.
+	if (backpack and not backpack:GetPoint()) then
+		backpack:SetPoint("BOTTOMRIGHT", backpack:GetParent(), "BOTTOMRIGHT", -14, 93 )
+	end
 
-			local strata = backpack:GetFrameStrata()
-			local level = backpack:GetFrameLevel()
+	-- These should always exist, but Blizz do have a way of changing things,
+	-- and I prefer having functionality not be applied in a future update
+	-- rather than having the UI break from nil bugs.
+	if (firstSlot and backpack) then
+		firstSlot:ClearAllPoints()
+		firstSlot:SetPoint("TOPRIGHT", backpack, "BOTTOMRIGHT", -6, 0)
 
-			-- Rearrange slots
-			-- *Dragonflight features a reagent bag slot
-			local slotSize = reagentSlot and 24 or 30
-			local previous
-			for _,slotName in ipairs({
-				"CharacterBag0Slot",
-				"CharacterBag1Slot",
-				"CharacterBag2Slot",
-				"CharacterBag3Slot",
-				"CharacterReagentBag0Slot"
-			}) do
+		local strata = backpack:GetFrameStrata()
+		local level = backpack:GetFrameLevel()
 
-				-- Always check for existence,
-				-- because nothing is ever guaranteed.
-				local slot = _G[slotName]
-				if (slot) then
-					slot:SetParent(backpack)
-					slot:SetSize(slotSize,slotSize)
-					slot:SetFrameStrata(strata)
-					slot:SetFrameLevel(level)
+		-- Rearrange slots
+		-- *Dragonflight features a reagent bag slot
+		local slotSize = reagentSlot and 24 or 30
+		local previous
+		for _,slotName in ipairs({
+			"CharacterBag0Slot",
+			"CharacterBag1Slot",
+			"CharacterBag2Slot",
+			"CharacterBag3Slot",
+			"CharacterReagentBag0Slot"
+		}) do
 
-					-- Remove that fugly outer border
-					local tex = _G[slotName.."NormalTexture"]
-					if (tex) then
-						tex:SetTexture("")
-						tex:SetAlpha(0)
-					end
+			-- Always check for existence,
+			-- because nothing is ever guaranteed.
+			local slot = _G[slotName]
+			if (slot) then
+				slot:SetParent(backpack)
+				slot:SetSize(slotSize,slotSize)
+				slot:SetFrameStrata(strata)
+				slot:SetFrameLevel(level)
 
-					-- Re-anchor the slots to remove space
-					if (not previous) then
-						slot:ClearAllPoints()
-						slot:SetPoint("TOPRIGHT", backpack, "BOTTOMRIGHT", -6, 4)
-					else
-						slot:ClearAllPoints()
-						slot:SetPoint("RIGHT", previous, "LEFT", 0, 0)
-					end
-
-					previous = slot
+				-- Remove that fugly outer border
+				local tex = _G[slotName.."NormalTexture"]
+				if (tex) then
+					tex:SetTexture("")
+					tex:SetAlpha(0)
 				end
-			end
 
-			local keyring = KeyRingButton
-			if (keyring) then
-				keyring:SetParent(backpack)
-				keyring:SetHeight(slotSize)
-				keyring:SetFrameStrata(strata)
-				keyring:SetFrameLevel(level)
-				keyring:ClearAllPoints()
-				keyring:SetPoint("RIGHT", previous, "LEFT", 0, 0)
-				previous = keyring
+				-- Re-anchor the slots to remove space
+				if (not previous) then
+					slot:ClearAllPoints()
+					slot:SetPoint("TOPRIGHT", backpack, "BOTTOMRIGHT", -6, 4)
+				else
+					slot:ClearAllPoints()
+					slot:SetPoint("RIGHT", previous, "LEFT", 0, 0)
+				end
+
+				previous = slot
 			end
 		end
 
+		local keyring = KeyRingButton
+		if (keyring) then
+			keyring:SetParent(backpack)
+			keyring:SetHeight(slotSize)
+			keyring:SetFrameStrata(strata)
+			keyring:SetFrameLevel(level)
+			keyring:ClearAllPoints()
+			keyring:SetPoint("RIGHT", previous, "LEFT", 0, 0)
+			previous = keyring
+		end
 	end
 
 	-- Disable annoying yellow popup alerts.
@@ -541,12 +449,12 @@ BlizzKill.KillChatFrames = function(self, event, ...)
 		GeneralDockManager:SetParent(UIHider)
 	end
 
-	self:HandleFrame(ChatFrameMenuButton)
-	self:HandleFrame(ChatFrameChannelButton)
-	self:HandleFrame(ChatFrameToggleVoiceDeafenButton)
-	self:HandleFrame(ChatFrameToggleVoiceMuteButton)
-	self:HandleFrame(GetChatWindowFriendsButton)
-	self:HandleFrame(ChatFrameMenuButton)
+	hideFrame(ChatFrameMenuButton)
+	hideFrame(ChatFrameChannelButton)
+	hideFrame(ChatFrameToggleVoiceDeafenButton)
+	hideFrame(ChatFrameToggleVoiceMuteButton)
+	hideFrame(GetChatWindowFriendsButton)
+	hideFrame(ChatFrameMenuButton)
 
 	-- This was called FriendsMicroButton pre-Legion.
 	-- *Note that the classics are using this new name.
@@ -567,7 +475,6 @@ BlizzKill.KillChatFrames = function(self, event, ...)
 end
 
 BlizzKill.KillFloaters = function(self)
-	local UIHider = UIHider
 
 	if (AlertFrame) then
 		AlertFrame:UnregisterAllEvents()
@@ -606,7 +513,7 @@ BlizzKill.KillFloaters = function(self)
 
 	-- Player's castbar
 	if (CastingBarFrame) then
-		self:HandleManagedFrame(CastingBarFrame)
+		hideManagedFrame(CastingBarFrame)
 		CastingBarFrame:SetScript("OnEvent", nil)
 		CastingBarFrame:SetScript("OnUpdate", nil)
 		CastingBarFrame:SetParent(UIHider)
@@ -652,7 +559,7 @@ BlizzKill.KillFloaters = function(self)
 	end
 
 	if (PlayerPowerBarAlt) then
-		self:HandleManagedFrame(PlayerPowerBarAlt)
+		hideManagedFrame(PlayerPowerBarAlt)
 		PlayerPowerBarAlt.ignoreFramePositionManager = true
 		PlayerPowerBarAlt:UnregisterAllEvents()
 		PlayerPowerBarAlt:SetParent(UIHider)
@@ -718,14 +625,6 @@ BlizzKill.KillFloaters = function(self)
 
 end
 
-BlizzKill.KillMenuOptions = function(self)
-	if (ns.IsRetail) then
-		return
-	end
-	self:HandleMenuPage(5, "InterfaceOptionsActionBarsPanel")
-	self:HandleMenuOption((not ns.IsWrath), "InterfaceOptionsCombatPanelTargetOfTarget")
-end
-
 BlizzKill.KillTimerBars = function(self, event, ...)
 	local UIHider = UIHider
 	if (event == "ADDON_LOADED") then
@@ -765,7 +664,9 @@ BlizzKill.KillTimerBars = function(self, event, ...)
 
 	if (ns.IsRetail) then
 		local bar = UIWidgetPowerBarContainerFrame
-		if (not bar) then
+		if (bar) then
+			bar:SetParent(UIHider)
+		else
 			return self:RegisterEvent("ADDON_LOADED", "KillTimerBars")
 		end
 	end
@@ -836,7 +737,6 @@ BlizzKill.KillHelpTip = function(self)
 end
 
 BlizzKill.OnInitialize = function(self)
-
 	self:KillActionBars()
 	self:KillFloaters()
 	self:KillTimerBars()
@@ -844,6 +744,4 @@ BlizzKill.OnInitialize = function(self)
 	self:KillTutorials()
 	self:KillNPE()
 	self:KillHelpTip()
-	self:KillMenuOptions()
-
 end
