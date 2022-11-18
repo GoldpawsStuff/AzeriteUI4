@@ -106,6 +106,11 @@ local Spawn = function(unit, name)
 	ns.UnitFrames[#ns.UnitFrames + 1] = frame
 
 	-- Inform the environment it was created.
+	-- This fires after the frame has been created
+	-- and still is located in its default position,
+	-- but before any saved position has been applied.
+	-- Any extension listening for this can overwrite
+	-- the default position of the frame.
 	ns:Fire("UnitFrame_Created", unit, fullName)
 
 	return frame
@@ -355,8 +360,13 @@ UnitFrames.SpawnUnitFrames = function(self)
 	oUF:Factory(function(oUF)
 		oUF:SetActiveStyle(ns.Prefix)
 
+		-- We're currently not allowing this to be moved,
+		-- as its contents including every single point in
+		-- every variation of the class resource layout are
+		-- all placed relative to UIParent not to the unit frame.
 		Spawn("player", "PlayerHUD")
 
+		-- This both updates and creates the saved position entries.
 		local db = ns.db.global.unitframes.storedFrames
 		db.Player = RegisterFrameForMovement(Spawn("player", "Player"), db.Player)
 		db.Pet = RegisterFrameForMovement(Spawn("pet", "Pet"), db.Pet)
@@ -545,7 +555,8 @@ UnitFrames.OnEvent = function(self, event, ...)
 	if (event == "PLAYER_ENTERING_WORLD") then
 		local isInitialLogin, isReloadingUi = ...
 		if (isInitialLogin or isReloadingUi) then
-			--self:UpdateSettings()
+			-- There are no guarantees any frames are spawned here,
+			-- since they too are created on this event by the oUF factory.
 		end
 		self:SetNamePlateScales()
 	elseif (event == "VARIABLES_LOADED") then
