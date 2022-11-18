@@ -364,6 +364,7 @@ UnitFrames.SpawnUnitFrames = function(self)
 		db.Target = RegisterFrameForMovement(Spawn("target", "Target"), db.Target)
 		db.ToT = RegisterFrameForMovement(Spawn("targettarget", "ToT"), db.ToT)
 
+		self:UpdateSettings()
 	end)
 end
 
@@ -482,45 +483,57 @@ UnitFrames.UpdateSettings = function(self)
 	local db = ns.db.global.unitframes
 
 	local Player = ns.UnitFramesByName.Player
-	if (db.enablePlayer and not Player:IsEnabled()) then
-		Player:Enable()
-	elseif (not db.enablePlayer and Player:IsEnabled()) then
-		Player:Disable()
+	if (Player) then
+		if (db.enablePlayer and not Player:IsEnabled()) then
+			Player:Enable()
+		elseif (not db.enablePlayer and Player:IsEnabled()) then
+			Player:Disable()
+		end
 	end
 
 	local PlayerHUD = ns.UnitFramesByName.PlayerHUD
-	if (db.enablePlayerHUD and not PlayerHUD:IsEnabled()) then
-		PlayerHUD:Enable()
-	elseif (not db.enablePlayerHUD and PlayerHUD:IsEnabled()) then
-		PlayerHUD:Disable()
+	if (PlayerHUD) then
+		if (db.enablePlayerHUD and not PlayerHUD:IsEnabled()) then
+			PlayerHUD:Enable()
+		elseif (not db.enablePlayerHUD and PlayerHUD:IsEnabled()) then
+			PlayerHUD:Disable()
+		end
 	end
 
 	local Target = ns.UnitFramesByName.Target
-	if (db.enableTarget and not Target:IsEnabled()) then
-		Target:Enable()
-	elseif (not db.enableTarget and Target:IsEnabled()) then
-		Target:Disable()
+	if (Target) then
+		if (db.enableTarget and not Target:IsEnabled()) then
+			Target:Enable()
+		elseif (not db.enableTarget and Target:IsEnabled()) then
+			Target:Disable()
+		end
 	end
 
 	local ToT = ns.UnitFramesByName.ToT
-	if (db.enableToT and not ToT:IsEnabled()) then
-		ToT:Enable()
-	elseif (not db.enableToT and ToT:IsEnabled()) then
-		ToT:Disable()
+	if (ToT) then
+		if (db.enableToT and not ToT:IsEnabled()) then
+			ToT:Enable()
+		elseif (not db.enableToT and ToT:IsEnabled()) then
+			ToT:Disable()
+		end
 	end
 
 	local Focus = ns.UnitFramesByName.Focus
-	if (db.enableFocus and not Focus:IsEnabled()) then
-		Focus:Enable()
-	elseif (not db.enableFocus and Focus:IsEnabled()) then
-		Focus:Disable()
+	if (Focus) then
+		if (db.enableFocus and not Focus:IsEnabled()) then
+			Focus:Enable()
+		elseif (not db.enableFocus and Focus:IsEnabled()) then
+			Focus:Disable()
+		end
 	end
 
 	local Pet = ns.UnitFramesByName.Pet
-	if (db.enablePet and not Pet:IsEnabled()) then
-		Pet:Enable()
-	elseif (not db.enablePet and Pet:IsEnabled()) then
-		Pet:Disable()
+	if (Pet) then
+		if (db.enablePet and not Pet:IsEnabled()) then
+			Pet:Enable()
+		elseif (not db.enablePet and Pet:IsEnabled()) then
+			Pet:Disable()
+		end
 	end
 
 end
@@ -532,7 +545,7 @@ UnitFrames.OnEvent = function(self, event, ...)
 	if (event == "PLAYER_ENTERING_WORLD") then
 		local isInitialLogin, isReloadingUi = ...
 		if (isInitialLogin or isReloadingUi) then
-			self:UpdateSettings()
+			--self:UpdateSettings()
 		end
 		self:SetNamePlateScales()
 	elseif (event == "VARIABLES_LOADED") then

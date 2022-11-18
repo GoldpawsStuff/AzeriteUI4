@@ -320,7 +320,7 @@ UnitStyles["Boss"] = function(self, unit, id)
 	castbar:SetFrameLevel(self:GetFrameLevel() + 5)
 	castbar:SetSparkMap(db.HealthBarSparkMap)
 	castbar:SetStatusBarTexture(db.HealthBarTexture)
-	castbar:SetStatusBarColor(db.HealthCastOverlayColor)
+	castbar:SetStatusBarColor(unpack(db.HealthCastOverlayColor))
 	castbar:DisableSmoothing(true)
 
 	self.Castbar = castbar
@@ -356,7 +356,7 @@ UnitStyles["Boss"] = function(self, unit, id)
 		absorb:SetAllPoints(health)
 		absorb:SetFrameLevel(health:GetFrameLevel() + 3)
 		absorb:SetStatusBarTexture(db.HealthBarTexture)
-		absorb:SetStatusBarColor(db.HealthAbsorbColor)
+		absorb:SetStatusBarColor(unpack(db.HealthAbsorbColor))
 		absorb:SetSparkMap(db.HealthBarSparkMap)
 
 		local orientation

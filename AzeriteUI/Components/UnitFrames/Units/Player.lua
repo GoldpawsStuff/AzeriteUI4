@@ -393,7 +393,7 @@ local UnitFrame_UpdateTextures = function(self)
 	local absorb = self.Health.Absorb
 	if (absorb) then
 		absorb:SetStatusBarTexture(db.HealthBarTexture)
-		absorb:SetStatusBarColor(db.HealthAbsorbColor)
+		absorb:SetStatusBarColor(unpack(db.HealthAbsorbColor))
 		local orientation
 		if (db.HealthBarOrientation == "UP") then
 			orientation = "DOWN"

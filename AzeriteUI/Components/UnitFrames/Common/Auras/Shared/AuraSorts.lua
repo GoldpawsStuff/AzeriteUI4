@@ -27,9 +27,34 @@ local Addon, ns = ...
 ns.AuraSorts = ns.AuraSorts or {}
 
 -- Lua API
+local math_huge = math.huge
 local table_sort = table.sort
 
+-- https://wowpedia.fandom.com/wiki/API_C_UnitAuras.GetAuraDataByAuraInstanceID
 local Aura_Sort = function(a, b)
+
+	-- Player first, includes procs and zone buffs.
+	if (a.isPlayerAura ~= b.isPlayerAura) then
+		return a.isPlayerAura
+	end
+
+	-- Player first, those we can apply.
+	if (a.canApplyAura ~= b.canApplyAura) then
+		return a.canApplyAura
+	end
+
+	-- No duration last, short times first.
+	local aTime = (not a.duration or a.duration == 0) and math_huge or a.expirationTime or -1
+	local bTime = (not b.duration or b.duration == 0) and math_huge or b.expirationTime or -1
+
+	if (aTime ~= bTime) then
+		return aTime < bTime
+	end
+
+	return a.auraInstanceID < b.auraInstanceID
+end
+
+local Aura_Sort_Classic = function(a, b)
 	if (a and b) then
 		if (a:IsShown() and b:IsShown()) then
 
@@ -79,9 +104,8 @@ local Aura_Sort = function(a, b)
 	end
 end
 
-ns.AuraSorts.DefaultFunction = Aura_Sort
+ns.AuraSorts.DefaultFunction = ns.IsRetail and Aura_Sort or Aura_Sort_Classic
 ns.AuraSorts.Default = function(element, max)
-	table_sort(element, Aura_Sort)
+	table_sort(element, ns.AuraSorts.DefaultFunction)
 	return 1, #element
 end
-
