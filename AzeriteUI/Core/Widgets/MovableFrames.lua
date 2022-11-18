@@ -244,6 +244,11 @@ Anchor.OnDragStop = function(self)
 	self:ClearAllPoints()
 	self:SetPoint(point, UIParent, point, x, y)
 
+	-- Always reuse saved table, or it stops saving.
+	self.savedPosition[1] = point
+	self.savedPosition[2] = x
+	self.savedPosition[3] = y
+
 	self.frame:ClearAllPoints()
 	self.frame:SetPoint(point, UIParent, point, x, y)
 end
@@ -316,5 +321,20 @@ end
 Widgets.HideMovableFrameAnchors = function()
 	for i,anchor in next,Anchors do
 		anchor:Hide()
+	end
+end
+
+Widgets.ToggleMovableFrameAnchors = function()
+	local allshown = true
+	for i,anchor in next,Anchors do
+		if (not anchor:IsShown()) then
+			allshown = false
+			break
+		end
+	end
+	if (allshown) then
+		Widgets:HideMovableFrameAnchors()
+	else
+		Widgets:ShowMovableFrameAnchors()
 	end
 end

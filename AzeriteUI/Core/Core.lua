@@ -87,6 +87,7 @@ local SetRelativeScale = ns.API.SetRelativeScale
 local UpdateObjectScales = ns.API.UpdateObjectScales
 local ShowMovableFrameAnchors = ns.Widgets.ShowMovableFrameAnchors
 local HideMovableFrameAnchors = ns.Widgets.HideMovableFrameAnchors
+local ToggleMovableFrameAnchors = ns.Widgets.ToggleMovableFrameAnchors
 
 -- Purge deprecated settings,
 -- translate to new where applicable,
@@ -114,6 +115,10 @@ end
 
 ns.UnlockMovableFrames = function(self)
 	ShowMovableFrameAnchors()
+end
+
+ns.ToggleMovableFrames = function(self)
+	ToggleMovableFrameAnchors()
 end
 
 ns.ResetScale = function(self)
@@ -209,10 +214,17 @@ ns.OnInitialize = function(self)
 		SetRelativeScale(self.db.global.core.relativeScale)
 	end
 
-	-- Add a command to clear the main chat frame
+	-- Add a command to clear all chat frames.
 	-- I mainly use this to remove clutter before taking screenshots.
 	-- You could theoretically put this in a macro and clear chat then screenshot.
-	self:RegisterChatCommand("clear", function() ChatFrame1:Clear() end)
+	self:RegisterChatCommand("clear", function()
+		for _,frameName in pairs(_G.CHAT_FRAMES) do
+			local frame = _G[frameName]
+			if (frame and frame:IsShown()) then
+				frame:Clear()
+			end
+		end
+	end)
 
 	-- Our UI switcher. Because I have many. And use them all.
 	self:RegisterChatCommand("go", "SwitchUI")
@@ -223,6 +235,7 @@ ns.OnInitialize = function(self)
 	self:RegisterChatCommand("resetscale", "ResetScale")
 	self:RegisterChatCommand("lock", "LockMovableFrames")
 	self:RegisterChatCommand("unlock", "UnlockMovableFrames")
+	self:RegisterChatCommand("togglelock", "ToggleMovableFrames")
 
 	-- In case some other jokers have disabled these, we add them back to avoid a World of Bugs.
 	-- RothUI used to remove the two first, and a lot of people missed his documentation on how to get them back.
