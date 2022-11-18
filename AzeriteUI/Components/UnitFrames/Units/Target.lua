@@ -779,7 +779,7 @@ UnitStyles["Target"] = function(self, unit, id)
 
 	-- Power Value Text
 	--------------------------------------------
-	local powerValue = power:CreateFontString(nil, "OVERLAY", 0, 1)
+	local powerValue = power:CreateFontString(nil, "OVERLAY", nil, 1)
 	powerValue:SetPoint(unpack(db.PowerValuePosition))
 	powerValue:SetJustifyH(db.PowerValueJustifyH)
 	powerValue:SetJustifyV(db.PowerValueJustifyV)
