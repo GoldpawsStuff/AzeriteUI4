@@ -319,13 +319,15 @@ Widgets.ShowMovableFrameAnchors = function()
 end
 
 Widgets.HideMovableFrameAnchors = function()
-	if (InCombatLockdown()) then return end
 	for i,anchor in next,Anchors do
 		anchor:Hide()
 	end
 end
 
 Widgets.ToggleMovableFrameAnchors = function()
+	if (InCombatLockdown()) then
+		return Widgets:HideMovableFrameAnchors()
+	end
 	local allshown = true
 	for i,anchor in next,Anchors do
 		if (not anchor:IsShown()) then
