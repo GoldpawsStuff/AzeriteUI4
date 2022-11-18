@@ -123,10 +123,12 @@ Clutter.HandleTopCenterWidgets = function(self)
 		return
 	end
 
+	local db = ns.Config.Clutter
+
 	local scaffold = SetObjectScale(CreateFrame("Frame", ns.Prefix.."TopCenterWidgets", UIParent), 14/12)
 	scaffold:SetFrameStrata("BACKGROUND")
 	scaffold:SetFrameLevel(10)
-	scaffold:SetPoint("TOP", 0, -10)
+	scaffold:SetPoint(unpack(db.TopCenterWidgetsPosition))
 	scaffold:SetSize(10,58)
 
 	container:SetParent(scaffold)
@@ -142,16 +144,16 @@ Clutter.HandleTopCenterWidgets = function(self)
 		end
 	end)
 
-	local Update = function()
-		if (UnitExists("target")) then
-			scaffold:Hide()
-		else
-			scaffold:Show()
-		end
-	end
+	--local Update = function()
+	--	if (UnitExists("target")) then
+	--		scaffold:Hide()
+	--	else
+	--		scaffold:Show()
+	--	end
+	--end
 
-	self:RegisterEvent("PLAYER_TARGET_CHANGED", Update)
-	self:RegisterEvent("PLAYER_ENTERING_WORLD", Update)
+	--self:RegisterEvent("PLAYER_TARGET_CHANGED", Update)
+	--self:RegisterEvent("PLAYER_ENTERING_WORLD", Update)
 
 end
 
@@ -161,6 +163,8 @@ Clutter.HandleBelowMinimapWidgets = function(self)
 		return
 	end
 
+	local db = ns.Config.Clutter
+
 	-- Hack to prevent UIWidgetBelowMinimapContainerFrame moving in UIParent.lua#2987
 	container.GetNumWidgetsShowing = function() return 0 end
 	container:SetFrameStrata("BACKGROUND")
@@ -169,7 +173,7 @@ Clutter.HandleBelowMinimapWidgets = function(self)
 	scaffold:SetFrameStrata("BACKGROUND")
 	scaffold:SetFrameLevel(10)
 	scaffold:SetSize(128, 40)
-	scaffold:SetPoint("TOP", Minimap, "BOTTOM", 0, -40)
+	scaffold:SetPoint(unpack(db.BelowMinimapWidgetsPosition))
 
 	hooksecurefunc(container, "SetPoint", function(self, _, anchor)
 		if (anchor) and (anchor ~= scaffold) then
@@ -179,31 +183,32 @@ Clutter.HandleBelowMinimapWidgets = function(self)
 		end
 	end)
 
-	local driver = CreateFrame("Frame", nil, UIParent, "SecureHandlerAttributeTemplate")
-	driver.EnableBoss = function() end
-	driver.DisableBoss = function() end
-	driver:SetAttribute("_onattributechanged", [=[
-		if (name == "state-pos") then
-			if (value == "boss") then
-				self:CallMethod("EnableBoss");
-			elseif (value == "normal") then
-				self:CallMethod("DisableBoss");
-			end
-		end
-	]=])
-	RegisterAttributeDriver(driver, "state-pos", "[@boss1,exists][@boss2,exists][@boss3,exists][@boss4,exists]boss;normal")
+	--local driver = CreateFrame("Frame", nil, UIParent, "SecureHandlerAttributeTemplate")
+	--driver.EnableBoss = function() end
+	--driver.DisableBoss = function() end
+	--driver:SetAttribute("_onattributechanged", [=[
+	--	if (name == "state-pos") then
+	--		if (value == "boss") then
+	--			self:CallMethod("EnableBoss");
+	--		elseif (value == "normal") then
+	--			self:CallMethod("DisableBoss");
+	--		end
+	--	end
+	--]=])
+	--RegisterAttributeDriver(driver, "state-pos", "[@boss1,exists][@boss2,exists][@boss3,exists][@boss4,exists]boss;normal")
 
 end
 
 Clutter.HandleMessageFrames = function(self)
 
+	local db = ns.Config.Clutter
+
 	local UIErrorsFrame = SetObjectScale(_G.UIErrorsFrame)
-	UIErrorsFrame:SetPoint("TOP", UIParent, "TOP", 0, -(122 + 60 + 50 + 50))
 	UIErrorsFrame:SetFrameStrata("LOW")
-	UIErrorsFrame:SetHeight(22)
-	UIErrorsFrame:SetAlpha(.75)
-	UIErrorsFrame:SetFontObject(GetFont(18, true))
-	UIErrorsFrame:SetShadowColor(0,0,0,.5)
+	UIErrorsFrame:SetHeight(db.UIErrorsFrameHeight)
+	UIErrorsFrame:SetAlpha(db.UIErrorsFrameAlpha)
+	UIErrorsFrame:SetFontObject(db.UIErrorsFrameFont)
+	UIErrorsFrame:SetShadowColor(unpack(db.UIErrorsFrameFontShadow))
 	UIErrorsFrame:UnregisterEvent("UI_ERROR_MESSAGE")
 	UIErrorsFrame:UnregisterEvent("UI_INFO_MESSAGE")
 	UIErrorsFrame.RegisterEvent = function() end
@@ -213,45 +218,45 @@ Clutter.HandleMessageFrames = function(self)
 	-- has been turned into a bitmap and turned into a texture.
 	-- So I'm just going to turn it off. Completely.
 	local RaidWarningFrame = SetObjectScale(_G.RaidWarningFrame)
-	RaidWarningFrame:SetAlpha(.85)
-	RaidWarningFrame:SetHeight(80)
+	RaidWarningFrame:SetAlpha(db.RaidWarningFrameAlpha)
+	RaidWarningFrame:SetHeight(db.RaidWarningFrameHeight)
 
-	RaidWarningFrame.timings.RAID_NOTICE_MIN_HEIGHT = 26
-	RaidWarningFrame.timings.RAID_NOTICE_MAX_HEIGHT = 26
+	RaidWarningFrame.timings.RAID_NOTICE_MIN_HEIGHT = db.RaidWarningFrameFontSize
+	RaidWarningFrame.timings.RAID_NOTICE_MAX_HEIGHT = db.RaidWarningFrameFontSize
 	RaidWarningFrame.timings.RAID_NOTICE_SCALE_UP_TIME = 0
 	RaidWarningFrame.timings.RAID_NOTICE_SCALE_DOWN_TIME = 0
 
 	RaidWarningFrame.Slot1 = _G.RaidWarningFrameSlot1
-	RaidWarningFrame.Slot1:SetFontObject(GetFont(26, true, "Chat"))
-	RaidWarningFrame.Slot1:SetShadowColor(0,0,0,.5)
-	RaidWarningFrame.Slot1:SetWidth(760)
+	RaidWarningFrame.Slot1:SetFontObject(db.RaidWarningFrameFont)
+	RaidWarningFrame.Slot1:SetShadowColor(unpack(db.RaidWarningFrameFontShadow))
+	RaidWarningFrame.Slot1:SetWidth(db.RaidWarningFrameSlotWidth)
 	RaidWarningFrame.Slot1.SetTextHeight = function() end
 
 	RaidWarningFrame.Slot2 = _G.RaidWarningFrameSlot2
-	RaidWarningFrame.Slot2:SetFontObject(GetFont(26, true, "Chat"))
-	RaidWarningFrame.Slot2:SetShadowColor(0,0,0,.5)
-	RaidWarningFrame.Slot2:SetWidth(760)
+	RaidWarningFrame.Slot2:SetFontObject(db.RaidWarningFrameFont)
+	RaidWarningFrame.Slot2:SetShadowColor(unpack(db.RaidWarningFrameFontShadow))
+	RaidWarningFrame.Slot2:SetWidth(db.RaidWarningFrameSlotWidth)
 	RaidWarningFrame.Slot2.SetTextHeight = function() end
 
 	local RaidBossEmoteFrame = SetObjectScale(_G.RaidBossEmoteFrame)
-	RaidBossEmoteFrame:SetAlpha(.85)
-	RaidBossEmoteFrame:SetHeight(80)
+	RaidBossEmoteFrame:SetAlpha(db.RaidBossEmoteFrameAlpha)
+	RaidBossEmoteFrame:SetHeight(db.RaidBossEmoteFrameHeight)
 
-	RaidBossEmoteFrame.timings.RAID_NOTICE_MIN_HEIGHT = 26
-	RaidBossEmoteFrame.timings.RAID_NOTICE_MAX_HEIGHT = 26
+	RaidBossEmoteFrame.timings.RAID_NOTICE_MIN_HEIGHT = db.RaidBossEmoteFrameFontSize
+	RaidBossEmoteFrame.timings.RAID_NOTICE_MAX_HEIGHT = db.RaidBossEmoteFrameFontSize
 	RaidBossEmoteFrame.timings.RAID_NOTICE_SCALE_UP_TIME = 0
 	RaidBossEmoteFrame.timings.RAID_NOTICE_SCALE_DOWN_TIME = 0
 
 	RaidBossEmoteFrame.Slot1 = _G.RaidBossEmoteFrameSlot1
-	RaidBossEmoteFrame.Slot1:SetFontObject(GetFont(26,true,"Chat"))
-	RaidBossEmoteFrame.Slot1:SetShadowColor(0,0,0,.5)
-	RaidBossEmoteFrame.Slot1:SetWidth(760)
+	RaidBossEmoteFrame.Slot1:SetFontObject(db.RaidBossEmoteFrameFont)
+	RaidBossEmoteFrame.Slot1:SetShadowColor(unpack(db.RaidBossEmoteFrameFontShadow))
+	RaidBossEmoteFrame.Slot1:SetWidth(db.RaidBossEmoteFrameSlotWidth)
 	RaidBossEmoteFrame.Slot1.SetTextHeight = function() end
 
 	RaidBossEmoteFrame.Slot2 = _G.RaidBossEmoteFrameSlot2
-	RaidBossEmoteFrame.Slot2:SetFontObject(GetFont(26,true,"Chat"))
-	RaidBossEmoteFrame.Slot2:SetShadowColor(0,0,0,.5)
-	RaidBossEmoteFrame.Slot2:SetWidth(760)
+	RaidBossEmoteFrame.Slot2:SetFontObject(db.RaidBossEmoteFrameFont)
+	RaidBossEmoteFrame.Slot2:SetShadowColor(unpack(db.RaidBossEmoteFrameFontShadow))
+	RaidBossEmoteFrame.Slot2:SetWidth(db.RaidBossEmoteFrameSlotWidth)
 	RaidBossEmoteFrame.Slot2.SetTextHeight = function() end
 
 	-- Just a little in-game test for dev purposes!
@@ -262,27 +267,54 @@ Clutter.HandleMessageFrames = function(self)
 	RaidBossEmoteFrame:ClearAllPoints()
 	UIErrorsFrame:ClearAllPoints()
 
-	RaidWarningFrame:SetPoint("TOP", UIParent, "TOP", 0, -340)
-	RaidBossEmoteFrame:SetPoint("TOP", UIParent, "TOP", 0, -(440))
-	UIErrorsFrame:SetPoint("TOP", UIParent, "TOP", 0, -600)
+	RaidWarningFrame:SetPoint(unpack(db.RaidWarningFramePosition))
+	RaidBossEmoteFrame:SetPoint(unpack(db.RaidBossEmoteFramePosition))
+	UIErrorsFrame:SetPoint(unpack(db.UIErrorsFramePosition))
 
 	self:RegisterEvent("UI_ERROR_MESSAGE", "OnEvent")
 	self:RegisterEvent("UI_INFO_MESSAGE", "OnEvent")
 
 end
 
+Clutter.HandleArcheologyBar = function(self, event, ...)
+	-- Archeology was added in Cataclysm.
+	if (not ns.IsRetail) then
+		return
+	end
+
+	if (event == "ADDON_LOADED") then
+		local addon = ...
+		if (addon ~= "Blizzard_ArchaeologyUI") then
+			return
+		end
+		self:UnregisterEvent("ADDON_LOADED", "HandleArcheologyBar")
+	end
+
+	local bar = ArcheologyDigsiteProgressBar
+	if (not bar) then
+		return self:RegisterEvent("ADDON_LOADED", "HandleArcheologyBar")
+	end
+
+	local db = ns.Config.Clutter
+
+	bar:ClearAllPoints()
+	bar:SetPoint(unpack(db.ArcheologyDigsiteProgressBarPosition))
+end
+
 Clutter.HandleVehicleSeatIndicator = function(self)
 	-- No vehicle seat indicator in Wrath yet,
 	-- or at least not under this name.
-	if (ns.IsWrath) then
+	if (not ns.IsRetail) then
 		return
 	end
+
+	local db = ns.Config.Clutter
 
 	local VehicleSeatIndicator = SetObjectScale(_G.VehicleSeatIndicator)
 	VehicleSeatIndicator:SetParent(UIParent)
 	VehicleSeatIndicator:SetFrameStrata("BACKGROUND")
 	VehicleSeatIndicator:ClearAllPoints()
-	VehicleSeatIndicator:SetPoint("BOTTOMRIGHT", -12, 20)
+	VehicleSeatIndicator:SetPoint(unpack(db.VehicleSeatIndicatorPosition))
 
 	-- This will block UIParent_ManageFramePositions() from being executed
 	VehicleSeatIndicator.IsShown = function() return false end
@@ -328,10 +360,8 @@ end
 
 Clutter.OnInitialize = function(self)
 	self:HandleBelowMinimapWidgets()
-	--self:HandleTopCenterWidgets()
+	self:HandleTopCenterWidgets()
+	self:HandleArcheologyBar()
 	self:HandleVehicleSeatIndicator()
 	self:HandleMessageFrames()
-end
-
-Clutter.OnEnable = function(self)
 end
