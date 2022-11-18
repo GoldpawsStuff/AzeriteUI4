@@ -3,7 +3,7 @@
 	<Script file="ChatFrames.lua"/>
 	<Script file="Clutter.lua"/>
 	<Script file="Minimap.lua"/>
-	<!--<Script file="Timers.lua"/>-->
+	<Script file="Timers.lua"/>
 	<Script file="Tooltips.lua"/>
 	<Script file="Tracker.lua"/>
 	<!--<Script file="WorldMap.lua"/>-->
