@@ -97,12 +97,12 @@ VehicleExit.OnInitialize = function(self)
 		button:SetAttribute("macrotext", "/dismount [mounted]\n/run if CanExitVehicle() then VehicleExit() end")
 	end
 
-	RegisterStateDriver(bar, "visibility", "[@vehicle,canexitvehicle][possessbar][mounted]show;hide")
+	RegisterStateDriver(button, "visibility", "[@vehicle,canexitvehicle][possessbar][mounted]show;hide")
 
 	local texture = button:CreateTexture(nil, "ARTWORK", nil, 1)
-	button.texture:SetPoint(unpack(db.VehicleExitButtonTexturePosition))
-	button.texture:SetSize(unpack(db.VehicleExitButtonSize))
-	button.texture:SetTexture(db.VehicleExitButtonTexture)
+	texture:SetPoint(unpack(db.VehicleExitButtonTexturePosition))
+	texture:SetSize(unpack(db.VehicleExitButtonTextureSize))
+	texture:SetTexture(db.VehicleExitButtonTexture)
 
 	button.Texture = texture
 
