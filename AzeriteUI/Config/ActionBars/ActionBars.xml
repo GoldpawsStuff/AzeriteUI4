@@ -5,5 +5,6 @@
 	<Script file="StanceBar.lua"/>
 	<Script file="ExtraButtons.lua"/>
 	<Script file="MicroMenu.lua"/>
+	<Script file="VehicleExit.lua"/>
 
 </Ui>

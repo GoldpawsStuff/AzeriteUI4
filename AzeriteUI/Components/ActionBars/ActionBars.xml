@@ -16,6 +16,7 @@
 	<!--<Script file="Elements\StatusBars.lua"/>-->
 	<!--<Script file="Elements\MicroMenu.lua"/>-->
 	<!--<Script file="Elements\MultiCast.lua"/>-->
+	<Script file="Elements\VehicleExit.lua"/>
 
 	<Script file="Compatibility\Bartender.lua"/>
 
