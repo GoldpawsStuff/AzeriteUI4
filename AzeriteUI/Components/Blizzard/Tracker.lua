@@ -37,9 +37,8 @@ local GetFont = ns.API.GetFont
 local GetMedia = ns.API.GetMedia
 local SetObjectScale = ns.API.SetObjectScale
 local IsAddOnEnabled = ns.API.IsAddOnEnabled
-
--- Global hider frame
 local UIHider = ns.Hider
+local noop = ns.Noop
 
 -- Cache of handled elements
 local Handled = {}
@@ -298,83 +297,46 @@ local UpdateWrathQuestItemButtons = function()
 	end
 end
 
------------------------------------------------------------------
--- Frames
------------------------------------------------------------------
-local ObjectiveCover = CreateFrame("Frame", nil, UIParent)
-ObjectiveCover:EnableMouse(true)
-ObjectiveCover:Hide()
-
-local ObjectiveAlphaDriver = CreateFrame("Frame", nil, UIParent, "SecureHandlerAttributeTemplate")
-ObjectiveAlphaDriver.Update = function()
-
-	-- The tracker addon might not be loaded.
-	local tracker = WatchFrame or QuestWatchFrame or ObjectiveTrackerFrame
-
-	-- Check for the visibility of addons conflicting with the visuals.
-	--local bags = Wheel("LibModule"):GetModule("Backpacker", true)
-	--local bagsVisible = bags and bags:IsVisible()
-	local immersionVisible = ImmersionFrame and ImmersionFrame:IsShown()
-
-	-- Fake-hide the tracker if something is covering its area. We don't like clutter.
-	--local shouldHide = (tracker) and ((immersionVisible) or (bagsVisible) or (not ObjectiveAlphaDriver:IsShown()))
-	local shouldHide = (tracker) and ((immersionVisible) or (not ObjectiveAlphaDriver:IsShown()))
-	if (shouldHide) then
-		tracker:SetIgnoreParentAlpha(false)
-		tracker:SetAlpha(0)
-
-		ObjectiveCover:SetFrameStrata(tracker:GetFrameStrata())
-		ObjectiveCover:SetFrameLevel(tracker:GetFrameLevel() + 5)
-		ObjectiveCover:ClearAllPoints()
-		ObjectiveCover:SetAllPoints(tracker)
-		ObjectiveCover:SetHitRectInsets(-40, -80, -40, 40)
-		ObjectiveCover:Show()
-	else
-		-- The tracker addon might not be loaded.
-		if (tracker) then
-			tracker:SetIgnoreParentAlpha(false)
-			tracker:SetAlpha(.9)
+local AutoHider_OnHide = function()
+	if (ns.IsRetail) then
+		if (not ObjectiveTrackerFrame.collapsed) then
+			--local _, _, difficultyID = GetInstanceInfo()
+			--if (difficultyID ~= 8) then -- keystone runs
+			ObjectiveTracker_Collapse()
+			--end
 		end
-		ObjectiveCover:Hide()
+	else
+		if (not WatchFrame.collapsed) then
+			WatchFrame_Collapse()
+		end
 	end
 end
 
--- This creates a driver frames that toggles
--- the displayed alpha of the tracker,
--- and also covers it with a mouse enabled overlay.
--- The driver frame does NOT toggle the actual tracker.
-Tracker.InitializeAlphaDriver = function(self)
-
-	if (not ObjectiveAlphaDriver.isHooked) then
-		--ObjectiveAlphaDriver:HookScript("OnShow", ObjectiveAlphaDriver.Update)
-		--ObjectiveAlphaDriver:HookScript("OnHide", ObjectiveAlphaDriver.Update)
-		ObjectiveAlphaDriver:SetAttribute("_onattributechanged", [=[
-			if (name == "state-vis") then
-				if (value == "show") then
-					self:Show();
-					self:CallMethod("Update");
-
-				elseif (value == "hide") then
-					self:Hide();
-					self:CallMethod("Update");
-				end
-			end
-		]=])
+local AutoHider_OnShow = function()
+	if (ns.IsRetail) then
+		if (ObjectiveTrackerFrame.collapsed) then
+			ObjectiveTracker_Expand()
+		end
+	else
+		if (WatchFrame.collapsed) then
+			WatchFrame_Expand()
+		end
 	end
+end
 
-	if (ObjectiveAlphaDriver.isHooked) then
-		UnregisterAttributeDriver(ObjectiveAlphaDriver, "state-vis")
-	end
+Tracker.InitializeAutoHider = function(self)
+	local tracker = ObjectiveTrackerFrame or WatchFrame
+
+	tracker.autoHider = CreateFrame("Frame", nil, tracker, "SecureHandlerStateTemplate")
+	tracker.autoHider:SetAttribute("_onstate-vis", [[ if (newstate == "hide") then self:Hide() else self:Show() end ]])
+	tracker.autoHider:SetScript("OnHide", AutoHider_OnHide)
+	tracker.autoHider:SetScript("OnShow", AutoHider_OnShow)
 
 	local driver = "hide;show"
-	--driver = "[overridebar][possessbar][shapeshift][vehicleui]"  .. driver
 	driver = "[@arena1,exists][@arena2,exists][@arena3,exists][@arena4,exists][@arena5,exists]" .. driver
-	driver = "[@boss1,exists][@boss2,exists][@boss3,exists][@boss4,exists]" .. driver
-	--driver = "[combat]" .. driver
+	driver = "[@boss1,exists][@boss2,exists][@boss3,exists][@boss4,exists][@boss5,exists]" .. driver
 
-	RegisterAttributeDriver(ObjectiveAlphaDriver, "state-vis", driver)
-
-	ObjectiveAlphaDriver.isHooked = true
+	RegisterStateDriver(tracker.autoHider, "vis", driver)
 end
 
 Tracker.InitializeTracker = function(self, event, addon)
@@ -394,6 +356,9 @@ Tracker.InitializeTracker = function(self, event, addon)
 	local ObjectiveTrackerFrame = SetObjectScale(ObjectiveTrackerFrame, 1.1)
 	ObjectiveTrackerFrame:SetHeight(480 / 1.1)
 	ObjectiveTrackerFrame:SetAlpha(.9)
+
+	-- Prevent managed frame system from repositioning
+	ObjectiveTrackerFrame.IsInDefaultPosition = noop
 
 	ObjectiveTrackerUIWidgetContainer:SetFrameStrata("BACKGROUND")
 	ObjectiveTrackerFrame:SetFrameStrata("BACKGROUND")
@@ -421,7 +386,7 @@ Tracker.InitializeTracker = function(self, event, addon)
 	end)
 	SetOverrideBindingClick(toggleButton, true, "SHIFT-O", toggleButton:GetName())
 
-	self:InitializeAlphaDriver()
+	self:InitializeAutoHider()
 	self:UpdatePosition()
 end
 
@@ -439,10 +404,8 @@ Tracker.InitializeWrathTracker = function(self)
 	SetObjectScale(WatchFrame, db.WrathScale)
 
 	-- UIParent.lua overrides the position if this is false
-	--WatchFrame:SetMovable(true)
-	--WatchFrame:SetUserPlaced(true)
 	WatchFrame.IsUserPlaced = function() return true end
-
+	WatchFrame:SetAlpha(.9)
 	WatchFrameTitle:SetFontObject(db.WrathTitleFont)
 
 	-- The local function WatchFrame_GetLinkButton creates the buttons,
@@ -463,6 +426,7 @@ Tracker.InitializeWrathTracker = function(self)
 	end)
 	SetOverrideBindingClick(toggleButton, true, "SHIFT-O", toggleButton:GetName())
 
+	self:InitializeAutoHider()
 	self:UpdateWrathTracker()
 end
 
@@ -511,15 +475,19 @@ end
 
 Tracker.OnEvent = function(self, event, ...)
 	if (event == "PLAYER_ENTERING_WORLD") then
+
+		local tracker = ObjectiveTrackerFrame or WatchFrame
+		if (tracker) then tracker:SetAlpha(.9) end
+
 		if (self.queueImmersionHook) then
 			local frame = ImmersionFrame
 			if (frame) then
-				frame:HookScript("OnShow", ObjectiveAlphaDriver.Update)
-				frame:HookScript("OnHide", ObjectiveAlphaDriver.Update)
 				self.queueImmersionHook = nil
+				ImmersionFrame:HookScript("OnShow", function() (ObjectiveTrackerFrame or WatchFrame):SetAlpha(0) end)
+				ImmersionFrame:HookScript("OnHide", function() (ObjectiveTrackerFrame or WatchFrame):SetAlpha(.9) end)
 			end
 		end
-		ObjectiveAlphaDriver:Update()
+
 		if (ns.IsWrath) then
 			self:UpdateWrathTracker()
 		else
