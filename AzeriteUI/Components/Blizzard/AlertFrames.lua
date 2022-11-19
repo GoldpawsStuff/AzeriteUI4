@@ -24,7 +24,12 @@
 
 --]]
 local Addon, ns = ...
-local AlertFrames = ns:NewModule("AlertFrames", "LibMoreEvents-1.0")
+local AlertFrames = ns:NewModule("AlertFrames")
+
+-- Lua API
+local ipairs = ipairs
+local table_remove = table.remove
+local unpack = unpack
 
 -- Addon API
 local SetObjectScale = ns.API.SetObjectScale
@@ -115,31 +120,40 @@ local AlertFrame_PostUpdateAnchors = function()
 	end
 end
 
-AlertFrames.HandleAlertFrames = function(self)
+AlertFrames.OnInitialize = function(self)
+
 	local db = ns.Config.AlertFrames
 
 	local AlertFrameHolder = SetObjectScale(CreateFrame("Frame", ns.Prefix.."AlertFrameHolder", UIParent))
 	AlertFrameHolder:SetPoint(unpack(db.AlertFramesPosition))
 	AlertFrameHolder:SetSize(unpack(db.AlertFramesSize))
 
+	local AlertFrame = SetObjectScale(AlertFrame, 1) -- might need to adjust
 	AlertFrame.ignoreFramePositionManager = true
+	AlertFrame:SetParent(UIParent)
+	AlertFrame:OnLoad()
 
-	for _,subSystem in ipairs(AlertFrame.alertFrameSubSystems) do
-		AlertSubSystem_AdjustPosition(AlertFrame, subSystem)
+	for index,alertFrameSubSystem in ipairs(AlertFrame.alertFrameSubSystems) do
+		AlertSubSystem_AdjustPosition(AlertFrame, alertFrameSubSystem)
+		if (TalkingHeadFrame and TalkingHeadFrame == alertFrameSubSystem.anchorFrame) then
+			table_remove(AlertFrame.alertFrameSubSystems, index)
+		end
 	end
 
-	hooksecurefunc(AlertFrame, "AddAlertFrameSubSystem", AlertSubSystem_AdjustPosition)
-	hooksecurefunc(AlertFrame, "UpdateAnchors", AlertFrame_PostUpdateAnchors)
-
+	local GroupLootContainer = SetObjectScale(GroupLootContainer, 1) -- might need to adjust
 	GroupLootContainer.ignoreFramePositionManager = true
 
 	if (not ns.IsRetail) then
 		UIPARENT_MANAGED_FRAME_POSITIONS["GroupLootContainer"] = nil
 	end
 
+	hooksecurefunc(AlertFrame, "AddAlertFrameSubSystem", AlertSubSystem_AdjustPosition)
+	hooksecurefunc(AlertFrame, "UpdateAnchors", AlertFrame_PostUpdateAnchors)
 	hooksecurefunc("GroupLootContainer_Update", GroupLootContainer_PostUpdate)
-end
 
-AlertFrames.OnInitialize = function(self)
-	self:HandleAlertFrames()
+	if (TalkingHeadFrame) then
+		TalkingHeadFrame:HookScript("OnShow", AlertFrame_PostUpdateAnchors)
+		TalkingHeadFrame:HookScript("OnHide", AlertFrame_PostUpdateAnchors)
+	end
+
 end
