@@ -45,7 +45,7 @@ local RegisterStateDriver = RegisterStateDriver
 local SetObjectScale = ns.API.SetObjectScale
 
 -- Constants
-local _,playerClass = UnitClass("player")
+local playerClass = ns.PlayerClass
 local BOTTOMLEFT_ACTIONBAR_PAGE = BOTTOMLEFT_ACTIONBAR_PAGE -- 6
 local BOTTOMRIGHT_ACTIONBAR_PAGE = BOTTOMRIGHT_ACTIONBAR_PAGE -- 5
 local RIGHT_ACTIONBAR_PAGE = RIGHT_ACTIONBAR_PAGE -- 3

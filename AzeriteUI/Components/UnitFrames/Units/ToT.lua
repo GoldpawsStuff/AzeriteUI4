@@ -45,7 +45,7 @@ local GetFont = ns.API.GetFont
 local GetMedia = ns.API.GetMedia
 
 -- Constants
-local playerClass = select(2, UnitClass("player"))
+local playerClass = ns.PlayerClass
 
 -- Utility Functions
 --------------------------------------------

@@ -43,7 +43,7 @@ local GetMedia = ns.API.GetMedia
 local IsAddOnEnabled = ns.API.IsAddOnEnabled
 
 -- Constants
-local _, playerClass = UnitClass("player")
+local playerClass = ns.PlayerClass
 
 -- Element Callbacks
 --------------------------------------------

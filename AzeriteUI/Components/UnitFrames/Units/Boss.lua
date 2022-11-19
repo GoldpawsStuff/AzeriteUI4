@@ -44,8 +44,7 @@ local GetMedia = ns.API.GetMedia
 local SetObjectScale = ns.API.SetObjectScale
 
 -- Constants
-local playerClass = select(2, UnitClass("player"))
-
+local playerClass = ns.PlayerClass
 -- Utility Functions
 --------------------------------------------
 -- Simplify the tagging process a little.

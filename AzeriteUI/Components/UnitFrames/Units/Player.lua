@@ -56,7 +56,7 @@ local IsAddOnEnabled = ns.API.IsAddOnEnabled
 -- Constants
 local IsLoveFestival = ns.API.IsLoveFestival()
 local IsWinterVeil = ns.API.IsWinterVeil()
-local playerClass = select(2, UnitClass("player"))
+local playerClass = ns.PlayerClass
 local playerLevel = UnitLevel("player")
 local playerXPDisabled = IsXPUserDisabled()
 local hardenedLevel = ns.IsRetail and 10 or ns.IsClassic and 40 or 30

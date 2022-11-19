@@ -57,7 +57,7 @@ local UIHider = ns.Hider
 local noop = ns.Noop
 
 -- Constants
-local _,playerClass = UnitClass("player")
+local playerClass = ns.PlayerClass
 local BOTTOMLEFT_ACTIONBAR_PAGE = BOTTOMLEFT_ACTIONBAR_PAGE
 local BOTTOMRIGHT_ACTIONBAR_PAGE = BOTTOMRIGHT_ACTIONBAR_PAGE
 local RIGHT_ACTIONBAR_PAGE = RIGHT_ACTIONBAR_PAGE
