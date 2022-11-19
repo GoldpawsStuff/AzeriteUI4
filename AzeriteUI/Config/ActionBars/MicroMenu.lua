@@ -34,4 +34,28 @@ local GetMedia = ns.API.GetMedia
 
 Config.MicroMenu = {
 
+	MicroMenuPosition = { "BOTTOMRIGHT", UIParent, "BOTTOMRIGHT", -26, 64 },
+
+	MicroMenuBackdropOffsetTop = 18,
+	MicroMenuBackdropOffsetBottom = -18,
+	MicroMenuBackdropOffsetLeft = -10,
+	MicroMenuBackdropOffsetRight = 10,
+	MicroMenuBackdropColor = { .05, .05, .05, .95 },
+	MicroMenuBackdrop = {
+		bgFile = [[Interface\Tooltips\UI-Tooltip-Background]],
+		edgeSize = 32, edgeFile = GetMedia("border-tooltip"),
+		tile = true,
+		insets = { left = 8, right = 8, top = 16, bottom = 16 }
+	},
+
+	MicroMenuButtonSize = { 200, 30 },
+	MicroMenuButtonFont = GetFont(13,true),
+
+	MicroMenuToggleButtonPosition = { "BOTTOMRIGHT", UIParent, "BOTTOMRIGHT", -4, 4 },
+	MicroMenuToggleButtonSize = { 48, 48 },
+	MicroMenuToggleButtonTexturePosition = { "CENTER", 0, 0 },
+	MicroMenuToggleButtonTextureSize = { 96, 96 },
+	MicroMenuToggleButtonTexture = GetMedia("config_button"),
+	MicroMenuToggleButtonColor = { Colors.ui[1], Colors.ui[2], Colors.ui[3] },
+
 }
