@@ -110,13 +110,6 @@ local PlayVocalErrorByMessageType = function(messageType)
 	end
 end
 
-Clutter.UpdateBelowMinimapPosition = function(self)
-	if (not self.BelowMinimap) then
-		return
-	end
-
-end
-
 Clutter.HandleTopCenterWidgets = function(self)
 	local container = _G.UIWidgetTopCenterContainerFrame
 	if (not container) then
