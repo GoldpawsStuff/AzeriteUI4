@@ -345,10 +345,15 @@ end
 
 UnitFrames.RegisterMetaFunctions = function(self)
 	local LibSmoothBar = LibStub("LibSmoothBar-1.0")
+	local LibSpinBar = LibStub("LibSpinBar-1.0")
 	local LibOrb = LibStub("LibOrb-1.0")
 
 	oUF:RegisterMetaFunction("CreateBar", function(self, name, parent, ...)
 		return LibSmoothBar:CreateSmoothBar(name, parent or self, ...)
+	end)
+
+	oUF:RegisterMetaFunction("CreateRing", function(self, name, parent, ...)
+		return LibSpinBar:CreateSpinBar(name, parent or self, ...)
 	end)
 
 	oUF:RegisterMetaFunction("CreateOrb", function(self, name, parent, ...)
