@@ -34,4 +34,43 @@ local GetMedia = ns.API.GetMedia
 
 Config.StanceBar = {
 
+	ButtonSize = { 48, 48 },
+	ButtonHitRects =  { -4, -4, -4, -4 },
+	ButtonMaskTexture = GetMedia("actionbutton-mask-circular"),
+
+	ButtonBackdropPosition = { "CENTER", 0, 0 },
+	ButtonBackdropSize = { 100.721311475, 100.721311475 },
+	ButtonBackdropTexture = GetMedia("actionbutton-backdrop"),
+	ButtonBackdropColor = { .67, .67, .67, 1 },
+
+	ButtonIconPosition = { "CENTER", 0, 0 },
+	ButtonIconSize = { 33, 33 },
+
+	ButtonKeybindPosition = { "TOPLEFT", -15, -5 },
+	ButtonKeybindJustifyH = "CENTER",
+	ButtonKeybindJustifyV = "BOTTOM",
+	ButtonKeybindFont = GetFont(15, true),
+	ButtonKeybindColor = { Colors.quest.gray[1], Colors.quest.gray[2], Colors.quest.gray[3], .75 },
+
+	ButtonCountPosition = { "BOTTOMRIGHT", -3, 3 },
+	ButtonCountJustifyH = "CENTER",
+	ButtonCountJustifyV = "BOTTOM",
+	ButtonCountFont = GetFont(18, true),
+	ButtonCountColor = { Colors.normal[1], Colors.normal[2], Colors.normal[3], .85 },
+
+	ButtonCooldownCountPosition = { "CENTER", 1, 0 },
+	ButtonCooldownCountJustifyH = "CENTER",
+	ButtonCooldownCountJustifyV = "MIDDLE",
+	ButtonCooldownCountFont = GetFont(16, true),
+	ButtonCooldownCountColor = { Colors.highlight[1], Colors.highlight[2], Colors.highlight[3], .85 },
+
+	ButtonBorderPosition = { "CENTER", 0, 0 },
+	ButtonBorderSize = { 100.721311475, 100.721311475 },
+	ButtonBorderTexture = GetMedia("actionbutton-border"),
+	ButtonBorderColor = { Colors.ui[1], Colors.ui[2], Colors.ui[3], 1 },
+
+	ButtonSpellHighlightPosition = { "CENTER", 0, 0 },
+	ButtonSpellHighlightSize = { 100.721311475, 100.721311475 },
+	ButtonSpellHighlightTexture = GetMedia("actionbutton-spellhighlight"),
+
 }

@@ -73,6 +73,8 @@ end
 
 local style = function(button)
 
+	local db = ns.Config.StanceBar
+
 	-- Clean up the button template
 	for _,i in next,{ "AutoCastShine", "Border", "Name", "NewActionTexture", "NormalTexture", "SpellHighlightAnim", "SpellHighlightTexture",
 		--[[ WoW10 ]] "CheckedTexture", "HighlightTexture", "BottomDivider", "RightDivider", "SlotArt", "SlotBackground" } do
@@ -84,28 +86,29 @@ local style = function(button)
 		normalTexture2:SetParent(UIHider)
 	end
 
-	local m = GetMedia("actionbutton-mask-square-rounded")
+	local m = db.ButtonMaskTexture
 	local b = GetMedia("blank")
 
 	button:SetAttribute("buttonLock", true)
-	button:SetSize(53,53)
+	button:SetSize(unpack(db.ButtonSize))
 	button:SetNormalTexture("")
 	button:SetHighlightTexture("")
 	button:SetCheckedTexture("")
 
 	-- Custom slot texture
 	local backdrop = button:CreateTexture(nil, "BACKGROUND", nil, -7)
-	backdrop:SetSize(64,64)
-	backdrop:SetPoint("CENTER")
-	backdrop:SetTexture(GetMedia("button-big"))
+	backdrop:SetSize(unpack(db.ButtonBackdropSize))
+	backdrop:SetPoint(unpack(db.ButtonBackdropPosition))
+	backdrop:SetTexture(db.ButtonBackdropTexture)
+	backdrop:SetVertexColor(unpack(db.ButtonBackdropColor))
 	button.backdrop = backdrop
 
 	-- Icon
 	local icon = button.icon
 	icon:SetDrawLayer("BACKGROUND", 1)
 	icon:ClearAllPoints()
-	icon:SetPoint("TOPLEFT", 3, -3)
-	icon:SetPoint("BOTTOMRIGHT", -3, 3)
+	icon:SetPoint(unpack(db.ButtonIconPosition))
+	icon:SetSize(unpack(db.ButtonIconSize))
 	if (ns.IsRetail) then icon:RemoveMaskTexture(button.IconMask) end
 	icon:SetMask(m)
 
@@ -160,57 +163,57 @@ local style = function(button)
 	overlay:SetAllPoints()
 	button.overlay = overlay
 
+	local border = overlay:CreateTexture(nil, "BORDER", nil, 1)
+	border:SetPoint(unpack(db.ButtonBorderPosition))
+	border:SetSize(unpack(db.ButtonBorderSize))
+	border:SetTexture(db.ButtonBorderTexture)
+	border:SetVertexColor(unpack(db.ButtonBorderColor))
+	button.iconBorder = border
+
 	-- Custom spell highlight
 	local spellHighlight = overlay:CreateTexture(nil, "ARTWORK", nil, -7)
-	spellHighlight:SetTexture(GetMedia("actionbutton-spellhighlight-square-rounded"))
-	spellHighlight:SetSize(92,92)
-	spellHighlight:SetPoint("CENTER", 0, 0)
+	spellHighlight:SetTexture(db.ButtonSpellHighlightTexture)
+	spellHighlight:SetSize(unpack(db.ButtonSpellHighlightSize))
+	spellHighlight:SetPoint(unpack(db.ButtonSpellHighlightPosition))
 	spellHighlight:Hide()
 	button.spellHighlight = spellHighlight
 
 	-- Custom cooldown count
 	local cooldownCount = overlay:CreateFontString(nil, "ARTWORK", nil, 1)
-	cooldownCount:SetPoint("CENTER", 1, 0)
-	cooldownCount:SetFontObject(GetFont(16,true))
-	cooldownCount:SetJustifyH("CENTER")
-	cooldownCount:SetJustifyV("MIDDLE")
-	cooldownCount:SetShadowOffset(0, 0)
-	cooldownCount:SetShadowColor(0, 0, 0, 0)
-	cooldownCount:SetTextColor(250/255, 250/255, 250/255, .85)
+	cooldownCount:SetPoint(unpack(db.ButtonCooldownCountPosition))
+	cooldownCount:SetFontObject(db.ButtonCooldownCountFont)
+	cooldownCount:SetJustifyH(db.ButtonCooldownCountJustifyH)
+	cooldownCount:SetJustifyV(db.ButtonCooldownCountJustifyV)
+	cooldownCount:SetTextColor(unpack(db.ButtonCooldownCountColor))
 	button.cooldownCount = cooldownCount
-
-	-- Macro name
-	local name = button.Name
-	name:SetParent(overlay)
-	name:SetDrawLayer("OVERLAY", -1)
-	name:ClearAllPoints()
-	name:SetPoint("BOTTOMLEFT", 0, 2)
-	name:SetFontObject(GetFont(12,true))
-	name:SetTextColor(.75, .75, .75)
 
 	-- Button charge/stack count
 	local count = button.Count
 	count:SetParent(overlay)
 	count:SetDrawLayer("OVERLAY", 1)
 	count:ClearAllPoints()
-	count:SetPoint("BOTTOMRIGHT", 0, 2)
-	count:SetFontObject(GetFont(14,true))
+	count:SetPoint(unpack(db.ButtonCountPosition))
+	count:SetFontObject(db.ButtonCountFont)
+	count:SetJustifyH(db.ButtonCountJustifyH)
+	count:SetJustifyV(db.ButtonCountJustifyV)
 
 	-- Button keybind
 	local hotkey = button.HotKey
 	hotkey:SetParent(overlay)
 	hotkey:SetDrawLayer("OVERLAY", 1)
 	hotkey:ClearAllPoints()
-	hotkey:SetPoint("TOPRIGHT", 0, -3)
-	hotkey:SetFontObject(GetFont(12,true))
-	hotkey:SetTextColor(.75, .75, .75)
+	hotkey:SetPoint(unpack(db.ButtonKeybindPosition))
+	hotkey:SetJustifyH(db.ButtonKeybindJustifyH)
+	hotkey:SetJustifyV(db.ButtonKeybindJustifyV)
+	hotkey:SetFontObject(db.ButtonKeybindFont)
+	hotkey:SetTextColor(unpack(db.ButtonKeybindColor))
 
 	RegisterCooldown(button.cooldown, button.cooldownCount)
 
 	hooksecurefunc(cooldown, "SetSwipeTexture", function(c,t) if t ~= m then c:SetSwipeTexture(m) end end)
 	hooksecurefunc(cooldown, "SetBlingTexture", function(c,t) if t ~= b then c:SetBlingTexture(b,0,0,0,0) end end)
 	hooksecurefunc(cooldown, "SetEdgeTexture", function(c,t) if t ~= b then c:SetEdgeTexture(b) end end)
-	--hooksecurefunc(cooldown, "SetSwipeColor", function(c,r,g,b,a) if not a or a>.8 then c:SetSwipeColor(r,g,b,.75) end end)
+	--hooksecurefunc(cooldown, "SetSwipeColor", function(c,r,g,b,a) if not a or a>.76 then c:SetSwipeColor(r,g,b,.75) end end)
 	hooksecurefunc(cooldown, "SetDrawSwipe", function(c,h) if not h then c:SetDrawSwipe(true) end end)
 	hooksecurefunc(cooldown, "SetDrawBling", function(c,h) if h then c:SetDrawBling(false) end end)
 	hooksecurefunc(cooldown, "SetDrawEdge", function(c,h) if h then c:SetDrawEdge(false) end end)
