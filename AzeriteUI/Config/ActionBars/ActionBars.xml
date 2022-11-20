@@ -4,6 +4,7 @@
 	<Script file="PetBar.lua"/>
 	<Script file="StanceBar.lua"/>
 	<Script file="ExtraButtons.lua"/>
+	<Script file="StatusBars.lua"/>
 	<Script file="MicroMenu.lua"/>
 	<Script file="MultiCast.lua"/>
 	<Script file="VehicleExit.lua"/>
