@@ -257,21 +257,48 @@ MinimapMod.UpdateClock = function(self)
 	end
 	if (ns.db.global.minimap.useServerTime) then
 		if (ns.db.global.minimap.useHalfClock) then
-			local h, m, suffix = GetServerTime(true)
-			time:SetFormattedText("%.0f:%02d", h, m)
-			time.suffix:SetFormattedText(" %s", suffix)
+			time:SetFormattedText("%.0f:%02.0f |cff888888%s|r", GetServerTime(true))
+
+			if (not time.useHalfClock) then
+				time.useHalfClock = true
+				self.zoneName:ClearAllPoints()
+				self.zoneName:SetPoint(unpack(db.ZoneTextPositionHalfClock))
+				self.latency:ClearAllPoints()
+				self.latency:SetPoint(unpack(db.LatencyPositionHalfClock))
+			end
 		else
-			time:SetFormattedText("%02d:%02d", GetServerTime(false))
-			time.suffix:SetText(nil)
+			time:SetFormattedText("%02.0f:%02.0f", GetServerTime(false))
+
+			if (time.useHalfClock) then
+				time.useHalfClock = nil
+				self.zoneName:ClearAllPoints()
+				self.zoneName:SetPoint(unpack(db.ZoneTextPosition))
+				self.latency:ClearAllPoints()
+				self.latency:SetPoint(unpack(db.LatencyPosition))
+			end
 		end
 	else
 		if (ns.db.global.minimap.useHalfClock) then
-			local h, m, suffix = GetLocalTime(true)
-			time:SetFormattedText("%.0f:%02d", h, m)
-			time.suffix:SetFormattedText(" %s", suffix)
+			time:SetFormattedText("%.0f:%02.0f |cff888888%s|r", GetLocalTime(true))
+
+			if (not time.useHalfClock) then
+				time.useHalfClock = true
+				self.zoneName:ClearAllPoints()
+				self.zoneName:SetPoint(unpack(db.ZoneTextPositionHalfClock))
+				self.latency:ClearAllPoints()
+				self.latency:SetPoint(unpack(db.LatencyPositionHalfClock))
+			end
+
 		else
-			time:SetFormattedText("%02d:%02d", GetLocalTime(false))
-			time.suffix:SetText(nil)
+			time:SetFormattedText("%02.0f:%02.0f", GetLocalTime(false))
+
+			if (time.useHalfClock) then
+				time.useHalfClock = nil
+				self.zoneName:ClearAllPoints()
+				self.zoneName:SetPoint(unpack(db.ZoneTextPosition))
+				self.latency:ClearAllPoints()
+				self.latency:SetPoint(unpack(db.LatencyPosition))
+			end
 		end
 	end
 end
@@ -464,15 +491,6 @@ MinimapMod.InitializeMinimap = function(self)
 	time:SetFontObject(db.ClockFont)
 	time:SetTextColor(unpack(db.ClockColor))
 	time:SetPoint(unpack(db.ClockPosition))
-
-	local timeSuffix = Minimap:CreateFontString(nil, "OVERLAY", nil, 1)
-	timeSuffix:SetJustifyH("CENTER")
-	timeSuffix:SetJustifyV("MIDDLE")
-	timeSuffix:SetFontObject(db.ClockFont)
-	timeSuffix:SetTextColor(unpack(Colors.gray))
-	timeSuffix:SetAlpha(.75)
-	timeSuffix:SetPoint("TOPLEFT", time, "TOPRIGHT", 0, 0)
-	time.suffix = timeSuffix
 
 	local timeFrame = CreateFrame("Button", nil, Minimap)
 	timeFrame:SetScript("OnEnter", Time_OnEnter)

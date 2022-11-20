@@ -63,6 +63,7 @@ Config.Minimap = {
 
 	-- About 8px to the left of the clock.
 	ZoneTextPosition = { "BOTTOMRIGHT", -(226 + 60), -8 }, -- adjust this
+	ZoneTextPositionHalfClock = { "BOTTOMRIGHT", -(226 + 60 + 20), -8 }, -- adjust this
 	ZoneTextFont = GetFont(15,true),
 	ZoneTextAlpha = .85,
 
@@ -73,6 +74,7 @@ Config.Minimap = {
 
 	-- To the left of the framerate, right above the zone text.
 	LatencyPosition = { "BOTTOMRIGHT", -(226 + 60), -8 + 15 + 6 }, -- adjust this
+	LatencyPositionHalfClock = { "BOTTOMRIGHT", -(226 + 60 + 20), -8 + 15 + 6 }, -- adjust this
 	LatencyFont = GetFont(12,true),
 	LatencyColor = { Colors.offwhite[1], Colors.offwhite[2], Colors.offwhite[3], .5 },
 
