@@ -60,9 +60,6 @@ local SetObjectScale = ns.API.SetObjectScale
 
 local playerLevel = UnitLevel("player")
 
--- Local bar registry
-local Bars = {}
-
 local Reputation_OnEnter = function(self)
 	if (GameTooltip:IsForbidden()) then return end
 
@@ -105,56 +102,56 @@ local XP_OnLeave = function(self)
 end
 
 -- Full clear of any cancelled fade-ins
-local Toggle_Clear = function(toggle)
-	toggle.Frame:Hide()
-	toggle.Frame:SetAlpha(0)
-	toggle.Frame.isMouseOver = nil
-	toggle:SetScript("OnUpdate", nil)
-	toggle.fading = nil
-	toggle.fadeDirection = nil
-	toggle.fadeDuration = 0
-	toggle.fadeDelay = 0
-	toggle.timeFading = 0
+local Button_Clear = function(button)
+	button.Frame:Hide()
+	button.Frame:SetAlpha(0)
+	button.Frame.isMouseOver = nil
+	button:SetScript("OnUpdate", nil)
+	button.fading = nil
+	button.fadeDirection = nil
+	button.fadeDuration = 0
+	button.fadeDelay = 0
+	button.timeFading = 0
 end
 
-local Toggle_OnUpdate = function(toggle, elapsed)
-	if (toggle.fadeDelay > 0) then
-		local fadeDelay = toggle.fadeDelay - elapsed
+local Button_OnUpdate = function(button, elapsed)
+	if (button.fadeDelay > 0) then
+		local fadeDelay = button.fadeDelay - elapsed
 		if (fadeDelay > 0) then
-			toggle.fadeDelay = fadeDelay
+			button.fadeDelay = fadeDelay
 			return
 		end
-		toggle.fadeDelay = 0
-		toggle.timeFading = 0
+		button.fadeDelay = 0
+		button.timeFading = 0
 	end
 
-	toggle.timeFading = toggle.timeFading + elapsed
+	button.timeFading = button.timeFading + elapsed
 
-	if (toggle.fadeDirection == "OUT") then
-		local alpha = 1 - (toggle.timeFading / toggle.fadeDuration)
+	if (button.fadeDirection == "OUT") then
+		local alpha = 1 - (button.timeFading / button.fadeDuration)
 		if (alpha > 0) then
-			toggle.Frame:SetAlpha(alpha)
+			button.Frame:SetAlpha(alpha)
 		else
-			toggle:SetScript("OnUpdate", nil)
-			toggle.Frame:Hide()
-			toggle.Frame:SetAlpha(0)
-			toggle.fading = nil
-			toggle.fadeDirection = nil
-			toggle.fadeDuration = 0
-			toggle.timeFading = 0
+			button:SetScript("OnUpdate", nil)
+			button.Frame:Hide()
+			button.Frame:SetAlpha(0)
+			button.fading = nil
+			button.fadeDirection = nil
+			button.fadeDuration = 0
+			button.timeFading = 0
 		end
 
-	elseif (toggle.fadeDirection == "IN") then
-		local alpha = toggle.timeFading / toggle.fadeDuration
+	elseif (button.fadeDirection == "IN") then
+		local alpha = button.timeFading / button.fadeDuration
 		if (alpha < 1) then
-			toggle.Frame:SetAlpha(alpha)
+			button.Frame:SetAlpha(alpha)
 		else
-			toggle:SetScript("OnUpdate", nil)
-			toggle.Frame:SetAlpha(1)
-			toggle.fading = nil
-			toggle.fadeDirection = nil
-			toggle.fadeDuration = 0
-			toggle.timeFading = 0
+			button:SetScript("OnUpdate", nil)
+			button.Frame:SetAlpha(1)
+			button.fading = nil
+			button.fadeDirection = nil
+			button.fadeDuration = 0
+			button.timeFading = 0
 		end
 	end
 end
@@ -163,22 +160,22 @@ end
 -- either the toggle button, the visible ring frame,
 -- or by clicking the toggle button.
 -- Its purpose should be to decide ring frame visibility.
-local Toggle_UpdateFrame = function(toggle)
+local Button_UpdateFrame = function(button)
 
 	-- Move towards full visibility if we're over the toggle or the visible frame
-	if (toggle.isMouseOver) then
+	if (button.isMouseOver) then
 
 		-- If we entered while fading, it's most likely a fade-out that needs to be reversed.
-		if (toggle.fading) then
+		if (button.fading) then
 
 			-- Reverse the fade-out.
-			if (toggle.fadeDirection == "OUT") then
-				toggle.fadeDirection = "IN"
-				toggle.fadeDuration = .25
-				toggle.fadeDelay = 0
-				toggle.timeFading = 0
-				if (not toggle:GetScript("OnUpdate")) then
-					toggle:SetScript("OnUpdate", Toggle_OnUpdate)
+			if (button.fadeDirection == "OUT") then
+				button.fadeDirection = "IN"
+				button.fadeDuration = .25
+				button.fadeDelay = 0
+				button.timeFading = 0
+				if (not button:GetScript("OnUpdate")) then
+					button:SetScript("OnUpdate", Button_OnUpdate)
 				end
 			else
 				-- this is a fade-in we wish to keep running.
@@ -191,13 +188,13 @@ local Toggle_UpdateFrame = function(toggle)
 			if (not frameIsShown) then
 				frame:SetAlpha(0)
 				frame:Show()
-				toggle.fadeDirection = "IN"
-				toggle.fadeDuration = .25
-				toggle.fadeDelay = .5
-				toggle.timeFading = 0
-				toggle.fading = true
-				if not toggle:GetScript("OnUpdate") then
-					toggle:SetScript("OnUpdate", Toggle_OnUpdate)
+				button.fadeDirection = "IN"
+				button.fadeDuration = .25
+				button.fadeDelay = .5
+				button.timeFading = 0
+				button.fading = true
+				if (not button:GetScript("OnUpdate")) then
+					button:SetScript("OnUpdate", Button_OnUpdate)
 				end
 			else
 				-- The frame is shown, just keep showing it and do nothing.
@@ -207,8 +204,8 @@ local Toggle_UpdateFrame = function(toggle)
 	elseif (frame.isMouseOver) then
 		-- This happens when we've quickly left the toggle button,
 		-- like when the mouse accidentally passes it on its way somewhere else.
-		if (not toggle.isMouseOver) and (toggle.fading) and (toggle.fadeDelay > 0) and (frameIsShown and frame.isMouseOver) then
-			return Toggle_Clear(toggle)
+		if (not button.isMouseOver) and (button.fading) and (button.fadeDelay > 0) and (frameIsShown and frame.isMouseOver) then
+			return Button_Clear(button)
 		end
 
 	-- We're not above the toggle or a visible frame,
@@ -220,106 +217,96 @@ local Toggle_UpdateFrame = function(toggle)
 			-- do not start a delay if we moved back into a fading frame then out again
 			-- before it could reach its full alpha, or the frame will appear to be "stuck"
 			-- in a semi-transparent state for a few seconds. Ewwww.
-			if (toggle.fading) then
+			if (button.fading) then
 				-- This was a queued fade-in that now will be cancelled,
 				-- because the mouse is not above the toggle button anymore.
-				if (toggle.fadeDirection == "IN") and (toggle.fadeDelay > 0) then
-					return Toggle_Clear(toggle)
+				if (button.fadeDirection == "IN") and (button.fadeDelay > 0) then
+					return Button_Clear(button)
 				else
 					-- This is a semi-visible frame,
 					-- that needs to get its fade-out initiated or updated.
-					toggle.fadeDirection = "OUT"
-					toggle.fadeDelay = 0
-					toggle.fadeDuration = (.25 - (toggle.timeFading or 0))
-					toggle.timeFading = toggle.timeFading or 0
+					button.fadeDirection = "OUT"
+					button.fadeDelay = 0
+					button.fadeDuration = (.25 - (button.timeFading or 0))
+					button.timeFading = button.timeFading or 0
 				end
 			else
 				-- Most likely a fully visible frame we just left.
 				-- Now we initiate the delay and a following fade-out.
-				toggle.fadeDirection = "OUT"
-				toggle.fadeDelay = .5
-				toggle.fadeDuration = .25
-				toggle.timeFading = 0
-				toggle.fading = true
+				button.fadeDirection = "OUT"
+				button.fadeDelay = .5
+				button.fadeDuration = .25
+				button.timeFading = 0
+				button.fading = true
 			end
-			if (not toggle:GetScript("OnUpdate")) then
-				toggle:SetScript("OnUpdate", Toggle_OnUpdate)
+			if (not button:GetScript("OnUpdate")) then
+				button:SetScript("OnUpdate", Button_OnUpdate)
 			end
 		end
 	end
 
 end
 
-local Toggle_OnMouseUp = function(toggle, button)
-	Toggle_UpdateFrame(toggle)
+local Button_OnMouseUp = function(button)
+	Button_UpdateFrame(button)
 end
 
-local Toggle_OnEnter = function(toggle)
-	toggle.isMouseOver = true
-	Toggle_UpdateFrame(toggle)
+local Button_OnEnter = function(button)
+	button.isMouseOver = true
+	Button_UpdateFrame(button)
 end
 
-local Toggle_OnLeave = function(toggle)
-	toggle.isMouseOver = nil
+local Button_OnLeave = function(button)
+	button.isMouseOver = nil
 
 	-- Update this to avoid a flicker or delay
 	-- when moving directly from the toggle button to the ringframe.
-	toggle.Frame.isMouseOver = MouseIsOver(toggle.Frame)
+	button.Frame.isMouseOver = MouseIsOver(button.Frame)
 
-	Toggle_UpdateFrame(toggle)
+	Button_UpdateFrame(button)
 end
 
 local RingFrame_OnEnter = function(frame)
-	local toggle = frame._owner
-	local isShown = frame:IsShown()
+	frame.isMouseOver = frame:IsShown()
 
-	frame.isMouseOver = isShown and true
+	Button_UpdateFrame(frame.Button)
 
-	Toggle_UpdateFrame(toggle)
-
-	isShown = frame:IsShown()
-
-	local toggle = frame._owner
-	if (not isShown) then
-		toggle.fading = nil
-		toggle.fadeDirection = nil
-		toggle.fadeDuration = 0
-		toggle.fadeDelay = 0
-		toggle.timeFading = 0
+	if (not frame:IsShown()) then
+		frame.Button.fading = nil
+		frame.Button.fadeDirection = nil
+		frame.Button.fadeDuration = 0
+		frame.Button.fadeDelay = 0
+		frame.Button.timeFading = 0
 	end
-
 end
 
 local RingFrame_OnLeave = function(frame)
-	local toggle = frame._owner
-
-	frame.isMouseOver = nil
-	frame.UpdateTooltip = nil
-
 	-- Update this to avoid a flicker or delay
 	-- when moving directly from the ringframe to the toggle button.
-	toggle.isMouseOver = MouseIsOver(toggle)
+	frame.Button.isMouseOver = MouseIsOver(frame.Button)
+	frame.isMouseOver = nil
 
-	Toggle_UpdateFrame(toggle)
+	Button_UpdateFrame(frame.Button)
 end
 
 StatusBars.CreateBars = function(self)
 
 	local button = SetObjectScale(CreateFrame("Frame", nil, Minimap))
+	button:Hide()
 	button:SetFrameStrata("MEDIUM")
 	button:SetFrameLevel(60)
 	button:SetPoint(unpack(db.ButtonPosition))
 	button:SetSize(unpack(db.ButtonSize))
 	button:EnableMouse(true)
-	button:SetScript("OnEnter", Toggle_OnEnter)
-	button:SetScript("OnLeave", Toggle_OnLeave)
-	button:SetScript("OnMouseUp", Toggle_OnMouseUp)
+	button:SetScript("OnEnter", Button_OnEnter)
+	button:SetScript("OnLeave", Button_OnLeave)
+	button:SetScript("OnMouseUp", Button_OnMouseUp)
 
 	local texture = button:CreateTexture(nil, "BACKGROUND", nil, 1)
-	toggleBackdrop:SetSize(unpack(db.ButtonTextureSize))
-	toggleBackdrop:SetPoint(unpack(db.ButtonTexturePosition))
-	toggleBackdrop:SetTexture(db.ButtonTexturePath)
-	toggleBackdrop:SetVertexColor(unpack(db.ButtonTextureColor))
+	texture:SetSize(unpack(db.ButtonTextureSize))
+	texture:SetPoint(unpack(db.ButtonTexturePosition))
+	texture:SetTexture(db.ButtonTexturePath)
+	texture:SetVertexColor(unpack(db.ButtonTextureColor))
 
 	button.Texture = texture
 
@@ -332,6 +319,7 @@ StatusBars.CreateBars = function(self)
 	frame:SetScript("OnEnter", RingFrame_OnEnter)
 	frame:SetScript("OnLeave", RingFrame_OnLeave)
 
+	frame.Button = button
 	button.Frame = frame
 
 	local backdrop = frame:CreateTexture(nil, "BACKGROUND", nil, 1)
@@ -401,10 +389,12 @@ StatusBars.CreateBars = function(self)
 
 	ring.Percent = perc
 
-	Bars[1] = bar
-	Bars[2] = bonus
+	self.Button = button
+	self.Frame = frame
+	self.Bar = bar
+	self.Bonus = bonus
 
-	ns:Fire("StatusTrackingBar_Created", Bars[1]:GetName())
+	ns:Fire("StatusTrackingBar_Created", self.Bar:GetName())
 
 end
 
@@ -412,8 +402,10 @@ StatusBars.UpdateBars = function(self, event, ...)
 	if (not Bars) then
 		return
 	end
-	local bar,bonus = Bars[1],Bars[2]
+
+	local bar, bonus = self.Bar, self.Bonus
 	local bonusShown = bonus:IsShown()
+	local showButton
 
 	local name, reaction, min, max, current, factionID = GetWatchedFactionInfo()
 	if (name) then
@@ -502,6 +494,8 @@ StatusBars.UpdateBars = function(self, event, ...)
 			bar:SetMouseClickEnabled(false)
 			bar:Show()
 
+			showButton = true
+
 		else
 			-- this can happen?
 			bar:SetScript("OnEnter", nil)
@@ -560,9 +554,16 @@ StatusBars.UpdateBars = function(self, event, ...)
 			bar:SetScript("OnLeave", XP_OnLeave)
 			bar:SetMouseClickEnabled(false)
 			bar:Show()
+
+			showButton = true
 		end
 	end
 
+	if (showButton and not self.Button:IsShown()) then
+		self.Button:Show()
+	elseif (not showButton and self.Button:IsShown()) then
+		self.Button:Hide()
+	end
 end
 
 StatusBars.OnInitialize = function(self)
