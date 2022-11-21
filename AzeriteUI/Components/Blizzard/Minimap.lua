@@ -252,9 +252,8 @@ end
 
 MinimapMod.UpdateClock = function(self)
 	local time = self.time
-	if (not time) then
-		return
-	end
+	if (not time) then return end
+	local db = ns.Config.Minimap
 	if (ns.db.global.minimap.useServerTime) then
 		if (ns.db.global.minimap.useHalfClock) then
 			time:SetFormattedText("%.0f:%02.0f |cff888888%s|r", GetServerTime(true))

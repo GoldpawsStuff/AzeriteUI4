@@ -39,6 +39,7 @@ local hooksecurefunc = hooksecurefunc
 local Colors = ns.Colors
 local GetFont = ns.API.GetFont
 local GetMedia = ns.API.GetMedia
+local RegisterCooldown = ns.Widgets.RegisterCooldown
 local SetObjectScale = ns.API.SetObjectScale
 local noop = ns.Noop
 
@@ -66,15 +67,15 @@ ExtraButtons.UpdateButton = function(self, button)
 	-- Todo: Check which ones are there, this might not be needed.
 	if (button.SetNormalTexture) then
 		if (button:GetNormalTexture()) then button:GetNormalTexture():SetTexture(nil) end
-		hooksecurefunc(button, "SetNormalTexture", function(b,...) if(...)then b:SetNormalTexture(nil) end end)
+		hooksecurefunc(button, "SetNormalTexture", function(b,...) if(...~="")then b:SetNormalTexture("") end end)
 	end
 	if (button.SetHighlightTexture) then
 		if (button:GetHighlightTexture()) then button:GetHighlightTexture():SetTexture(nil) end
-		hooksecurefunc(button, "SetHighlightTexture", function(b,...) if(...)then b:SetHighlightTexture(nil) end end)
+		hooksecurefunc(button, "SetHighlightTexture", function(b,...) if(...~="")then b:SetHighlightTexture("") end end)
 	end
 	if (button.SetCheckedTexture) then
 		if (button:GetCheckedTexture()) then button:GetCheckedTexture():SetTexture(nil) end
-		hooksecurefunc(button, "SetCheckedTexture", function(b,...) if(...)then b:SetCheckedTexture(nil) end end)
+		hooksecurefunc(button, "SetCheckedTexture", function(b,...) if(...~="")then b:SetCheckedTexture("") end end)
 	end
 
 	button:SetSize(unpack(db.ExtraButtonSize))
@@ -86,10 +87,10 @@ ExtraButtons.UpdateButton = function(self, button)
 	button.overlay = overlay
 
 	local border = overlay:CreateTexture(nil, "BORDER", nil, 1)
-	border:SetPoint(unpack(db.ButtonBorderPosition))
-	border:SetSize(unpack(db.ButtonBorderSize))
-	border:SetTexture(db.ButtonBorderTexture)
-	border:SetVertexColor(unpack(db.ButtonBorderColor))
+	border:SetPoint(unpack(db.ExtraButtonBorderPosition))
+	border:SetSize(unpack(db.ExtraButtonBorderSize))
+	border:SetTexture(db.ExtraButtonBorderTexture)
+	border:SetVertexColor(unpack(db.ExtraButtonBorderColor))
 	button.iconBorder = border
 
 	local cooldown = button.cooldown or button.Cooldown
@@ -111,9 +112,9 @@ ExtraButtons.UpdateButton = function(self, button)
 		-- Custom cooldown count
 		local cooldownCount = overlay:CreateFontString(nil, "OVERLAY", nil, 1)
 		cooldownCount:SetPoint(unpack(db.ExtraButtonCooldownCountPosition))
-		cooldownCount:SetFontObject(db.ExtraButtonCooldownCountJustifyH)
-		cooldownCount:SetJustifyH(db.ExtraButtonCooldownCountJustifyV)
-		cooldownCount:SetJustifyV(db.ExtraButtonCooldownCountFont)
+		cooldownCount:SetJustifyH(db.ExtraButtonCooldownCountJustifyH)
+		cooldownCount:SetJustifyV(db.ExtraButtonCooldownCountJustifyV)
+		cooldownCount:SetFontObject(db.ExtraButtonCooldownCountFont)
 		cooldownCount:SetTextColor(unpack(db.ExtraButtonCooldownCountColor))
 		button.cooldownCount = cooldownCount
 

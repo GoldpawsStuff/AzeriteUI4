@@ -291,6 +291,8 @@ end
 
 StatusBars.CreateBars = function(self)
 
+	local db = ns.Config.StatusBars
+
 	local button = SetObjectScale(CreateFrame("Frame", nil, Minimap))
 	button:Hide()
 	button:SetFrameStrata("MEDIUM")
@@ -382,8 +384,8 @@ StatusBars.CreateBars = function(self)
 
 	-- Button Percentage Text
 	local perc = button:CreateFontString(nil, "OVERLAY", nil, 1)
-	perc:SetJustifyH(db.RingPercentJustify)
-	perc:SetJustifyV(db.RingPercentJustify)
+	perc:SetJustifyH(db.RingPercentJustifyH)
+	perc:SetJustifyV(db.RingPercentJustifyV)
 	perc:SetFontObject(db.RingPercentFont)
 	perc:SetPoint(unpack(db.RingPercentPosition))
 
@@ -391,7 +393,7 @@ StatusBars.CreateBars = function(self)
 
 	self.Button = button
 	self.Frame = frame
-	self.Bar = bar
+	self.Bar = ring
 	self.Bonus = bonus
 
 	ns:Fire("StatusTrackingBar_Created", self.Bar:GetName())

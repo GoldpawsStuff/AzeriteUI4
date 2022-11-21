@@ -188,7 +188,7 @@ local UpdateQuestItemButton = function(button)
 	local hotKey = button.HotKey or _G[name.."HotKey"]
 
 	if (not Handled[button]) then
-		button:SetNormalTexture(nil)
+		button:SetNormalTexture("")
 
 		if (icon) then
 			icon:SetDrawLayer("BACKGROUND",0)

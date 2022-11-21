@@ -25,20 +25,27 @@
 --]]
 local Addon, ns = ...
 local ActionBars = ns:GetModule("ActionBars")
-local PetBar = ActionBars:NewModule("PetBar", "LibMoreEvents-1.0")
+local Bars = ActionBars:NewModule("Bar2", "LibMoreEvents-1.0", "AceConsole-3.0")
+local LAB = LibStub("LibActionButton-1.0")
 
 -- Lua API
+local math_floor = math.floor
+local next = next
 local pairs = pairs
 local select = select
-local setmetatable = setmetatable
+local string_format = string.format
+local tonumber = tonumber
 
 -- WoW API
-local ClearOverrideBindings = ClearOverrideBindings
 local CreateFrame = CreateFrame
 local GetBindingKey = GetBindingKey
 local InCombatLockdown = InCombatLockdown
-local PlaySound = PlaySound
-local SetOverrideBindingClick = SetOverrideBindingClick
+local IsControlKeyDown = IsControlKeyDown
+local IsShiftKeyDown = IsShiftKeyDown
+local PetDismiss = PetDismiss
+local RegisterStateDriver = RegisterStateDriver
+local UnitExists = UnitExists
+local VehicleExit = VehicleExit
 
 -- Addon API
 local Colors = ns.Colors
@@ -48,6 +55,13 @@ local RegisterCooldown = ns.Widgets.RegisterCooldown
 local SetObjectScale = ns.API.SetObjectScale
 local UIHider = ns.Hider
 local noop = ns.Noop
+
+-- Constants
+local playerClass = ns.PlayerClass
+local BOTTOMLEFT_ACTIONBAR_PAGE = BOTTOMLEFT_ACTIONBAR_PAGE
+local BOTTOMRIGHT_ACTIONBAR_PAGE = BOTTOMRIGHT_ACTIONBAR_PAGE
+local RIGHT_ACTIONBAR_PAGE = RIGHT_ACTIONBAR_PAGE
+local LEFT_ACTIONBAR_PAGE = LEFT_ACTIONBAR_PAGE
 
 local buttonOnEnter = function(self)
 	self.icon.darken:SetAlpha(0)
@@ -63,26 +77,12 @@ local buttonOnLeave = function(self)
 	end
 end
 
-local handleOnClick = function(self)
-	if (self.bar:IsShown()) then
-		PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON, "SFX")
-	else
-		PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_OFF, "SFX")
-	end
-end
-
-local handleOnEnter = function(self)
-end
-
-local handleOnLeave = function(self)
-end
-
 local style = function(button)
 
-	local db = ns.Config.PetBar
+	local db = ns.Config.Bar2
 
 	-- Clean up the button template
-	for _,i in next,{ --[["AutoCastShine",]] "Border", "Name", "NewActionTexture", "NormalTexture", "SpellHighlightAnim", "SpellHighlightTexture",
+	for _,i in next,{ "AutoCastShine", "Border", "Name", "NewActionTexture", "NormalTexture", "SpellHighlightAnim", "SpellHighlightTexture",
 		--[[ WoW10 ]] "CheckedTexture", "HighlightTexture", "BottomDivider", "RightDivider", "SlotArt", "SlotBackground" } do
 		if (button[i] and button[i].Stop) then button[i]:Stop() elseif button[i] then button[i]:SetParent(UIHider) end
 	end
@@ -143,22 +143,6 @@ local style = function(button)
 	flash:SetVertexColor(1, 0, 0, .25)
 	flash:SetTexture(m)
 	flash:Hide()
-
-	-- Wrath overwrites the default texture
-	if (not ns.IsRetail) then
-		button.AutoCastable = _G[button:GetName().."AutoCastable"]
-		button.AutoCastShine = _G[button:GetName().."Shine"]
-	end
-
-	local autoCastable = button.AutoCastable
-	autoCastable:ClearAllPoints()
-	autoCastable:SetPoint("TOPLEFT", -16, 16)
-	autoCastable:SetPoint("BOTTOMRIGHT", 16, -16)
-
-	local autoCastShine = button.AutoCastShine
-	autoCastShine:ClearAllPoints()
-	autoCastShine:SetPoint("TOPLEFT", 6, -6)
-	autoCastShine:SetPoint("BOTTOMRIGHT", -6, 6)
 
 	-- Button cooldown frame
 	local cooldown = button.cooldown
@@ -253,204 +237,84 @@ local style = function(button)
 	return button
 end
 
-PetBar.SpawnBar = function(self)
-	if (not self.Bar) then
+Bars.SpawnBar = function(self)
 
-		-- Create pet bar
-		local scale = .8
-		local bar = SetObjectScale(ns.PetBar:Create(ns.Prefix.."PetActionBar", UIParent), scale)
-		bar:SetFrameStrata("MEDIUM")
-		bar:SetWidth(549)
-		bar:SetHeight(54)
-		bar.scale = scale
+	local db = ns.Config.Bar2
 
-		local button
-		for id = 1,10 do
-			button = bar:CreateButton(id, bar:GetName().."Button"..id)
-			button:SetPoint("BOTTOMLEFT", (id-1)*(54), 0)
-			bar:SetFrameRef("Button"..id, button)
-			style(button)
-		end
+	-- Secondary ActionBar
+	-------------------------------------------------------
+	local bar = SetObjectScale(ns.ActionBar:Create(BOTTOMLEFT_ACTIONBAR_PAGE, ns.Prefix.."ActionBar2", UIParent))
+	bar:SetPoint(unpack(db.Position))
+	bar:SetSize(unpack(db.Size))
 
-		bar:SetAttribute("showPetBar", ns.db.char.actionbars.showPetBar)
-		bar.UpdateSettings = function(self)
-			ns.db.char.actionbars.showPetBar = self:GetAttribute("showPetBar")
-		end
-
-		local onVisibility = function(self) ns:Fire("ActionBars_PetBar_Updated", self:IsShown() and true or false) end
-		bar:HookScript("OnHide", onVisibility)
-		bar:HookScript("OnShow", onVisibility)
-
-		-- Create pull-out handle
-		local handle = SetObjectScale(CreateFrame("CheckButton", bar:GetName().."Handle", UIParent, "SecureHandlerClickTemplate"))
-		handle:SetSize(64,12)
-		handle:SetFrameStrata("MEDIUM")
-		handle:RegisterForClicks("AnyUp")
-		handle:SetHitRectInsets(-20, -20, -20, 0)
-		handle:HookScript("OnClick", handleOnClick)
-		handle:SetScript("OnEnter", handleOnEnter)
-		handle:SetScript("OnLeave", handleOnLeave)
-		handle.OnEnter = handleOnEnter
-		handle.OnLeave = handleOnLeave
-		handle.bar = bar
-
-		local texture = handle:CreateTexture()
-		texture:SetColorTexture(.5, 0, 0, .5)
-		texture:SetAllPoints()
-		handle.texture = texture
-
-		-- Handle onclick handler triggering visibility changes
-		handle:SetAttribute("_onclick", [[
-			local pet = self:GetFrameRef("Bar");
-			if (pet:IsShown()) then
-				pet:SetAttribute("showPetBar", false);
-			else
-				pet:SetAttribute("showPetBar", true);
-			end
-			pet:CallMethod("UpdateSettings");
-			pet:RunAttribute("UpdateVisibility");
-		]])
-
-		-- Handle position updater
-		-- Triggered by the bar's UpdateVisibility attribute
-		handle:SetAttribute("UpdatePosition", [[
-			self:ClearAllPoints();
-			local bar = self:GetFrameRef("Bar");
-			if (bar:IsShown()) then
-				self:SetPoint("BOTTOM", bar, "TOP", 0, 2);
-			else
-				self:SetPoint("BOTTOM", bar, "BOTTOM", 0, 0);
-			end
-			local driver = bar:GetAttribute("visibility-driver");
-			if not driver then return end
-			UnregisterStateDriver(self, "visibility");
-			RegisterStateDriver(self, "visibility", driver);
-		]])
-
-		-- The handle's state handler reacting to visibility driver suggestions.
-		handle:SetAttribute("_onstate-vis", [[
-			if not newstate then return end
-			self:RunAttribute("UpdatePosition");
-		]])
-
-		-- Custom visibility updater
-		-- Also triggers handle position change
-		bar:SetAttribute("UpdateVisibility", [[
-			local driver = self:GetAttribute("visibility-driver");
-			if not driver then return end
-			local show = SecureCmdOptionParse(driver) == "show";
-			local enabled = self:GetAttribute("showPetBar");
-			if (enabled and show) then
-				self:Show();
-			else
-				self:Hide();
-			end
-			local handle = self:GetFrameRef("Handle");
-			handle:RunAttribute("UpdatePosition");
-		]])
-
-		-- State handler reacting to visibility driver updates.
-		bar:SetAttribute("_onstate-vis", [[
-			if not newstate then return end
-			self:RunAttribute("UpdateVisibility");
-		]])
-
-		-- Cross reference the bar and its handle
-		bar:SetFrameRef("Handle", handle)
-		handle:SetFrameRef("Bar", bar)
-
-		self.Bar = bar
-		self.Bar.Handle = handle
-
+	for i = 1,12 do
+		local button = bar:CreateButton(i)
+		button:SetPoint(unpack(db.ButtonPositions[i]))
+		style(button)
 	end
 
-	self:UpdatePosition()
+	bar:UpdateStateDriver()
+
+	self.Bar = bar
+
+	-- Inform the environment about the spawned bars
+	ns:Fire("ActionBar_Created", ns.Prefix.."SecondaryActionBar")
+
 end
 
-PetBar.ForAll = function(self, method, ...)
-	if (self.Bar) then
-		self.Bar:ForAll(method, ...)
+Bars.UpdateBindings = function(self)
+	local bar = self.Bar
+	if (not bar) then
+		return
+	end
+	if (bar.UpdateBindings) then
+		bar:UpdateBindings()
 	end
 end
 
-PetBar.GetAll = function(self)
-	if (self.Bar) then
-		return self.Bar:GetAll()
-	end
-end
-
-PetBar.UpdateBindings = function(self)
-	if (self.Bar) then
-		self.Bar:UpdateBindings()
-	end
-end
-
-PetBar.UpdatePosition = function(self)
+Bars.UpdateSettings = function(self, event)
 	if (not self.Bar) then
 		return
 	end
-	self.Bar:SetPoint("BOTTOM", 4, (84 + ActionBars:GetBarOffset()) / self.Bar.scale)
+	if (ns.db.global.actionbars.enableBar2) then
+		self.Bar:Enable()
+	else
+		self.Bar:Disable()
+	end
 end
 
-PetBar.OnEvent = function(self, event, ...)
-
-	if event == "PET_BAR_UPDATE" or event == "PET_BAR_UPDATE_USABLE" or event == "PET_SPECIALIZATION_CHANGED" or
-	  (event == "UNIT_PET" and arg1 == "player") or
-	 ((event == "UNIT_FLAGS" or event == "UNIT_AURA") and arg1 == "pet") or
-	   event == "PLAYER_CONTROL_LOST" or event == "PLAYER_CONTROL_GAINED" or event == "PLAYER_FARSIGHT_FOCUS_CHANGED" or
-	   event == "PLAYER_TARGET_CHANGED" or event == "PLAYER_MOUNT_DISPLAY_CHANGED"
-	then
-		self:ForAll("Update")
-
-	elseif (event == "PET_BAR_UPDATE_COOLDOWN") then
-		self:ForAll("UpdateCooldown")
-
-	elseif (event == "PET_BAR_SHOWGRID") then
-		self:ForAll("ShowGrid")
-
-	elseif (event == "PET_BAR_HIDEGRID") then
-		self:ForAll("HideGrid")
-
-	elseif (event == "PLAYER_ENTERING_WORLD") then
+Bars.OnEvent = function(self, event, ...)
+	if (not self.Bar) then
+		return
+	end
+	if (event == "PLAYER_ENTERING_WORLD") then
 		local isInitialLogin, isReloadingUi = ...
 		if (isInitialLogin or isReloadingUi) then
-			self.Bar:Enable()
+			self:UpdateSettings()
 		end
+	elseif (event == "OnButtonUpdate") then
+		local button = ...
+		button.cooldown:ClearAllPoints()
+		button.cooldown:SetAllPoints(button.icon)
+		button.icon:RemoveMaskTexture(button.IconMask)
+		button.icon:SetMask(ns.Config.Bar2.ButtonMaskTexture)
 	end
 end
 
-PetBar.OnInitialize = function(self)
-	if (not ns.db.global.core.enableDevelopmentMode) then
-		self:Disable()
-		return
-	end
+Bars.OnInitialize = function(self)
 	self:SpawnBar()
 end
 
-PetBar.OnEnable = function(self)
+Bars.OnEnable = function(self)
 
-	self:RegisterEvent("PLAYER_CONTROL_LOST", "OnEvent")
-	self:RegisterEvent("PLAYER_CONTROL_GAINED", "OnEvent")
-	self:RegisterEvent("PLAYER_FARSIGHT_FOCUS_CHANGED", "OnEvent")
-	self:RegisterEvent("PLAYER_MOUNT_DISPLAY_CHANGED", "OnEvent")
-	self:RegisterEvent("PLAYER_TARGET_CHANGED", "OnEvent")
-	self:RegisterEvent("UNIT_PET", "OnEvent")
-	self:RegisterEvent("UNIT_FLAGS", "OnEvent")
-	self:RegisterEvent("UNIT_AURA", "OnEvent")
-	self:RegisterEvent("PET_BAR_UPDATE", "OnEvent")
-	self:RegisterEvent("PET_BAR_UPDATE_COOLDOWN", "OnEvent")
-	self:RegisterEvent("PET_BAR_UPDATE_USABLE", "OnEvent")
-	self:RegisterEvent("PET_BAR_SHOWGRID", "OnEvent")
-	self:RegisterEvent("PET_BAR_HIDEGRID", "OnEvent")
-	self:RegisterEvent("PLAYER_ENTERING_WORLD", "OnEvent")
-
-	if (ns.IsRetail) then
-		self:RegisterEvent("PET_SPECIALIZATION_CHANGED", "OnEvent")
-	end
-
-	self:RegisterEvent("UPDATE_BINDINGS", "UpdateBindings")
 	self:UpdateBindings()
 
-	ns.RegisterCallback(self, "ActionBars_Artwork_Updated", "UpdatePosition")
+	self:RegisterEvent("UPDATE_BINDINGS", "UpdateBindings")
+	self:RegisterEvent("PLAYER_ENTERING_WORLD", "OnEvent")
 
+	ns.RegisterCallback(self, "Saved_Settings_Updated", "UpdateSettings")
+
+	if (ns.IsRetail) then
+		LAB.RegisterCallback(self, "OnButtonUpdate", "OnEvent")
+	end
 end

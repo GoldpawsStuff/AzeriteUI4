@@ -35,6 +35,8 @@ local SetObjectScale = ns.API.SetObjectScale
 
 TalkingHead.OnInitialize = function(self)
 
+	local db = ns.Config.TalkingHead
+
 	local TalkingHeadFrame = SetObjectScale(TalkingHeadFrame, 1)
 	TalkingHeadFrame.ignoreFramePositionManager = true
 

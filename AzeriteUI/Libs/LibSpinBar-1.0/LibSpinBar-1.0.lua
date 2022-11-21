@@ -881,7 +881,7 @@ lib.CreateSpinBar = function(self, name, parent, template)
 	scaffold:SetSize(2,2)
 
 	-- The overlay is meant to hold overlay textures like the spark, glow, etc
-	local overlay = scaffold:CreateFrame("Frame")
+	local overlay = CreateFrame("Frame", nil, scaffold)
 	overlay:SetFrameLevel(scaffold:GetFrameLevel() + 2)
 	overlay:SetAllPoints(scaffold)
 
@@ -900,12 +900,12 @@ lib.CreateSpinBar = function(self, name, parent, template)
 	for i = 1,4 do
 
 		-- The scrollchild is where we put rotating texture that needs to be cropped.
-		local scrollchild = scaffold:CreateFrame("Frame")
+		local scrollchild = CreateFrame("Frame", nil, scaffold)
 		scrollchild:SetFrameLevel(scaffold:GetFrameLevel() + 1)
 		scrollchild:SetSize(1,1)
 
 		-- The scrollframe defines the visible area of the quadrant
-		local scrollframe = scaffold:CreateFrame("ScrollFrame")
+		local scrollframe = CreateFrame("ScrollFrame", nil, scaffold)
 		scrollframe:SetScrollChild(scrollchild)
 		scrollframe:SetFrameLevel(scaffold:GetFrameLevel() + 1)
 		scrollframe:SetSize(1,1)
