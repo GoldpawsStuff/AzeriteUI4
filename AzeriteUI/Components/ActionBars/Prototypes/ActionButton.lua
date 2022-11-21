@@ -224,32 +224,41 @@ ButtonMod.OnEvent = function(self, event, ...)
 
 		if (self.MaxDps) then
 			for button in next, LAB.activeButtons do
-				if (button.maxDpsGlowShown) then
-					button.maxDpsGlowColor = nil
-					button.maxDpsGlowShown = nil
-					UpdateMaxDps(button)
+				if (ns.ActionButtons[button]) then
+					if (button.maxDpsGlowShown) then
+						button.maxDpsGlowColor = nil
+						button.maxDpsGlowShown = nil
+						UpdateMaxDps(button)
+					end
 				end
 			end
 		end
 
 	elseif (event == "OnButtonUsable") then
-		UpdateUsable((...))
+		local button = ...
+		if (ns.ActionButtons[button]) then
+			UpdateUsable(button)
+		end
 
 	elseif (event == "OnButtonUpdate") then
-		UpdateUsable((...))
-
-		if (self.MaxDps) then
-			local button = ...
-			if (not button:GetTexture()) then
-				button.maxDpsGlowColor = nil
-				button.maxDpsGlowShown = nil
+		local button = ...
+		if (ns.ActionButtons[button]) then
+			UpdateUsable(button)
+			if (self.MaxDps) then
+				if (not button:GetTexture()) then
+					button.maxDpsGlowColor = nil
+					button.maxDpsGlowShown = nil
+				end
+				UpdateMaxDps(button)
 			end
-			UpdateMaxDps(button)
 		end
 
 	elseif (event == "OnButtonHideOverlayGlow" or event == "OnButtonShowOverlayGlow") then
-		if (self.MaxDps) then
-			UpdateMaxDps((...))
+		local button = ...
+		if (ns.ActionButtons[button]) then
+			if (self.MaxDps) then
+				UpdateMaxDps(button)
+			end
 		end
 	end
 end
