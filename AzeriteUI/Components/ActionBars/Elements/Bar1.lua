@@ -70,18 +70,12 @@ local buttonOnEnter = function(self)
 	if (self.OnEnter) then
 		self:OnEnter()
 	end
-	if (ns.db.global.actionbars.enableBarFading and self.id > 7) then
-		ns:Fire("ActionButton_FadeButton_Entering", self)
-	end
 end
 
 local buttonOnLeave = function(self)
 	self.icon.darken:SetAlpha(.1)
 	if (self.OnLeave) then
 		self:OnLeave()
-	end
-	if (ns.db.global.actionbars.enableBarFading and self.id > 7) then
-		ns:Fire("ActionButton_FadeButton_Leaving", self)
 	end
 end
 

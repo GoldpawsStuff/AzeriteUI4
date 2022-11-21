@@ -39,8 +39,20 @@ ActionBars.RegisterButtonForFading = function(self, button)
 	if (self.fadeButtons[button]) then
 		return
 	end
+
+	local methods = { OnEnter = button.OnEnter, OnLeave = button.OnLeave }
+
 	button.SetAlpha = noop
-	self.fadeButtons[button] = true
+	button.OnEnter = function(self)
+		if (methods.OnEnter) then methods.OnEnter(self) end
+		ns:Fire("ActionButton_FadeButton_Entering", self)
+	end
+	button.OnLeave = function(self)
+		if (methods.OnLeave) then methods.OnLeave(self) end
+		ns:Fire("ActionButton_FadeButton_Leaving", self)
+	end
+
+	self.fadeButtons[button] = methods
 	self:UpdateFadeButtons()
 end
 
@@ -48,7 +60,12 @@ ActionBars.UnregisterButtonForFading = function(self, button)
 	if (not self.fadeButtons[button]) then
 		return
 	end
+
 	button.SetAlpha = nil
+	for method,func in next,self.fadeButtons[button] do
+		button[method] = func
+	end
+
 	self.fadeButtons[button] = nil
 	self:UpdateFadeButtons()
 end
