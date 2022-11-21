@@ -30,6 +30,8 @@ local LAB = LibStub("LibActionButton-1.0")
 
 -- Lua API
 local math_floor = math.floor
+local math_max = math.max
+local math_min = math.min
 local next = next
 local pairs = pairs
 local select = select
@@ -68,12 +70,18 @@ local buttonOnEnter = function(self)
 	if (self.OnEnter) then
 		self:OnEnter()
 	end
+	if (ns.db.global.actionbars.enableBarFading and self.id > 7) then
+		ns:Fire("ActionButton_FadeButton_Entering", self)
+	end
 end
 
 local buttonOnLeave = function(self)
 	self.icon.darken:SetAlpha(.1)
 	if (self.OnLeave) then
 		self:OnLeave()
+	end
+	if (ns.db.global.actionbars.enableBarFading and self.id > 7) then
+		ns:Fire("ActionButton_FadeButton_Leaving", self)
 	end
 end
 
@@ -92,6 +100,7 @@ local style = function(button)
 
 	button:SetAttribute("buttonLock", true)
 	button:SetSize(unpack(db.ButtonSize))
+	button:SetHitRectInsets(-10,-10,-10,-10)
 	button:SetNormalTexture("")
 	button:SetHighlightTexture("")
 	button:SetCheckedTexture("")
@@ -313,6 +322,15 @@ Bars.SpawnBar = function(self)
 		RegisterStateDriver(controller, "petbattle", "[petbattle]petbattle;nopetbattle")
 	end
 
+	-- Bar Fading
+	-------------------------------------------------------
+	local enableBarFading = ns.db.global.actionbars.enableBarFading
+
+	local fader = CreateFrame("Frame", nil, bar)
+
+
+	self.Fader = fader
+
 	-- Inform the environment about the spawned bars
 	ns:Fire("ActionBar_Created", ns.Prefix.."PrimaryActionBar")
 
@@ -334,6 +352,35 @@ Bars.UpdateSettings = function(self, event)
 	end
 	if (ns.db.global.actionbars.enableBar1) then
 		self.Bar:Enable()
+
+		local enableBarFading = ns.db.global.actionbars.enableBarFading
+		local numButtons = math_max(math_min(ns.db.global.actionbars.numButtonsBar1 or 12, 12), 7)
+
+		for i = 1,numButtons do
+			local button = self.Bar.buttons[i]
+			button:Show()
+			button:SetAttribute("statehidden", nil)
+
+			if (i > 7) then
+				if (enableBarFading) then
+					ActionBars:RegisterButtonForFading(button)
+				else
+					ActionBars:UnregisterButtonForFading(button)
+				end
+			end
+		end
+
+		for i = numButtons+1,12 do
+			local button = self.Bar.buttons[i]
+			button:Hide()
+			button:SetAttribute("statehidden", true)
+
+			if (i > 7) then
+				ActionBars:UnregisterButtonForFading(button)
+			end
+		end
+
+		ns.db.global.actionbars.numButtonsBar1 = numButtons
 	else
 		self.Bar:Disable()
 	end

@@ -61,6 +61,9 @@ local playerLevel = UnitLevel("player")
 local playerXPDisabled = IsXPUserDisabled()
 local hardenedLevel = ns.IsRetail and 10 or ns.IsClassic and 40 or 30
 
+-- sourced from FrameXML/UnitPowerBarAlt.lua
+local ALTERNATE_POWER_INDEX = Enum.PowerType.Alternate or 10
+
 -- Utility Functions
 --------------------------------------------
 -- Simplify the tagging process a little.
@@ -289,15 +292,12 @@ local Power_UpdateVisibility = function(element, unit, cur, min, max)
 end
 
 -- Use custom colors for our power crystal. Does not apply to Wrath.
-local Power_UpdateColor = function(self, event, unit)
-	if (self.unit ~= unit) then
-		return
-	end
-	local element = self.Power
+local Power_PostUpdateColor = function(element, unit, r, g, b)
+
 	local pType, pToken, altR, altG, altB = UnitPowerType(unit)
-	if (pToken) then
-		local color = ns.Config.Player.PowerBarColors[pToken]
-		element:SetStatusBarColor(unpack(color))
+	local color = pToken and ns.Config.Player.PowerBarColors[pToken]
+	if (color) then
+		element:SetStatusBarColor(color[1], color[2], color[3])
 	end
 end
 
@@ -631,7 +631,7 @@ UnitStyles["Player"] = function(self, unit, id)
 	self.Power = power
 	self.Power.Override = ns.API.UpdatePower
 	self.Power.PostUpdate = Power_UpdateVisibility
-	self.Power.UpdateColor = ns.Retail and Power_UpdateColor
+	self.Power.PostUpdateColor = ns.IsRetail and Power_PostUpdateColor
 
 	local powerBackdrop = power:CreateTexture(nil, "BACKGROUND", nil, -2)
 	local powerCase = power:CreateTexture(nil, "ARTWORK", nil, 1)

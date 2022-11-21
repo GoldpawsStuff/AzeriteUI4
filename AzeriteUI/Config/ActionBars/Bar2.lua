@@ -34,22 +34,22 @@ local GetMedia = ns.API.GetMedia
 
 Config.Bar2 = {
 
-	Position = { "BOTTOMLEFT", UIParent, "BOTTOMLEFT", 60, 42 },
+	Position = { "BOTTOMLEFT", UIParent, "BOTTOMLEFT", 780, 42 },
 	Size = { 64, 64 },
 
 	ButtonPositions = {
-		[1] = { "BOTTOMLEFT", 0, 0 }, -- bottom row
-		[2] = { "BOTTOMLEFT", 72, 0 }, -- bottom row
-		[3] = { "BOTTOMLEFT", 144, 0 }, -- bottom row
-		[4] = { "BOTTOMLEFT", 216, 0 }, -- bottom row
-		[5] = { "BOTTOMLEFT", 288, 0 }, -- bottom row
-		[6] = { "BOTTOMLEFT", 360, 0 }, -- bottom row
-		[7] = { "BOTTOMLEFT", 432, 0 }, -- bottom row
-		[8] = { "BOTTOMLEFT", 504, 0 }, -- bottom row
-		[9] = { "BOTTOMLEFT", 548, 72 }, -- top row
-		[10] = { "BOTTOMLEFT", 576, 0 }, -- bottom row
-		[11] = { "BOTTOMLEFT", 620, 72 }, -- top row
-		[12] = { "BOTTOMLEFT", 648, 0 }, -- bottom row
+		[1] = { "BOTTOMLEFT", -28, 72 }, -- top row
+		[2] = { "BOTTOMLEFT", 0, 0 }, -- bottom row
+		[3] = { "BOTTOMLEFT", 44, 72 }, -- top row
+		[4] = { "BOTTOMLEFT", 72, 0 }, -- bottom row
+		[5] = { "BOTTOMLEFT", 116, 72 }, -- top row
+		[6] = { "BOTTOMLEFT", 144, 0 }, -- bottom row
+		[7] = { "BOTTOMLEFT", 188, 72 }, -- top row
+		[8] = { "BOTTOMLEFT", 216, 0 }, -- bottom row
+		[9] = { "BOTTOMLEFT", 260, 72 }, -- top row
+		[10] = { "BOTTOMLEFT", 288, 0 }, -- bottom row
+		[11] = { "BOTTOMLEFT", 332, 72 }, -- top row
+		[12] = { "BOTTOMLEFT", 360, 0 }, -- bottom row
 	},
 	ButtonSize = { 64, 64 },
 	ButtonHitRects =  { -4, -4, -4, -4 },
@@ -63,7 +63,8 @@ Config.Bar2 = {
 	ButtonIconPosition = { "CENTER", 0, 0 },
 	ButtonIconSize = { 44, 44 },
 
-	ButtonKeybindPosition = { "TOPLEFT", -15, -5 },
+	-- No idea why this one bugs out, must look into it.
+	ButtonKeybindPosition = ns.IsRetail and { "TOPLEFT", -5, -5 } or { "TOPLEFT", -15, -5 },
 	ButtonKeybindJustifyH = "CENTER",
 	ButtonKeybindJustifyV = "BOTTOM",
 	ButtonKeybindFont = GetFont(15, true),

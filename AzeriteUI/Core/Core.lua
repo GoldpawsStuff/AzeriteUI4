@@ -41,9 +41,13 @@ local defaults = {
 			relativeScale = 1
 		},
 		actionbars = {
+			enableBarFading = true,
 			enableBar1 = true,
+			enableBar2 = false,
 			enablePetBar = true,
-			enableStanceBar = true
+			enableStanceBar = true,
+			numButtonsBar1 = 12, -- accepts 7-12
+			numButtonsBar2 = 12 -- accepts 1-12
 		},
 		chat = {
 			storedFrames = {}

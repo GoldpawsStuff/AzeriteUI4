@@ -63,7 +63,8 @@ Config.Bar1 = {
 	ButtonIconPosition = { "CENTER", 0, 0 },
 	ButtonIconSize = { 44, 44 },
 
-	ButtonKeybindPosition = { "TOPLEFT", -15, -5 },
+	-- No idea why this one bugs out, must look into it.
+	ButtonKeybindPosition = ns.IsRetail and { "TOPLEFT", -5, -5 } or { "TOPLEFT", -15, -5 },
 	ButtonKeybindJustifyH = "CENTER",
 	ButtonKeybindJustifyV = "BOTTOM",
 	ButtonKeybindFont = GetFont(15, true),
