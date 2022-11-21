@@ -259,16 +259,21 @@ Bars.SpawnBar = function(self)
 			end
 		end,
 		tooltip = _G.LEAVE_VEHICLE,
-		texture = --[[(ns.IsWrath) and ]][[Interface\Icons\achievement_bg_kill_carrier_opposing_flagroom]]
-			   --or [[Interface\Icons\INV_Pet_ExitBattle]]
+		texture = [[Interface\Icons\achievement_bg_kill_carrier_opposing_flagroom]]
 	}
 
 	for i = 1,12 do
 		local button = bar:CreateButton(i)
 		button:SetPoint(unpack(db.ButtonPositions[i]))
 		if (i == 7) then -- keep or skip?
-			button:SetState(11, "custom", exitButton)
-			button:SetState(12, "custom", exitButton)
+			if (ns.IsRetail) then
+				button:SetState(16, "custom", exitButton)
+				button:SetState(17, "custom", exitButton)
+				button:SetState(18, "custom", exitButton)
+			else
+				button:SetState(11, "custom", exitButton)
+				button:SetState(12, "custom", exitButton)
+			end
 		end
 		style(button)
 	end

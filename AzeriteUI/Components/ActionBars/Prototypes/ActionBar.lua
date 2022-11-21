@@ -60,7 +60,7 @@ ns.ActionBar = ActionBar
 ActionBar.CreateButton = function(self, id)
 
 	local button = ns.ActionButton:Create(id, self:GetName().."Button"..(#self.buttons + 1), self)
-	for k = 1,14 do
+	for k = 1,18 do
 		button:SetState(k, "action", (k - 1) * 12 + id)
 	end
 	button:SetState(0, "action", (self.id - 1) * 12 + id)
@@ -251,24 +251,23 @@ ActionBar.Create = function(self, id, name, parent)
 
 	bar:SetAttribute("_onstate-page", [[
 		if (newstate == "possess" or newstate == "11") then
-			if (HasVehicleActionBar()) then
+			if HasVehicleActionBar() then
 				newstate = GetVehicleBarIndex()
-			elseif (HasOverrideActionBar()) then
+			elseif HasOverrideActionBar() then
 				newstate = GetOverrideBarIndex()
-			elseif (HasTempShapeshiftActionBar()) then
+			elseif HasTempShapeshiftActionBar() then
 				newstate = GetTempShapeshiftBarIndex()
-			elseif (HasBonusActionBar() and GetActionBarPage() == 1) then
+			elseif HasBonusActionBar() and GetActionBarPage() == 1 then
 				newstate = GetBonusBarIndex()
 			else
-				-- Is it a good idea to use this fallback?
-				newstate = GetActionBarPage()
+				newstate = nil
 			end
 			if not newstate then
 				newstate = 12
 			end
 		end
-		self:SetAttribute("state", newstate)
-		control:ChildUpdate("state", newstate)
+		self:SetAttribute("state", newstate);
+		control:ChildUpdate("state", newstate);
 	]])
 
 	-- Intended for external access by plugins

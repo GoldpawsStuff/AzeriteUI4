@@ -266,10 +266,11 @@ UnitStyles["Pet"] = function(self, unit, id)
 	health:SetOrientation(db.HealthBarOrientation)
 	health:SetSparkMap(db.HealthBarSparkMap)
 	health.predictThreshold = .01
-	health.colorClass = true
-	health.colorClassPet = true
-	health.colorHappiness = true
-	health.colorReaction = true
+	health.colorHealth = true
+	--health.colorClass = true
+	--health.colorClassPet = true
+	--health.colorHappiness = true
+	--health.colorReaction = true
 
 	self.Health = health
 	self.Health.Override = ns.API.UpdateHealth
