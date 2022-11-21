@@ -391,14 +391,17 @@ Bars.OnEvent = function(self, event, ...)
 		end
 	elseif (event == "OnButtonUpdate") then
 		local button = ...
-		button.cooldown:ClearAllPoints()
-		button.cooldown:SetAllPoints(button.icon)
-		button.icon:RemoveMaskTexture(button.IconMask)
-		button.icon:SetMask(ns.Config.Bar1.ButtonMaskTexture)
+		if (self.buttons[button]) then
+			button.cooldown:ClearAllPoints()
+			button.cooldown:SetAllPoints(button.icon)
+			button.icon:RemoveMaskTexture(button.IconMask)
+			button.icon:SetMask(ns.Config.Bar1.ButtonMaskTexture)
+		end
 	end
 end
 
 Bars.OnInitialize = function(self)
+	self.buttons = {}
 	self:SpawnBar()
 end
 
