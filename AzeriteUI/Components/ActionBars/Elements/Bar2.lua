@@ -260,10 +260,6 @@ Bars.SpawnBar = function(self)
 
 	self.Bar = bar
 
-	-- Bar Fading
-	-------------------------------------------------------
-	local enableBarFading = ns.db.global.actionbars.enableBarFading
-
 	-- Inform the environment about the spawned bars
 	ns:Fire("ActionBar_Created", ns.Prefix.."SecondaryActionBar")
 
@@ -286,19 +282,13 @@ Bars.UpdateSettings = function(self, event)
 	if (ns.db.global.actionbars.enableBar2) then
 		self.Bar:Enable()
 
-		local enableBarFading = ns.db.global.actionbars.enableBarFading
 		local numButtons = math_max(math_min(ns.db.global.actionbars.numButtonsBar2 or 12, 12), 1)
 
 		for i = 1,numButtons do
 			local button = self.Bar.buttons[i]
 			button:Show()
 			button:SetAttribute("statehidden", nil)
-
-			if (enableBarFading) then
-				ActionBars:RegisterButtonForFading(button)
-			else
-				ActionBars:UnregisterButtonForFading(button)
-			end
+			ActionBars:RegisterButtonForFading(button)
 		end
 
 		for i = numButtons+1,12 do

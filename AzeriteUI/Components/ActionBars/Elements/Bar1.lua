@@ -321,15 +321,6 @@ Bars.SpawnBar = function(self)
 		RegisterStateDriver(controller, "petbattle", "[petbattle]petbattle;nopetbattle")
 	end
 
-	-- Bar Fading
-	-------------------------------------------------------
-	local enableBarFading = ns.db.global.actionbars.enableBarFading
-
-	local fader = CreateFrame("Frame", nil, bar)
-
-
-	self.Fader = fader
-
 	-- Inform the environment about the spawned bars
 	ns:Fire("ActionBar_Created", ns.Prefix.."PrimaryActionBar")
 
@@ -352,7 +343,6 @@ Bars.UpdateSettings = function(self, event)
 	if (ns.db.global.actionbars.enableBar1) then
 		self.Bar:Enable()
 
-		local enableBarFading = ns.db.global.actionbars.enableBarFading
 		local numButtons = math_max(math_min(ns.db.global.actionbars.numButtonsBar1 or 12, 12), 7)
 
 		for i = 1,numButtons do
@@ -361,11 +351,7 @@ Bars.UpdateSettings = function(self, event)
 			button:SetAttribute("statehidden", nil)
 
 			if (i > 7) then
-				if (enableBarFading) then
-					ActionBars:RegisterButtonForFading(button)
-				else
-					ActionBars:UnregisterButtonForFading(button)
-				end
+				ActionBars:RegisterButtonForFading(button)
 			end
 		end
 
