@@ -80,6 +80,20 @@ ActionBars.UpdateFadeButtons = function(self)
 	end
 end
 
+ActionBars.SetButtons = function(self, input)
+	if (InCombatLockdown()) then return end
+
+	local id, numButtons = self:GetArgs(string_lower(input))
+	local barModName = id == "1" and "Bar1" or id == "2" and "Bar2"
+	local barMod = barModName and self:GetModule(barModName, true)
+
+	if (not barMod) then return end
+
+	ns.db.global.actionbars["numButtons"..barModName] = math_max(math_min(tonumber(numButtons), 12), id == "1" and 7 or 1)
+
+	barMod:UpdateSettings()
+end
+
 ActionBars.EnableBar = function(self, input)
 	if (InCombatLockdown()) then return end
 
@@ -90,50 +104,6 @@ ActionBars.EnableBar = function(self, input)
 	if (not barMod) then return end
 
 	ns.db.global.actionbars["enable"..barModName] = true
-
-	barMod:UpdateSettings()
-end
-
-ActionBars.EnablePetBar = function(self)
-	if (InCombatLockdown()) then return end
-
-	local barMod = self:GetModule("PetBar", true)
-
-	if (not barMod) then return end
-	ns.db.global.actionbars.enablePetBar = true
-
-	barMod:UpdateSettings()
-end
-
-ActionBars.DisablePetBar = function(self)
-	if (InCombatLockdown()) then return end
-
-	local barMod = self:GetModule("PetBar", true)
-
-	if (not barMod) then return end
-	ns.db.global.actionbars.enablePetBar = false
-
-	barMod:UpdateSettings()
-end
-
-ActionBars.EnableStanceBar = function(self)
-	if (InCombatLockdown()) then return end
-
-	local barMod = self:GetModule("StanceBar", true)
-
-	if (not barMod) then return end
-	ns.db.global.actionbars.enableStanceBar = true
-
-	barMod:UpdateSettings()
-end
-
-ActionBars.DisableStance = function(self)
-	if (InCombatLockdown()) then return end
-
-	local barMod = self:GetModule("StanceBar", true)
-
-	if (not barMod) then return end
-	ns.db.global.actionbars.enableStanceBar = false
 
 	barMod:UpdateSettings()
 end
@@ -152,16 +122,46 @@ ActionBars.DisableBar = function(self, input)
 	barMod:UpdateSettings()
 end
 
-ActionBars.SetButtons = function(self, input)
+ActionBars.EnablePetBar = function(self)
 	if (InCombatLockdown()) then return end
 
-	local id, numButtons = self:GetArgs(string_lower(input))
-	local barModName = id == "1" and "Bar1" or id == "2" and "Bar2"
-	local barMod = barModName and self:GetModule(barModName, true)
-
+	local barMod = self:GetModule("PetBar", true)
 	if (not barMod) then return end
 
-	ns.db.global.actionbars["numButtons"..barModName] = math_max(math_min(tonumber(numButtons), 12), id == "1" and 7 or 1)
+	ns.db.global.actionbars.enablePetBar = true
+
+	barMod:UpdateSettings()
+end
+
+ActionBars.DisablePetBar = function(self)
+	if (InCombatLockdown()) then return end
+
+	local barMod = self:GetModule("PetBar", true)
+	if (not barMod) then return end
+
+	ns.db.global.actionbars.enablePetBar = false
+
+	barMod:UpdateSettings()
+end
+
+ActionBars.EnableStanceBar = function(self)
+	if (InCombatLockdown()) then return end
+
+	local barMod = self:GetModule("StanceBar", true)
+	if (not barMod) then return end
+
+	ns.db.global.actionbars.enableStanceBar = true
+
+	barMod:UpdateSettings()
+end
+
+ActionBars.DisableStanceBar = function(self)
+	if (InCombatLockdown()) then return end
+
+	local barMod = self:GetModule("StanceBar", true)
+	if (not barMod) then return end
+
+	ns.db.global.actionbars.enableStanceBar = false
 
 	barMod:UpdateSettings()
 end
@@ -204,19 +204,18 @@ ActionBars.OnInitialize = function(self)
 	self.isMouseOver = 0
 	self.enableBarFading = ns.db.global.actionbars.enableBarFading
 
+	self:RegisterChatCommand("enablebar", "EnableBar")
 	self:RegisterChatCommand("enablebarfade", "EnableBarFading")
+	self:RegisterChatCommand("enablepetbar", "EnablePetBar")
+	self:RegisterChatCommand("enablestancebar", "EnableStanceBar")
+
+	self:RegisterChatCommand("disablebar", "DisableBar")
 	self:RegisterChatCommand("disablebarfade", "DisableBarFading")
+	self:RegisterChatCommand("disablepetbar", "DisablePetBar")
+	self:RegisterChatCommand("disablestancebar", "DisableStanceBar")
 
 	self:RegisterChatCommand("setbuttons", "SetButtons")
 
-	self:RegisterChatCommand("enablebar", "EnableBar")
-	self:RegisterChatCommand("disablebar", "DisableBar")
-
-	self:RegisterChatCommand("enablepetbar", "EnablePetBar")
-	self:RegisterChatCommand("disablepetbar", "DisablePetBar")
-
-	self:RegisterChatCommand("enablestancebar", "EnableStanceBar")
-	self:RegisterChatCommand("disablestancebar", "DisableStanceBar")
 end
 
 ActionBars.OnEnable = function(self)
