@@ -94,4 +94,8 @@ Config.Minimap = {
 	EyeGroupSizeFont = GetFont(15,true),
 	EyeGroupStatusFramePosition = { "TOPRIGHT", QueueStatusMinimapButton, "BOTTOMLEFT", 0, 0 },
 
+	-- MBB Integration
+	MBBPlace = { "BOTTOMRIGHT", -244, 35 },
+	MBBSize = { 32, 32 },
+	MBBTexture = GetMedia("plus"),
 }

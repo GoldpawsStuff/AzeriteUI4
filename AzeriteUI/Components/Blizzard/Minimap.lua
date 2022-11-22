@@ -68,6 +68,7 @@ local GetTime = ns.API.GetTime
 local GetLocalTime = ns.API.GetLocalTime
 local GetServerTime = ns.API.GetServerTime
 local IsAddOnEnabled = ns.API.IsAddOnEnabled
+local noop = ns.Noop
 
 -- WoW Strings
 local L_RESTING = TUTORIAL_TITLE30 -- "Resting"
@@ -634,6 +635,80 @@ MinimapMod.InitializeMinimap = function(self)
 end
 
 MinimapMod.InitializeMBB = function(self)
+
+	local db = ns.Config.Minimap
+
+	local button = CreateFrame("Frame", nil, Minimap)
+	button:SetFrameLevel(button:GetFrameLevel() + 10)
+	button:SetPoint(unpack(db.MBBPlace))
+	button:SetSize(unpack(db.MBBSize))
+	button:SetFrameStrata("LOW") -- MEDIUM collides with Immersion
+
+	local frame = _G.MBB_MinimapButtonFrame
+	frame:SetParent(button)
+	frame:RegisterForDrag()
+	frame:SetSize(unpack(db.MBBSize))
+	frame:ClearAllPoints()
+	frame:SetFrameStrata("LOW") -- MEDIUM collides with Immersion
+	frame:SetPoint("CENTER", 0, 0)
+	frame:SetHighlightTexture("")
+	frame:DisableDrawLayer("OVERLAY")
+
+	frame.ClearAllPoints = noop
+	frame.SetPoint = noop
+	frame.SetAllPoints = noop
+
+	local icon = _G.MBB_MinimapButtonFrame_Texture
+	icon:ClearAllPoints()
+	icon:SetPoint("CENTER", 0, 0)
+	icon:SetSize(unpack(layout.MBBSize))
+	icon:SetTexture(layout.MBBTexture)
+	icon:SetTexCoord(0,1,0,1)
+	icon:SetAlpha(.85)
+
+	local down, over
+	local setalpha = function()
+		if (down and over) then
+			icon:SetAlpha(1)
+		elseif (down or over) then
+			icon:SetAlpha(.95)
+		else
+			icon:SetAlpha(.85)
+		end
+	end
+
+	frame:SetScript("OnMouseDown", function(self)
+		down = true
+		setalpha()
+	end)
+
+	frame:SetScript("OnMouseUp", function(self)
+		down = false
+		setalpha()
+	end)
+
+	frame:SetScript("OnEnter", function(self)
+		MBB_ShowTimeout = -1
+		over = true
+		setalpha()
+
+		if (GameTooltip:IsForbidden()) then return end
+
+		GameTooltip_SetDefaultAnchor(GameTooltip, self)
+		GameTooltip:AddLine("MinimapButtonBag v" .. MBB_Version)
+		GameTooltip:AddLine(MBB_TOOLTIP1, 0, 1, 0, true)
+		GameTooltip:Show()
+	end)
+
+	frame:SetScript("OnLeave", function(self)
+		MBB_ShowTimeout = 0
+		over = false
+		setalpha()
+
+		if (GameTooltip:IsForbidden()) then return end
+
+		GameTooltip:Hide()
+	end)
 end
 
 MinimapMod.InitializeNarcissus = function(self)
