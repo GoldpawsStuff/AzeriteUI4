@@ -42,12 +42,10 @@ local defaults = {
 		},
 		actionbars = {
 			enableBarFading = true,
-			enableBar1 = true,
-			enableBar2 = false,
+			enableBar1 = true, numButtonsBar1 = 12, -- accepts 7-12
+			enableBar2 = false, numButtonsBar2 = 12, -- accepts 1-12
 			enablePetBar = true,
-			enableStanceBar = true,
-			numButtonsBar1 = 12, -- accepts 7-12
-			numButtonsBar2 = 12 -- accepts 1-12
+			enableStanceBar = true
 		},
 		chat = {
 			storedFrames = {}
