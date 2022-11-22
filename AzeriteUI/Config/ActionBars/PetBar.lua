@@ -34,6 +34,21 @@ local GetMedia = ns.API.GetMedia
 
 Config.PetBar = {
 
+	Position = { "BOTTOM", UIParent, "BOTTOM", 0, 200 },
+	Size = { 498, 48 },
+
+	ButtonPositions = {
+		[1] = { "BOTTOMLEFT", 0, 0 },
+		[2] = { "BOTTOMLEFT", 50, 0 },
+		[3] = { "BOTTOMLEFT", 100, 0 },
+		[4] = { "BOTTOMLEFT", 150, 0 },
+		[5] = { "BOTTOMLEFT", 200, 0 },
+		[6] = { "BOTTOMLEFT", 250, 0 },
+		[7] = { "BOTTOMLEFT", 300, 0 },
+		[8] = { "BOTTOMLEFT", 350, 0 },
+		[9] = { "BOTTOMLEFT", 400, 0 },
+		[10] = { "BOTTOMLEFT", 450, 0 }
+	},
 	ButtonSize = { 48, 48 },
 	ButtonHitRects =  { -4, -4, -4, -4 },
 	ButtonMaskTexture = GetMedia("actionbutton-mask-circular"),

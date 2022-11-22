@@ -256,115 +256,24 @@ end
 PetBar.SpawnBar = function(self)
 	if (not self.Bar) then
 
-		-- Create pet bar
-		local scale = .8
-		local bar = SetObjectScale(ns.PetBar:Create(ns.Prefix.."PetActionBar", UIParent), scale)
-		bar:SetFrameStrata("MEDIUM")
-		bar:SetWidth(549)
-		bar:SetHeight(54)
-		bar.scale = scale
+		local bar = SetObjectScale(ns.ActionBar:Create(1, ns.Prefix.."PetActionBar", UIParent))
+		bar:SetPoint(unpack(db.Position))
+		bar:SetSize(unpack(db.Size))
 
 		local button
 		for id = 1,10 do
 			button = bar:CreateButton(id, bar:GetName().."Button"..id)
-			button:SetPoint("BOTTOMLEFT", (id-1)*(54), 0)
+			button:SetPoint(unpack(db.ButtonPositions[i]))
 			bar:SetFrameRef("Button"..id, button)
 			style(button)
-		end
-
-		bar:SetAttribute("showPetBar", ns.db.char.actionbars.showPetBar)
-		bar.UpdateSettings = function(self)
-			ns.db.char.actionbars.showPetBar = self:GetAttribute("showPetBar")
 		end
 
 		local onVisibility = function(self) ns:Fire("ActionBars_PetBar_Updated", self:IsShown() and true or false) end
 		bar:HookScript("OnHide", onVisibility)
 		bar:HookScript("OnShow", onVisibility)
 
-		-- Create pull-out handle
-		local handle = SetObjectScale(CreateFrame("CheckButton", bar:GetName().."Handle", UIParent, "SecureHandlerClickTemplate"))
-		handle:SetSize(64,12)
-		handle:SetFrameStrata("MEDIUM")
-		handle:RegisterForClicks("AnyUp")
-		handle:SetHitRectInsets(-20, -20, -20, 0)
-		handle:HookScript("OnClick", handleOnClick)
-		handle:SetScript("OnEnter", handleOnEnter)
-		handle:SetScript("OnLeave", handleOnLeave)
-		handle.OnEnter = handleOnEnter
-		handle.OnLeave = handleOnLeave
-		handle.bar = bar
-
-		local texture = handle:CreateTexture()
-		texture:SetColorTexture(.5, 0, 0, .5)
-		texture:SetAllPoints()
-		handle.texture = texture
-
-		-- Handle onclick handler triggering visibility changes
-		handle:SetAttribute("_onclick", [[
-			local pet = self:GetFrameRef("Bar");
-			if (pet:IsShown()) then
-				pet:SetAttribute("showPetBar", false);
-			else
-				pet:SetAttribute("showPetBar", true);
-			end
-			pet:CallMethod("UpdateSettings");
-			pet:RunAttribute("UpdateVisibility");
-		]])
-
-		-- Handle position updater
-		-- Triggered by the bar's UpdateVisibility attribute
-		handle:SetAttribute("UpdatePosition", [[
-			self:ClearAllPoints();
-			local bar = self:GetFrameRef("Bar");
-			if (bar:IsShown()) then
-				self:SetPoint("BOTTOM", bar, "TOP", 0, 2);
-			else
-				self:SetPoint("BOTTOM", bar, "BOTTOM", 0, 0);
-			end
-			local driver = bar:GetAttribute("visibility-driver");
-			if not driver then return end
-			UnregisterStateDriver(self, "visibility");
-			RegisterStateDriver(self, "visibility", driver);
-		]])
-
-		-- The handle's state handler reacting to visibility driver suggestions.
-		handle:SetAttribute("_onstate-vis", [[
-			if not newstate then return end
-			self:RunAttribute("UpdatePosition");
-		]])
-
-		-- Custom visibility updater
-		-- Also triggers handle position change
-		bar:SetAttribute("UpdateVisibility", [[
-			local driver = self:GetAttribute("visibility-driver");
-			if not driver then return end
-			local show = SecureCmdOptionParse(driver) == "show";
-			local enabled = self:GetAttribute("showPetBar");
-			if (enabled and show) then
-				self:Show();
-			else
-				self:Hide();
-			end
-			local handle = self:GetFrameRef("Handle");
-			handle:RunAttribute("UpdatePosition");
-		]])
-
-		-- State handler reacting to visibility driver updates.
-		bar:SetAttribute("_onstate-vis", [[
-			if not newstate then return end
-			self:RunAttribute("UpdateVisibility");
-		]])
-
-		-- Cross reference the bar and its handle
-		bar:SetFrameRef("Handle", handle)
-		handle:SetFrameRef("Bar", bar)
-
 		self.Bar = bar
-		self.Bar.Handle = handle
-
 	end
-
-	self:UpdatePosition()
 end
 
 PetBar.ForAll = function(self, method, ...)
@@ -385,11 +294,21 @@ PetBar.UpdateBindings = function(self)
 	end
 end
 
-PetBar.UpdatePosition = function(self)
+PetBar.UpdateSettings = function(self, event)
 	if (not self.Bar) then
 		return
 	end
-	self.Bar:SetPoint("BOTTOM", 4, (84 + ActionBars:GetBarOffset()) / self.Bar.scale)
+	if (ns.db.global.actionbars.enablePetBar) then
+		self.Bar:Enable()
+
+		for i,button in next,self.Bar.buttons do
+			button:Show()
+			button:SetAttribute("statehidden", nil)
+			ActionBars:RegisterButtonForFading(button)
+		end
+	else
+		self.Bar:Disable()
+	end
 end
 
 PetBar.OnEvent = function(self, event, ...)
@@ -414,7 +333,7 @@ PetBar.OnEvent = function(self, event, ...)
 	elseif (event == "PLAYER_ENTERING_WORLD") then
 		local isInitialLogin, isReloadingUi = ...
 		if (isInitialLogin or isReloadingUi) then
-			self.Bar:Enable()
+			self:UpdateSettings()
 		end
 	end
 end
@@ -450,7 +369,5 @@ PetBar.OnEnable = function(self)
 
 	self:RegisterEvent("UPDATE_BINDINGS", "UpdateBindings")
 	self:UpdateBindings()
-
-	ns.RegisterCallback(self, "ActionBars_Artwork_Updated", "UpdatePosition")
 
 end
