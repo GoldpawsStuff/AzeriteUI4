@@ -157,8 +157,7 @@ local Button_OnUpdate = function(button, elapsed)
 end
 
 -- This method is called upon entering or leaving
--- either the toggle button, the visible ring frame,
--- or by clicking the toggle button.
+-- either the toggle button or the visible ring frame.
 -- Its purpose should be to decide ring frame visibility.
 local Button_UpdateFrame = function(button)
 
