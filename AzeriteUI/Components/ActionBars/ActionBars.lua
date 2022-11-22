@@ -94,6 +94,50 @@ ActionBars.EnableBar = function(self, input)
 	barMod:UpdateSettings()
 end
 
+ActionBars.EnablePetBar = function(self)
+	if (InCombatLockdown()) then return end
+
+	local barMod = self:GetModule("PetBar", true)
+
+	if (not barMod) then return end
+	ns.db.global.actionbars.enablePetBar = true
+
+	barMod:UpdateSettings()
+end
+
+ActionBars.DisablePetBar = function(self)
+	if (InCombatLockdown()) then return end
+
+	local barMod = self:GetModule("PetBar", true)
+
+	if (not barMod) then return end
+	ns.db.global.actionbars.enablePetBar = false
+
+	barMod:UpdateSettings()
+end
+
+ActionBars.EnableStanceBar = function(self)
+	if (InCombatLockdown()) then return end
+
+	local barMod = self:GetModule("StanceBar", true)
+
+	if (not barMod) then return end
+	ns.db.global.actionbars.enableStanceBar = true
+
+	barMod:UpdateSettings()
+end
+
+ActionBars.DisableStance = function(self)
+	if (InCombatLockdown()) then return end
+
+	local barMod = self:GetModule("StanceBar", true)
+
+	if (not barMod) then return end
+	ns.db.global.actionbars.enableStanceBar = false
+
+	barMod:UpdateSettings()
+end
+
 ActionBars.DisableBar = function(self, input)
 	if (InCombatLockdown()) then return end
 
@@ -160,11 +204,19 @@ ActionBars.OnInitialize = function(self)
 	self.isMouseOver = 0
 	self.enableBarFading = ns.db.global.actionbars.enableBarFading
 
-	self:RegisterChatCommand("setbuttons", "SetButtons")
-	self:RegisterChatCommand("enablebar", "EnableBar")
-	self:RegisterChatCommand("disablebar", "DisableBar")
 	self:RegisterChatCommand("enablebarfade", "EnableBarFading")
 	self:RegisterChatCommand("disablebarfade", "DisableBarFading")
+
+	self:RegisterChatCommand("setbuttons", "SetButtons")
+
+	self:RegisterChatCommand("enablebar", "EnableBar")
+	self:RegisterChatCommand("disablebar", "DisableBar")
+
+	self:RegisterChatCommand("enablepetbar", "EnablePetBar")
+	self:RegisterChatCommand("disablepetbar", "DisablePetBar")
+
+	self:RegisterChatCommand("enablestancebar", "EnableStanceBar")
+	self:RegisterChatCommand("disablestancebar", "DisableStanceBar")
 end
 
 ActionBars.OnEnable = function(self)
