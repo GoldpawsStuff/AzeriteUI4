@@ -150,11 +150,13 @@ local style = function(button)
 		button.AutoCastShine = _G[button:GetName().."Shine"]
 	end
 
+	-- Todo: Adjust size of this.
 	local autoCastable = button.AutoCastable
 	autoCastable:ClearAllPoints()
 	autoCastable:SetPoint("TOPLEFT", -16, 16)
 	autoCastable:SetPoint("BOTTOMRIGHT", 16, -16)
 
+	-- Todo: Check if I should add a round texture here
 	local autoCastShine = button.AutoCastShine
 	autoCastShine:ClearAllPoints()
 	autoCastShine:SetPoint("TOPLEFT", 6, -6)
