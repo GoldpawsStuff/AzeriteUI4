@@ -346,7 +346,8 @@ local UnitFrame_PostUpdateElements = function(self, event, unit, ...)
 		self.Name:Hide()
 	else
 		if (self.isMouseOver or self.isTarget or self.inCombat) then
-			self:SetIgnoreParentAlpha(self.isMouseOver and not self.isTarget)
+			-- SetIgnoreParentAlpha requires explicit true/false, or it'll bug out.
+			self:SetIgnoreParentAlpha((self.isMouseOver and not self.isTarget) and true or false)
 			if (self.isTarget) then
 				self.Health.Value:Hide()
 				self.Name:Hide()
