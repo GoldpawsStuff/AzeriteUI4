@@ -24,7 +24,7 @@
 
 --]]
 local MAJOR_VERSION = "LibSpinBar-1.0"
-local MINOR_VERSION = 2
+local MINOR_VERSION = 3
 
 if (not LibStub) then
 	error(MAJOR_VERSION .. " requires LibStub.")
@@ -334,20 +334,20 @@ local Update = function(self, elapsed)
 			local realAngle = degreeOffset - valueDegree
 
 			local passedCurrent
-			for barID = 1,#quadrantOrder,1 do
-				local bar = data.quadrants[quadrantOrder[barID]]
+			for quadrantID = 1,#quadrantOrder,1 do
+				local quadrant = data.quadrants[quadrantOrder[quadrantID]]
 
-				local isCurrent = bar:RotateTexture(realAngle)
+				local isCurrent = quadrant:RotateTexture(realAngle)
 				if isCurrent then
 					passedCurrent = true
 				end
 
-				bar.active = isCurrent or (not passedCurrent)
+				quadrant.active = isCurrent or (not passedCurrent)
 
-				if bar.active and (not bar:IsShown()) then
-					bar:Show()
-				elseif (not bar.active) and bar:IsShown() then
-					bar:Hide()
+				if quadrant.active and (not quadrant:IsShown()) then
+					quadrant:Show()
+				elseif (not quadrant.active) and quadrant:IsShown() then
+					quadrant:Hide()
 				end
 			end
 		else
@@ -356,20 +356,20 @@ local Update = function(self, elapsed)
 			local realAngle = degreeOffset - degreeSpan + valueDegree
 
 			local passedCurrent
-			for barID = 1,#quadrantOrder,1 do
-				local bar = data.quadrants[quadrantOrder[barID]]
+			for quadrantID = 1,#quadrantOrder,1 do
+				local quadrant = data.quadrants[quadrantOrder[quadrantID]]
 
-				local isCurrent = bar:RotateTexture(realAngle)
+				local isCurrent = quadrant:RotateTexture(realAngle)
 				if isCurrent then
 					passedCurrent = true
 				end
 
-				bar.active = isCurrent or (not passedCurrent)
+				quadrant.active = isCurrent or (not passedCurrent)
 
-				if bar.active and (not bar:IsShown()) then
-					bar:Show()
-				elseif (not bar.active) and bar:IsShown() then
-					bar:Hide()
+				if quadrant.active and (not quadrant:IsShown()) then
+					quadrant:Show()
+				elseif (not quadrant.active) and quadrant:IsShown() then
+					quadrant:Hide()
 				end
 			end
 		end
@@ -730,7 +730,7 @@ SpinBar.SetSparkFlash = function(self, durationIn, durationOut, minAlpha, maxAlp
 end
 
 SpinBar.GetParent = function(self)
-	return Bars[self] and Bars[self].scaffold and Bars[self].scaffold:GetParent()
+	return Bars[self].scaffold:GetParent()
 end
 
 SpinBar.ClearAllPoints = function(self)
@@ -835,7 +835,7 @@ SpinBar.SetAlpha = function(self, ...)
 end
 
 SpinBar.SetParent = function(self, ...)
-	Bars[self].scaffold:SetParent()
+	Bars[self].scaffold:SetParent(...)
 end
 
 SpinBar.CreateTexture = function(self, ...)
@@ -915,17 +915,17 @@ lib.CreateSpinBar = function(self, name, parent, template)
 		scrollchild:SetAllPoints(scrollframe)
 
 		-- The actual bar quadrant texture
-		local bar = setmetatable(scrollchild:CreateTexture(), Quadrant_MT)
-		bar:SetSize(1,1)
-		bar:SetDrawLayer("BACKGROUND", 0)
-		bar.quadrantID = i
-		bar.spark = spark
+		local quadrant = setmetatable(scrollchild:CreateTexture(), Quadrant_MT)
+		quadrant:SetSize(1,1)
+		quadrant:SetDrawLayer("BACKGROUND", 0)
+		quadrant.quadrantID = i
+		quadrant.spark = spark
 
 		-- Reset position, texcoords and rotation.
 		-- Just use the standard method here,
 		-- even though it's an extra function call.
 		-- Better to have that part in a single place.
-		bar:ResetTexture()
+		quadrant:ResetTexture()
 
 		-- Quadrant arrangement:
 		--
@@ -940,21 +940,21 @@ lib.CreateSpinBar = function(self, name, parent, template)
 			scrollframe:SetPoint("TOPRIGHT", scaffold, "TOPRIGHT", 0, 0)
 			scrollframe:SetPoint("BOTTOMLEFT", scaffold, "CENTER", 0, 0)
 
-			bar.quadrantDegree = 0
+			quadrant.quadrantDegree = 0
 
 		elseif (i == 2) then
 
 			scrollframe:SetPoint("TOPLEFT", scaffold, "TOPLEFT", 0, 0)
 			scrollframe:SetPoint("BOTTOMRIGHT", scaffold, "CENTER", 0, 0)
 
-			bar.quadrantDegree = 90
+			quadrant.quadrantDegree = 90
 
 		elseif (i == 3) then
 
 			scrollframe:SetPoint("BOTTOMLEFT", scaffold, "BOTTOMLEFT", 0, 0)
 			scrollframe:SetPoint("TOPRIGHT", scaffold, "CENTER", 0, 0)
 
-			bar.quadrantDegree = 180
+			quadrant.quadrantDegree = 180
 
 
 		elseif (i == 4) then
@@ -962,10 +962,10 @@ lib.CreateSpinBar = function(self, name, parent, template)
 			scrollframe:SetPoint("BOTTOMRIGHT", scaffold, "BOTTOMRIGHT", 0, 0)
 			scrollframe:SetPoint("TOPLEFT", scaffold, "CENTER", 0, 0)
 
-			bar.quadrantDegree = 270
+			quadrant.quadrantDegree = 270
 
 		end
-		quadrants[i] = bar
+		quadrants[i] = quadrant
 
 	end
 
