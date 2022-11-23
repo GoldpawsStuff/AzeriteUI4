@@ -59,7 +59,7 @@ Config.Clutter = {
 	UIErrorsFrameFont = GetFont(18, true),
 	UIErrorsFrameFontShadow = { 0, 0, 0, .5 },
 
-	VehicleSeatIndicatorPosition = { "CENTER", UIParent, "BOTTOMRIGHT", -130, 80 },
+	VehicleSeatIndicatorPosition = { "CENTER", UIParent, "BOTTOMRIGHT", -480, 210 },
 	ArcheologyDigsiteProgressBarPosition = { "BOTTOM", UIParent, "BOTTOM", 0, 390 }
 
 }
