@@ -57,18 +57,18 @@ Config.StatusBars = {
 	RingSparkOffset = -1/10,
 	RingSparkInset = 22 * 208/256,
 	RingSparkFlash = { nil, nil, 1, 1 },
-	RingSparkSize = { 6,34 * 208/256 },
+	RingSparkSize = { 6, 34 * 208/256 },
 	RingDegreeOffset = 90*3 - 14,
 	RingDegreeSpan = 360 - 14*2,
 
 	-- Ring Value Text
-	RingValuePosition = { "CENTER", 0, -9 },
+	RingValuePosition = { "CENTER", 0, 1 },
 	RingValueJustifyH = "CENTER",
 	RingValueJustifyV = "MIDDLE",
-	RingValueFont = GetFont(15, true),
+	RingValueFont = GetFont(24, true),
 
 	-- Ring Value Description
-	RingValueDescriptionPosition = { "CENTER", 0, -(15/2 + 2) },
+	RingValueDescriptionPosition = { "CENTER", 0, -16 },
 	RingValueDescriptionJustifyH = "CENTER",
 	RingValueDescriptionJustifyV = "MIDDLE",
 	RingValueDescriptionWidth = 100,
@@ -76,10 +76,10 @@ Config.StatusBars = {
 	RingValueDescriptionColor = { Colors.quest.gray[1], Colors.quest.gray[2], Colors.quest.gray[3] },
 
 	-- Button Percentage Text
-	RingPercentPosition = { "CENTER", 2, -2 },
+	RingPercentPosition = { "CENTER", 0, 0 },
 	RingPercentJustifyH = "CENTER",
 	RingPercentJustifyV = "MIDDLE",
-	RingPercentFont = GetFont(24, true),
+	RingPercentFont = GetFont(15, true),
 
 
 }

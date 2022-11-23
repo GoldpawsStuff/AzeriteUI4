@@ -28,6 +28,8 @@ local ActionBars = ns:GetModule("ActionBars")
 local StatusBars = ActionBars:NewModule("StatusBars", "LibMoreEvents-1.0")
 local LibSpinBar = LibStub("LibSpinBar-1.0")
 
+local L = LibStub("AceLocale-3.0"):GetLocale(Addon)
+
 -- Lua API
 local math_floor = math.floor
 local math_min = math.min
@@ -54,52 +56,12 @@ local UnitXPMax = UnitXPMax
 
 -- Addon API
 local Colors = ns.Colors
+local AbbreviateNumber = ns.API.AbbreviateNumber
 local GetFont = ns.API.GetFont
 local GetMedia = ns.API.GetMedia
 local SetObjectScale = ns.API.SetObjectScale
 
 local playerLevel = UnitLevel("player")
-
-local Reputation_OnEnter = function(self)
-	if (GameTooltip:IsForbidden()) then return end
-
-	local r, g, b = unpack(Colors[self.isFriend and "friendship" or "reaction"][self.standingID])
-
-	GameTooltip_SetDefaultAnchor(GameTooltip, self)
-	GameTooltip:AddDoubleLine(self.name, self.standingLabel, r, g, b, unpack(Colors.gray))
-	GameTooltip:Show()
-end
-
-local Reputation_OnLeave = function(self)
-	if (GameTooltip:IsForbidden()) then return end
-	GameTooltip:Hide()
-end
-
-local XP_OnEnter = function(self)
-	if (GameTooltip:IsForbidden()) then return end
-
-	local r, g, b = unpack(Colors.highlight)
-
-	local exhaustionCountdown = GetTimeToWellRested() and (GetTimeToWellRested() / 60)
-	local exhaustionStateID, exhaustionStateName, exhaustionStateMultiplier = GetRestState()
-	local tooltipText = string_format(EXHAUST_TOOLTIP1, exhaustionStateName, exhaustionStateMultiplier * 100)
-
-	if (exhaustionCountdown and GetXPExhaustion() and IsResting()) then
-		tooltipText = tooltipText..string_format(EXHAUST_TOOLTIP4, exhaustionCountdown)
-	elseif (exhaustionStateID == 4 or exhaustionStateID == 5) then
-		tooltipText = tooltipText..EXHAUST_TOOLTIP2
-	end
-
-	GameTooltip_SetDefaultAnchor(GameTooltip, self)
-	GameTooltip:AddDoubleLine(COMBAT_XP_GAIN, string_format(UNIT_LEVEL_TEMPLATE, UnitLevel("player")), r, g, b, unpack(Colors.gray))
-	GameTooltip:AddLine("\n"..tooltipText)
-	GameTooltip:Show()
-end
-
-local XP_OnLeave = function(self)
-	if (GameTooltip:IsForbidden()) then return end
-	GameTooltip:Hide()
-end
 
 -- Full clear of any cancelled fade-ins
 local Button_Clear = function(button)
@@ -184,9 +146,9 @@ local Button_UpdateFrame = function(button)
 		-- or because sticky bars just got disabled and it's still fully visible.
 		else
 			-- Inititate a fade-in delay, but only if the frame is hidden.
-			if (not frameIsShown) then
-				frame:SetAlpha(0)
-				frame:Show()
+			if (not button.Frame:IsShown()) then
+				button.Frame:SetAlpha(0)
+				button.Frame:Show()
 				button.fadeDirection = "IN"
 				button.fadeDuration = .25
 				button.fadeDelay = .5
@@ -200,10 +162,10 @@ local Button_UpdateFrame = function(button)
 			end
 		end
 
-	elseif (frame.isMouseOver) then
+	elseif (button.Frame.isMouseOver) then
 		-- This happens when we've quickly left the toggle button,
 		-- like when the mouse accidentally passes it on its way somewhere else.
-		if (not button.isMouseOver) and (button.fading) and (button.fadeDelay > 0) and (frameIsShown and frame.isMouseOver) then
+		if (not button.isMouseOver) and (button.fading) and (button.fadeDelay > 0) and (button.Frame:IsShown() and button.Frame.isMouseOver) then
 			return Button_Clear(button)
 		end
 
@@ -211,7 +173,7 @@ local Button_UpdateFrame = function(button)
 	-- so we should initiate a fade-out or cancel pending fade-ins.
 	else
 		-- if the frame is visible, this should be a fade-out.
-		if (frameIsShown) then
+		if (button.Frame:IsShown()) then
 			-- Only initiate the fade delay if the frame previously was fully shown,
 			-- do not start a delay if we moved back into a fading frame then out again
 			-- before it could reach its full alpha, or the frame will appear to be "stuck"
@@ -246,13 +208,49 @@ local Button_UpdateFrame = function(button)
 
 end
 
+local Button_UpdateTooltip = function(button)
+	if (GameTooltip:IsForbidden()) then return end
+
+	local bar = button.Frame.Bar
+	if (bar.currentType == "xp") then
+		local r, g, b = unpack(Colors.highlight)
+
+		local exhaustionCountdown = GetTimeToWellRested() and (GetTimeToWellRested() / 60)
+		local exhaustionStateID, exhaustionStateName, exhaustionStateMultiplier = GetRestState()
+		local tooltipText = string_format(EXHAUST_TOOLTIP1, exhaustionStateName, exhaustionStateMultiplier * 100)
+
+		if (exhaustionCountdown and GetXPExhaustion() and IsResting()) then
+			tooltipText = tooltipText..string_format(EXHAUST_TOOLTIP4, exhaustionCountdown)
+		elseif (exhaustionStateID == 4 or exhaustionStateID == 5) then
+			tooltipText = tooltipText..EXHAUST_TOOLTIP2
+		end
+
+		GameTooltip_SetDefaultAnchor(GameTooltip, button)
+		GameTooltip:AddDoubleLine(COMBAT_XP_GAIN, string_format(UNIT_LEVEL_TEMPLATE, UnitLevel("player")), r, g, b, unpack(Colors.gray))
+		GameTooltip:AddLine("\n"..tooltipText)
+		GameTooltip:Show()
+
+	elseif (bar.currentType == "reputation") then
+		local r, g, b = unpack(Colors[bar.isFriend and "friendship" or "reaction"][bar.standingID])
+
+		GameTooltip_SetDefaultAnchor(GameTooltip, bar)
+		GameTooltip:AddDoubleLine(bar.name, bar.standingLabel, r, g, b, unpack(Colors.gray))
+		GameTooltip:Show()
+	end
+
+end
+
 local Button_OnMouseUp = function(button)
 	Button_UpdateFrame(button)
 end
 
 local Button_OnEnter = function(button)
+	button.UpdateTooltip = Button_UpdateTooltip
 	button.isMouseOver = true
+
 	Button_UpdateFrame(button)
+
+	button:UpdateTooltip()
 end
 
 local Button_OnLeave = function(button)
@@ -263,6 +261,15 @@ local Button_OnLeave = function(button)
 	button.Frame.isMouseOver = MouseIsOver(button.Frame)
 
 	Button_UpdateFrame(button)
+
+	if (GameTooltip:IsForbidden()) then return end
+	if not(button.Frame.isMouseOver and button.Frame:IsShown()) then
+		GameTooltip:Hide()
+	end
+end
+
+local RingFrame_UpdateTooltip = function(frame)
+	Button_UpdateTooltip(frame.Button)
 end
 
 local RingFrame_OnEnter = function(frame)
@@ -277,6 +284,13 @@ local RingFrame_OnEnter = function(frame)
 		frame.Button.fadeDelay = 0
 		frame.Button.timeFading = 0
 	end
+
+	-- The above method can actually hide this frame,
+	-- trigger the OnLeave handler, and remove UpdateTooltip.
+	-- We need to check if it still exists before running it.
+	if (frame:IsShown()) and (frame.UpdateTooltip) then
+		frame:UpdateTooltip()
+	end
 end
 
 local RingFrame_OnLeave = function(frame)
@@ -286,6 +300,11 @@ local RingFrame_OnLeave = function(frame)
 	frame.isMouseOver = nil
 
 	Button_UpdateFrame(frame.Button)
+
+	if (GameTooltip:IsForbidden()) then return end
+	if (not frame.isMouseOver) then
+		GameTooltip:Hide()
+	end
 end
 
 StatusBars.CreateBars = function(self)
@@ -341,11 +360,13 @@ StatusBars.CreateBars = function(self)
 	ring:SetClockwise(true)
 	ring:SetDegreeOffset(db.RingDegreeOffset)
 	ring:SetDegreeSpan(db.RingDegreeSpan)
+	ring:SetStatusBarTexture(db.RingTexture)
 
 	frame.Bar = ring
 
 	local bonus = LibSpinBar:CreateSpinBar(ns.Prefix.."StatusTrackingBar", frame)
-	bonus:SetFrameLevel(frame:GetFrameLevel() + 1)
+	bonus:SetAlpha(.5)
+	bonus:SetFrameLevel(frame:GetFrameLevel() + 2)
 	bonus:SetPoint(unpack(db.RingPosition))
 	bonus:SetSize(unpack(db.RingSize))
 	bonus:SetSparkOffset(db.RingSparkOffset)
@@ -354,6 +375,8 @@ StatusBars.CreateBars = function(self)
 	bonus:SetClockwise(true)
 	bonus:SetDegreeOffset(db.RingDegreeOffset)
 	bonus:SetDegreeSpan(db.RingDegreeSpan)
+	bonus:SetStatusBarTexture(db.RingTexture)
+	bonus:SetStatusBarColor(unpack(Colors.restedBonus))
 
 	ring.Bonus = bonus
 
@@ -400,7 +423,7 @@ StatusBars.CreateBars = function(self)
 end
 
 StatusBars.UpdateBars = function(self, event, ...)
-	if (not Bars) then
+	if (not self.Bar) then
 		return
 	end
 
@@ -470,7 +493,9 @@ StatusBars.UpdateBars = function(self, event, ...)
 				bar:SetMinMaxValues(0, max-min)
 				bar:SetValue(current-min)
 			end
-			bar:SetStatusBarColor(unpack(Colors[isFriend and "friendship" or "reaction"][standingID]))
+
+			local r, g, b = unpack(Colors[isFriend and "friendship" or "reaction"][standingID])
+			bar:SetStatusBarColor(r, g, b)
 			bar.currentType = "reputation"
 
 			if (not isFriend) then
@@ -481,7 +506,7 @@ StatusBars.UpdateBars = function(self, event, ...)
 			bar.isFriend = isFriend
 			bar.standingID, bar.standingLabel = standingID, standingLabel
 
-			bar.Value:SetFormattedText("%.0f", (current-min)/(max-min))
+			bar.Value:SetFormattedText("%s", barMax-barValue)
 
 			local nextStanding = standingID and _G["FACTION_STANDING_LABEL"..(standingID + 1)] and GetText("FACTION_STANDING_LABEL"..standingID + 1, gender)
 			if (nextStanding) then
@@ -490,18 +515,21 @@ StatusBars.UpdateBars = function(self, event, ...)
 				bar.Description:SetText("")
 			end
 
-			bar:SetScript("OnEnter", Reputation_OnEnter)
-			bar:SetScript("OnLeave", Reputation_OnLeave)
-			bar:SetMouseClickEnabled(false)
+			bar.Value:SetTextColor(r, g, b)
+			bar.Percent:SetTextColor(r, g, b)
+
+			local perc = math_floor(barValue/barMax)
+			if (perc > 0) then
+				bar.Percent:SetFormattedText("%.0f", perc)
+			else
+				bar.Percent:SetText("*")
+			end
+
 			bar:Show()
 
 			showButton = true
 
 		else
-			-- this can happen?
-			bar:SetScript("OnEnter", nil)
-			bar:SetScript("OnLeave", nil)
-			bar:SetMouseClickEnabled(false)
 			bar:Hide()
 		end
 
@@ -514,9 +542,9 @@ StatusBars.UpdateBars = function(self, event, ...)
 		if (IsPlayerAtEffectiveMaxLevel() or IsXPUserDisabled()) then
 			bar.currentType = nil
 			bar:Hide()
-			bar:SetScript("OnEnter", nil)
-			bar:SetScript("OnLeave", nil)
-			bar:SetMouseClickEnabled(false)
+			--bar:SetScript("OnEnter", nil)
+			--bar:SetScript("OnLeave", nil)
+			--bar:SetMouseClickEnabled(false)
 			bar.Value:SetText("")
 			bar.Description:SetText("")
 		else
@@ -530,10 +558,11 @@ StatusBars.UpdateBars = function(self, event, ...)
 			local restedLeft, restedTimeLeft = GetXPExhaustion(), GetTimeToWellRested()
 			local min = UnitXP("player") or 0
 			local max = UnitXPMax("player") or 0
+			local r, g, b = unpack(Colors[restedLeft and "rested" or "xp"])
 
 			bar:SetMinMaxValues(0, max, forced)
 			bar:SetValue(min, forced)
-			bar:SetStatusBarColor(unpack(Colors[restedLeft and "rested" or "xp"]))
+			bar:SetStatusBarColor(r, g, b)
 			bar.currentType = "xp"
 
 			if (restedLeft) then
@@ -548,12 +577,20 @@ StatusBars.UpdateBars = function(self, event, ...)
 				bonus:SetMinMaxValues(0, 1, true)
 			end
 
-			bar.Value:SetFormattedText("%.0f", (max-min)/max)
+			--bar.Value:SetFormattedText("%.0f", (max-min)/max)
+			bar.Value:SetFormattedText("%s", AbbreviateNumber(max-min))
 			bar.Description:SetFormattedText(L["to level %s"], playerLevel + 1)
 
-			bar:SetScript("OnEnter", XP_OnEnter)
-			bar:SetScript("OnLeave", XP_OnLeave)
-			bar:SetMouseClickEnabled(false)
+			bar.Value:SetTextColor(r, g, b)
+			bar.Percent:SetTextColor(r, g, b)
+
+			local perc = math_floor(min/max)
+			if (perc > 0) then
+				bar.Percent:SetFormattedText("%.0f", perc)
+			else
+				bar.Percent:SetText(XP)
+			end
+
 			bar:Show()
 
 			showButton = true
