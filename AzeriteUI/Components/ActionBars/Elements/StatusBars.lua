@@ -391,7 +391,7 @@ StatusBars.UpdateBars = function(self, event, ...)
 			bar.isFriend = isFriend
 			bar.standingID, bar.standingLabel = standingID, standingLabel
 
-			bar.Value:SetFormattedText("%s", barMax-barValue)
+			bar.Value:SetFormattedText("%s", AbbreviateNumber(barMax-barValue))
 
 			local nextStanding = standingID and _G["FACTION_STANDING_LABEL"..(standingID + 1)] and GetText("FACTION_STANDING_LABEL"..standingID + 1, gender)
 			if (nextStanding) then
