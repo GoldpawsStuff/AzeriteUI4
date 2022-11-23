@@ -661,8 +661,8 @@ MinimapMod.InitializeMBB = function(self)
 	local icon = _G.MBB_MinimapButtonFrame_Texture
 	icon:ClearAllPoints()
 	icon:SetPoint("CENTER", 0, 0)
-	icon:SetSize(unpack(layout.MBBSize))
-	icon:SetTexture(layout.MBBTexture)
+	icon:SetSize(unpack(db.MBBSize))
+	icon:SetTexture(db.MBBTexture)
 	icon:SetTexCoord(0,1,0,1)
 	icon:SetAlpha(.85)
 
