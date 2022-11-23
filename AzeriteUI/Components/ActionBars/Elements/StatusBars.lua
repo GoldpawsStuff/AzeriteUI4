@@ -307,121 +307,6 @@ local RingFrame_OnLeave = function(frame)
 	end
 end
 
-StatusBars.CreateBars = function(self)
-
-	local db = ns.Config.StatusBars
-
-	local button = SetObjectScale(CreateFrame("Frame", nil, Minimap))
-	button:Hide()
-	button:SetFrameStrata("MEDIUM")
-	button:SetFrameLevel(60)
-	button:SetPoint(unpack(db.ButtonPosition))
-	button:SetSize(unpack(db.ButtonSize))
-	button:EnableMouse(true)
-	button:SetScript("OnEnter", Button_OnEnter)
-	button:SetScript("OnLeave", Button_OnLeave)
-	button:SetScript("OnMouseUp", Button_OnMouseUp)
-
-	local texture = button:CreateTexture(nil, "BACKGROUND", nil, 1)
-	texture:SetSize(unpack(db.ButtonTextureSize))
-	texture:SetPoint(unpack(db.ButtonTexturePosition))
-	texture:SetTexture(db.ButtonTexturePath)
-	texture:SetVertexColor(unpack(db.ButtonTextureColor))
-
-	button.Texture = texture
-
-	local frame = CreateFrame("Frame", nil, button)
-	frame:Hide()
-	frame:SetFrameLevel(button:GetFrameLevel() - 10)
-	frame:SetPoint(unpack(db.RingFramePosition))
-	frame:SetSize(unpack(db.RingFrameSize))
-	frame:EnableMouse(true)
-	frame:SetScript("OnEnter", RingFrame_OnEnter)
-	frame:SetScript("OnLeave", RingFrame_OnLeave)
-
-	frame.Button = button
-	button.Frame = frame
-
-	local backdrop = frame:CreateTexture(nil, "BACKGROUND", nil, 1)
-	backdrop:SetPoint(unpack(db.RingFrameBackdropPosition))
-	backdrop:SetSize(unpack(db.RingFrameBackdropSize))
-	backdrop:SetTexture(db.RingFrameBackdropTexture)
-	backdrop:SetVertexColor(unpack(db.RingFrameBackdropColor))
-
-	frame.Bg = backdrop
-
-	local ring = LibSpinBar:CreateSpinBar(ns.Prefix.."StatusTrackingBar", frame)
-	ring:SetFrameLevel(frame:GetFrameLevel() + 5)
-	ring:SetPoint(unpack(db.RingPosition))
-	ring:SetSize(unpack(db.RingSize))
-	ring:SetSparkOffset(db.RingSparkOffset)
-	ring:SetSparkFlash(unpack(db.RingSparkFlash))
-	ring:SetSparkBlendMode("ADD")
-	ring:SetClockwise(true)
-	ring:SetDegreeOffset(db.RingDegreeOffset)
-	ring:SetDegreeSpan(db.RingDegreeSpan)
-	ring:SetStatusBarTexture(db.RingTexture)
-
-	frame.Bar = ring
-
-	local bonus = LibSpinBar:CreateSpinBar(ns.Prefix.."StatusTrackingBar", frame)
-	bonus:SetAlpha(.5)
-	bonus:SetFrameLevel(frame:GetFrameLevel() + 2)
-	bonus:SetPoint(unpack(db.RingPosition))
-	bonus:SetSize(unpack(db.RingSize))
-	bonus:SetSparkOffset(db.RingSparkOffset)
-	bonus:SetSparkFlash(unpack(db.RingSparkFlash))
-	bonus:SetSparkBlendMode("ADD")
-	bonus:SetClockwise(true)
-	bonus:SetDegreeOffset(db.RingDegreeOffset)
-	bonus:SetDegreeSpan(db.RingDegreeSpan)
-	bonus:SetStatusBarTexture(db.RingTexture)
-	bonus:SetStatusBarColor(unpack(Colors.restedBonus))
-
-	ring.Bonus = bonus
-
-	-- Ring Value Text
-	local value = ring:CreateFontString(nil, "OVERLAY", nil, 1)
-	value:SetPoint(unpack(db.RingValuePosition))
-	value:SetJustifyH(db.RingValueJustifyH)
-	value:SetJustifyV(db.RingValueJustifyV)
-	value:SetFontObject(db.RingValueFont)
-	value.showDeficit = true
-
-	ring.Value = value
-
-	-- Ring Description Text
-	local description = ring:CreateFontString(nil, "OVERLAY", nil, 1)
-	description:SetPoint(unpack(db.RingValueDescriptionPosition))
-	description:SetWidth(db.RingValueDescriptionWidth)
-	description:SetTextColor(unpack(db.RingValueDescriptionColor))
-	description:SetJustifyH(db.RingValueDescriptionJustifyH)
-	description:SetJustifyV(db.RingValueDescriptionJustifyV)
-	description:SetFontObject(db.RingValueDescriptionFont)
-	description:SetIndentedWordWrap(false)
-	description:SetWordWrap(true)
-	description:SetNonSpaceWrap(false)
-
-	ring.Description = description
-
-	-- Button Percentage Text
-	local perc = button:CreateFontString(nil, "OVERLAY", nil, 1)
-	perc:SetJustifyH(db.RingPercentJustifyH)
-	perc:SetJustifyV(db.RingPercentJustifyV)
-	perc:SetFontObject(db.RingPercentFont)
-	perc:SetPoint(unpack(db.RingPercentPosition))
-
-	ring.Percent = perc
-
-	self.Button = button
-	self.Frame = frame
-	self.Bar = ring
-	self.Bonus = bonus
-
-	ns:Fire("StatusTrackingBar_Created", self.Bar:GetName())
-
-end
-
 StatusBars.UpdateBars = function(self, event, ...)
 	if (not self.Bar) then
 		return
@@ -542,11 +427,10 @@ StatusBars.UpdateBars = function(self, event, ...)
 		if (IsPlayerAtEffectiveMaxLevel() or IsXPUserDisabled()) then
 			bar.currentType = nil
 			bar:Hide()
-			--bar:SetScript("OnEnter", nil)
-			--bar:SetScript("OnLeave", nil)
-			--bar:SetMouseClickEnabled(false)
+			bonus:Hide()
 			bar.Value:SetText("")
 			bar.Description:SetText("")
+			bar.Percent:SetText("")
 		else
 			if (event == "PLAYER_LEVEL_UP") then
 				playerLevel = ...
@@ -567,7 +451,7 @@ StatusBars.UpdateBars = function(self, event, ...)
 
 			if (restedLeft) then
 				bonus:SetMinMaxValues(0, max, not bonusShown)
-				bonus:SetValue(math_min(max, min + (restedLeft or 0)), not bonusShown)
+				bonus:SetValue(math_min(max, min + restedLeft), not bonusShown)
 				if (not bonusShown) then
 					bonus:Show()
 				end
@@ -577,10 +461,8 @@ StatusBars.UpdateBars = function(self, event, ...)
 				bonus:SetMinMaxValues(0, 1, true)
 			end
 
-			--bar.Value:SetFormattedText("%.0f", (max-min)/max)
 			bar.Value:SetFormattedText("%s", AbbreviateNumber(max-min))
 			bar.Description:SetFormattedText(L["to level %s"], playerLevel + 1)
-
 			bar.Value:SetTextColor(r, g, b)
 			bar.Percent:SetTextColor(r, g, b)
 
@@ -602,6 +484,121 @@ StatusBars.UpdateBars = function(self, event, ...)
 	elseif (not showButton and self.Button:IsShown()) then
 		self.Button:Hide()
 	end
+end
+
+StatusBars.CreateBars = function(self)
+
+	local db = ns.Config.StatusBars
+
+	local button = SetObjectScale(CreateFrame("Frame", nil, Minimap))
+	button:Hide()
+	button:SetFrameStrata("MEDIUM")
+	button:SetFrameLevel(60)
+	button:SetPoint(unpack(db.ButtonPosition))
+	button:SetSize(unpack(db.ButtonSize))
+	button:EnableMouse(true)
+	button:SetScript("OnEnter", Button_OnEnter)
+	button:SetScript("OnLeave", Button_OnLeave)
+	button:SetScript("OnMouseUp", Button_OnMouseUp)
+
+	local texture = button:CreateTexture(nil, "BACKGROUND", nil, 1)
+	texture:SetSize(unpack(db.ButtonTextureSize))
+	texture:SetPoint(unpack(db.ButtonTexturePosition))
+	texture:SetTexture(db.ButtonTexturePath)
+	texture:SetVertexColor(unpack(db.ButtonTextureColor))
+
+	button.Texture = texture
+
+	local frame = CreateFrame("Frame", nil, button)
+	frame:Hide()
+	frame:SetFrameLevel(button:GetFrameLevel() - 10)
+	frame:SetPoint(unpack(db.RingFramePosition))
+	frame:SetSize(unpack(db.RingFrameSize))
+	frame:EnableMouse(true)
+	frame:SetScript("OnEnter", RingFrame_OnEnter)
+	frame:SetScript("OnLeave", RingFrame_OnLeave)
+
+	frame.Button = button
+	button.Frame = frame
+
+	local backdrop = frame:CreateTexture(nil, "BACKGROUND", nil, 1)
+	backdrop:SetPoint(unpack(db.RingFrameBackdropPosition))
+	backdrop:SetSize(unpack(db.RingFrameBackdropSize))
+	backdrop:SetTexture(db.RingFrameBackdropTexture)
+	backdrop:SetVertexColor(unpack(db.RingFrameBackdropColor))
+
+	frame.Bg = backdrop
+
+	local ring = LibSpinBar:CreateSpinBar(ns.Prefix.."StatusTrackingBar", frame)
+	ring:SetFrameLevel(frame:GetFrameLevel() + 5)
+	ring:SetPoint(unpack(db.RingPosition))
+	ring:SetSize(unpack(db.RingSize))
+	ring:SetSparkOffset(db.RingSparkOffset)
+	ring:SetSparkFlash(unpack(db.RingSparkFlash))
+	ring:SetSparkBlendMode("ADD")
+	ring:SetClockwise(true)
+	ring:SetDegreeOffset(db.RingDegreeOffset)
+	ring:SetDegreeSpan(db.RingDegreeSpan)
+	ring:SetStatusBarTexture(db.RingTexture)
+
+	frame.Bar = ring
+
+	local bonus = LibSpinBar:CreateSpinBar(ns.Prefix.."StatusTrackingBarBonusBar", frame)
+	bonus:Hide() -- for some reason this is required. will look into it later.
+	bonus:SetFrameLevel(frame:GetFrameLevel() + 2)
+	bonus:SetPoint(unpack(db.RingPosition))
+	bonus:SetSize(unpack(db.RingSize))
+	bonus:SetSparkOffset(db.RingSparkOffset)
+	bonus:SetSparkFlash(unpack(db.RingSparkFlash))
+	bonus:SetSparkBlendMode("ADD")
+	bonus:SetClockwise(true)
+	bonus:SetDegreeOffset(db.RingDegreeOffset)
+	bonus:SetDegreeSpan(db.RingDegreeSpan)
+	bonus:SetStatusBarTexture(db.RingTexture)
+	bonus:SetStatusBarColor(unpack(Colors.restedBonus))
+
+	ring.Bonus = bonus
+
+	-- Ring Value Text
+	local value = ring:CreateFontString(nil, "OVERLAY", nil, 1)
+	value:SetPoint(unpack(db.RingValuePosition))
+	value:SetJustifyH(db.RingValueJustifyH)
+	value:SetJustifyV(db.RingValueJustifyV)
+	value:SetFontObject(db.RingValueFont)
+	value.showDeficit = true
+
+	ring.Value = value
+
+	-- Ring Description Text
+	local description = ring:CreateFontString(nil, "OVERLAY", nil, 1)
+	description:SetPoint(unpack(db.RingValueDescriptionPosition))
+	description:SetWidth(db.RingValueDescriptionWidth)
+	description:SetTextColor(unpack(db.RingValueDescriptionColor))
+	description:SetJustifyH(db.RingValueDescriptionJustifyH)
+	description:SetJustifyV(db.RingValueDescriptionJustifyV)
+	description:SetFontObject(db.RingValueDescriptionFont)
+	description:SetIndentedWordWrap(false)
+	description:SetWordWrap(true)
+	description:SetNonSpaceWrap(false)
+
+	ring.Description = description
+
+	-- Button Percentage Text
+	local perc = button:CreateFontString(nil, "OVERLAY", nil, 1)
+	perc:SetJustifyH(db.RingPercentJustifyH)
+	perc:SetJustifyV(db.RingPercentJustifyV)
+	perc:SetFontObject(db.RingPercentFont)
+	perc:SetPoint(unpack(db.RingPercentPosition))
+
+	ring.Percent = perc
+
+	self.Button = button
+	self.Frame = frame
+	self.Bar = ring
+	self.Bonus = bonus
+
+	ns:Fire("StatusTrackingBar_Created", self.Bar:GetName())
+
 end
 
 StatusBars.OnInitialize = function(self)
