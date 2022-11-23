@@ -306,9 +306,9 @@ local AutoHider_OnHide = function()
 			--end
 		end
 	else
-		if (not WatchFrame.collapsed) then
-			WatchFrame_Collapse()
-		end
+		--if (not WatchFrame.collapsed) then
+		--	WatchFrame_Collapse()
+		--end
 	end
 end
 
@@ -318,13 +318,15 @@ local AutoHider_OnShow = function()
 			ObjectiveTracker_Expand()
 		end
 	else
-		if (WatchFrame.collapsed) then
-			WatchFrame_Expand()
-		end
+		--if (WatchFrame.collapsed) then
+		--	WatchFrame_Expand()
+		--end
 	end
 end
 
 Tracker.InitializeAutoHider = function(self)
+	if (not ns.IsRetail) then return end
+
 	local tracker = ObjectiveTrackerFrame or WatchFrame
 
 	tracker.autoHider = CreateFrame("Frame", nil, tracker, "SecureHandlerStateTemplate")
