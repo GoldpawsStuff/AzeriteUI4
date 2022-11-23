@@ -149,11 +149,11 @@ Colors.tapped = createColor(121/255, 101/255, 96/255)
 Colors.dead = createColor(121/255, 101/255, 96/255)
 
 -- xp, rep and artifact coloring
-Colors.xp = createColor(251/255, 120/255, 29/255) -- xp bar
+Colors.xp = createColor(116/255, 23/255, 229/255) -- xp bar
 Colors.xpValue = createColor(145/255, 77/255, 229/255) -- xp bar text
-Colors.rested = createColor(251/255, 120/255, 29/255) -- xp bar while being rested
+Colors.rested = createColor(163/255, 23/255, 229/255) -- xp bar while being rested
 Colors.restedValue = createColor(203/255, 77/255, 229/255) -- xp bar text while being rested
-Colors.restedBonus = createColor(84/255, 40/255, 9/255) -- rested bonus bar
+Colors.restedBonus = createColor(69/255, 17/255, 134/255) -- rested bonus bar
 Colors.artifact = Colors.quality.Artifact -- artifact or azerite power bar
 
 -- Difficulty
