@@ -63,20 +63,6 @@ local buttonOnLeave = function(self)
 	end
 end
 
-local handleOnClick = function(self)
-	if (self.bar:IsShown()) then
-		PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON, "SFX")
-	else
-		PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_OFF, "SFX")
-	end
-end
-
-local handleOnEnter = function(self)
-end
-
-local handleOnLeave = function(self)
-end
-
 local style = function(button)
 
 	local db = ns.Config.PetBar
@@ -85,6 +71,12 @@ local style = function(button)
 	for _,i in next,{ --[["AutoCastShine",]] "Border", "Name", "NewActionTexture", "NormalTexture", "SpellHighlightAnim", "SpellHighlightTexture",
 		--[[ WoW10 ]] "CheckedTexture", "HighlightTexture", "BottomDivider", "RightDivider", "SlotArt", "SlotBackground" } do
 		if (button[i] and button[i].Stop) then button[i]:Stop() elseif button[i] then button[i]:SetParent(UIHider) end
+	end
+
+	-- Wrath overwrites the default texture
+	if (not ns.IsRetail) then
+		button.AutoCastable = _G[button:GetName().."AutoCastable"]
+		button.AutoCastShine = _G[button:GetName().."Shine"]
 	end
 
 	local m = db.ButtonMaskTexture
@@ -131,9 +123,9 @@ local style = function(button)
 	pushedTexture:SetVertexColor(1, 1, 1, .05)
 	pushedTexture:SetTexture(m)
 	pushedTexture:SetAllPoints(button.icon)
-	button.PushedTexture = pushedTexture
+	button.pushedTexture = pushedTexture
 
-	button:SetPushedTexture(button.PushedTexture)
+	button:SetPushedTexture(button.pushedTexture)
 	button:GetPushedTexture():SetBlendMode("ADD")
 	button:GetPushedTexture():SetDrawLayer("ARTWORK", 1)
 
@@ -144,24 +136,6 @@ local style = function(button)
 	flash:SetVertexColor(1, 0, 0, .25)
 	flash:SetTexture(m)
 	flash:Hide()
-
-	-- Wrath overwrites the default texture
-	if (not ns.IsRetail) then
-		button.AutoCastable = _G[button:GetName().."AutoCastable"]
-		button.AutoCastShine = _G[button:GetName().."Shine"]
-	end
-
-	-- Todo: Adjust size of this.
-	local autoCastable = button.AutoCastable
-	autoCastable:ClearAllPoints()
-	autoCastable:SetPoint("TOPLEFT", -16, 16)
-	autoCastable:SetPoint("BOTTOMRIGHT", 16, -16)
-
-	-- Todo: Check if I should add a round texture here
-	local autoCastShine = button.AutoCastShine
-	autoCastShine:ClearAllPoints()
-	autoCastShine:SetPoint("TOPLEFT", 6, -6)
-	autoCastShine:SetPoint("BOTTOMRIGHT", -6, 6)
 
 	-- Button cooldown frame
 	local cooldown = button.cooldown
@@ -228,12 +202,25 @@ local style = function(button)
 	hotkey:SetFontObject(db.ButtonKeybindFont)
 	hotkey:SetTextColor(unpack(db.ButtonKeybindColor))
 
+	-- Todo: Adjust size of this.
+	local autoCastable = button.AutoCastable
+	autoCastable:ClearAllPoints()
+	autoCastable:SetPoint("TOPLEFT", -16, 16)
+	autoCastable:SetPoint("BOTTOMRIGHT", 16, -16)
+
+	-- Todo: Check if I should add a round texture here
+	local autoCastShine = button.AutoCastShine
+	autoCastShine:SetParent(overlay)
+	autoCastShine:ClearAllPoints()
+	autoCastShine:SetPoint("TOPLEFT", 6, -6)
+	autoCastShine:SetPoint("BOTTOMRIGHT", -6, 6)
+
 	RegisterCooldown(button.cooldown, button.cooldownCount)
 
 	hooksecurefunc(cooldown, "SetSwipeTexture", function(c,t) if t ~= m then c:SetSwipeTexture(m) end end)
 	hooksecurefunc(cooldown, "SetBlingTexture", function(c,t) if t ~= b then c:SetBlingTexture(b,0,0,0,0) end end)
 	hooksecurefunc(cooldown, "SetEdgeTexture", function(c,t) if t ~= b then c:SetEdgeTexture(b) end end)
-	--hooksecurefunc(cooldown, "SetSwipeColor", function(c,r,g,b,a) if not a or a>.76 then c:SetSwipeColor(r,g,b,.75) end end)
+	hooksecurefunc(cooldown, "SetSwipeColor", function(c,r,g,b,a) if not a or a>.76 then c:SetSwipeColor(r,g,b,.75) end end)
 	hooksecurefunc(cooldown, "SetDrawSwipe", function(c,h) if not h then c:SetDrawSwipe(true) end end)
 	hooksecurefunc(cooldown, "SetDrawBling", function(c,h) if h then c:SetDrawBling(false) end end)
 	hooksecurefunc(cooldown, "SetDrawEdge", function(c,h) if h then c:SetDrawEdge(false) end end)
@@ -259,14 +246,16 @@ end
 PetBar.SpawnBar = function(self)
 	if (not self.Bar) then
 
-		local bar = SetObjectScale(ns.ActionBar:Create(1, ns.Prefix.."PetActionBar", UIParent))
+		local db = ns.Config.PetBar
+
+		local bar = SetObjectScale(ns.PetBar:Create(ns.Prefix.."PetActionBar", UIParent))
 		bar:SetPoint(unpack(db.Position))
 		bar:SetSize(unpack(db.Size))
 
 		local button
 		for id = 1,10 do
 			button = bar:CreateButton(id, bar:GetName().."Button"..id)
-			button:SetPoint(unpack(db.ButtonPositions[i]))
+			button:SetPoint(unpack(db.ButtonPositions[id]))
 			bar:SetFrameRef("Button"..id, button)
 			style(button)
 		end
@@ -307,7 +296,7 @@ PetBar.UpdateSettings = function(self, event)
 		for i,button in next,self.Bar.buttons do
 			button:Show()
 			button:SetAttribute("statehidden", nil)
-			ActionBars:RegisterButtonForFading(button)
+			ActionBars:RegisterButtonForFading(button, "pet")
 		end
 	else
 		self.Bar:Disable()
