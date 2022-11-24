@@ -28,89 +28,23 @@ if (not ns.IsRetail) then
 	return
 end
 
-local EditMode = ns:NewModule("EditMode")
+do return end
 
-local IgnoreFrames = {
-	MinimapCluster = true, -- header underneath and rotate minimap (will need to add the setting)
-	GameTooltipDefaultContainer = true,
+local noop = ns.Noop
 
-	-- UnitFrames
-	--PartyFrame = true,
-	PlayerFrame = true,
-	TargetFrame = true,
-	FocusFrame = true,
-	PlayerCastingBarFrame = true,
-	--ArenaEnemyFramesContainer = true,
-	--CompactRaidFrameContainer = true,
-	--BossTargetFrameContainer = true,
-
-	-- Auras
-	BuffFrame = true,
-	DebuffFrame = true,
-
-	-- ActionBars
-	StanceBar = true,
-	EncounterBar = true,
-	PetActionBar = true,
-	PossessActionBar = true,
-	MainMenuBarVehicleLeaveButton = true,
-	MultiBarBottomLeft = true,
-	MultiBarBottomRight = true,
-	MultiBarLeft = true,
-	MultiBarRight = true,
-	MultiBar5 = true,
-	MultiBar6 = true,
-	MultiBar7 = true
-}
-
-local ShutdownMode = {
-	'OnEditModeEnter',
-	'OnEditModeExit',
-	'HasActiveChanges',
-	'HighlightSystem',
-	'SelectSystem',
-	-- These not running will taint the default bars on spec switch
-	--- 'IsInDefaultPosition',
-	--- 'UpdateSystem',
-}
-
-EditMode.OnInitialize = function(self)
-	local editMode = _G.EditModeManagerFrame
-
-	-- Remove the initial registers
-	local registered = editMode.registeredSystemFrames
-	for i = #registered, 1, -1 do
-		local frame = registered[i]
-		local ignore = IgnoreFrames[frame:GetName()]
-		if ignore then
-			for _, key in next, ShutdownMode do
-				frame[key] = noop
-			end
-		end
-	end
-
-	-- Account settings will be tainted
-	local mixin = editMode.AccountSettings
-	mixin.RefreshCastBar = noop
-	mixin.RefreshAuraFrame = noop
-	mixin.RefreshBossFrames = noop
-	--mixin.RefreshArenaFrames = noop
-
-	-- RaidFrames
-	--mixin.RefreshRaidFrames = noop
-	--mixin.ResetRaidFrames = noop
-
-	-- PartyFrames
-	mixin.RefreshPartyFrames = noop
-	mixin.ResetPartyFrames = noop
-
-	-- Target and Focus Frames
-	mixin.RefreshTargetAndFocus = noop
-	mixin.ResetTargetAndFocus = noop
-
-	-- ActionBars
-	mixin.RefreshVehicleLeaveButton = noop
-	mixin.RefreshActionBarShown = noop
-	mixin.RefreshEncounterBar = noop
-
+for i,frame in pairs(EditModeManagerFrame.registeredSystemFrames) do
+	table.remove(EditModeManagerFrame.registeredSystemFrames, i)
 end
+
+EditModeManagerFrame.EnterEditMode = noop
+EditModeManagerFrame.ExitEditMode = noop
+EditModeManagerFrame.RegisterSystemFrame = noop
+EditModeManagerFrameMixin.EnterEditMode = noop
+EditModeManagerFrameMixin.ExitEditMode = noop
+EditModeManagerFrameMixin.RegisterSystemFrame = noop
+
+hooksecurefunc(EditModeManagerFrame, "EnterEditMode", function()
+	HideUIPanel(EditModeManagerFrame)
+end)
+
+EditModeManagerFrame:SetParent(ns.Hider)
