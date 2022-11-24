@@ -204,16 +204,17 @@ local style = function(button)
 
 	-- Todo: Adjust size of this.
 	local autoCastable = button.AutoCastable
+	autoCastable:SetParent(overlay)
 	autoCastable:ClearAllPoints()
-	autoCastable:SetPoint("TOPLEFT", -16, 16)
-	autoCastable:SetPoint("BOTTOMRIGHT", 16, -16)
+	autoCastable:SetPoint(unpack(db.ButtonAutoCastablePosition))
+	autoCastable:SetSize(unpack(db.ButtonAutoCastableSize))
 
 	-- Todo: Check if I should add a round texture here
 	local autoCastShine = button.AutoCastShine
 	autoCastShine:SetParent(overlay)
 	autoCastShine:ClearAllPoints()
-	autoCastShine:SetPoint("TOPLEFT", 6, -6)
-	autoCastShine:SetPoint("BOTTOMRIGHT", -6, 6)
+	autoCastShine:SetPoint(unpack(db.ButtonAutoCastShinePosition))
+	autoCastShine:SetSize(unpack(db.ButtonAutoCastShineSize))
 
 	RegisterCooldown(button.cooldown, button.cooldownCount)
 

@@ -45,6 +45,7 @@ local InCombatLockdown = InCombatLockdown
 local IsAltKeyDown = IsAltKeyDown
 local IsControlKeyDown = IsControlKeyDown
 local IsModifiedClick = IsModifiedClick
+local IsPetAttackAction = IsPetAttackAction
 local IsShiftKeyDown = IsShiftKeyDown
 local PickupPetAction = PickupPetAction
 local SetBinding = SetBinding
@@ -86,6 +87,10 @@ PetButton.Create = function(self, id, name, parent)
 	button:SetScript("OnDragStart", PetButton.OnDragStart)
 	button:SetScript("OnReceiveDrag", PetButton.OnReceiveDrag)
 
+	if (not ns.IsRetail) then
+		button.NormalTexture = button:GetNormalTexture()
+	end
+
 	ns.PetButtons[#ns.PetButtons + 1] = button
 
 	return button
@@ -103,14 +108,40 @@ PetButton.Update = function(self)
 	end
 
 	self.isToken = isToken
+
+	if (spellID) then
+		local spell = Spell:CreateFromSpellID(spellID)
+		self.spellDataLoadedCancelFunc = spell:ContinueWithCancelOnSpellLoad(function()
+			self.tooltipSubtext = spell:GetSpellSubtext()
+		end)
+	end
+
+	if (isActive) then
+		if (IsPetAttackAction(self.id)) then
+			if (self.StartFlash) then
+				self:StartFlash()
+			end
+		else
+			if (self.StopFlash) then
+				self:StopFlash()
+			end
+		end
+	else
+		if (self.StopFlash) then
+			self:StopFlash()
+		end
+	end
+
 	self:SetChecked(isActive)
 
-	if (autoCastAllowed and not autoCastEnabled) then
-		self.AutoCastable:Show()
-		AutoCastShine_AutoCastStop(self.AutoCastShine)
-	elseif (autoCastAllowed) then
-		self.AutoCastable:Hide()
-		AutoCastShine_AutoCastStart(self.AutoCastShine)
+	if (autoCastAllowed) then
+		if (autoCastEnabled) then
+			self.AutoCastable:Hide()
+			AutoCastShine_AutoCastStart(self.AutoCastShine)
+		else
+			self.AutoCastable:Show()
+			AutoCastShine_AutoCastStop(self.AutoCastShine)
+		end
 	else
 		self.AutoCastable:Hide()
 		AutoCastShine_AutoCastStop(self.AutoCastShine)
@@ -152,18 +183,10 @@ PetButton.UpdateHotkeys = function(self)
 end
 
 PetButton.ShowButton = function(self)
-	--self.pushedTexture:SetTexture(self.textureCache.pushed)
-	--self.highlightTexture:SetTexture(self.textureCache.highlight)
 	self:SetAlpha(1)
 end
 
 PetButton.HideButton = function(self)
-	--self.textureCache.pushed = self.pushedTexture:GetTexture()
-	--self.textureCache.highlight = self.highlightTexture:GetTexture()
-
-	--self.pushedTexture:SetTexture("")
-	--self.highlightTexture:SetTexture("")
-
 	if (self.showgrid == 0 and not self.parent.config.showgrid) then
 		self:SetAlpha(0)
 	end
@@ -221,7 +244,6 @@ PetButton.ClearBindings = function(self)
 	while GetBindingKey(binding) do
 		SetBinding(GetBindingKey(binding), nil)
 	end
-
 	binding = "CLICK "..self:GetName()..":LeftButton"
 	while GetBindingKey(binding) do
 		SetBinding(GetBindingKey(binding), nil)
@@ -234,16 +256,12 @@ PetButton.OnEnter = function(self)
 end
 
 PetButton.OnLeave = function(self)
-	if (GameTooltip:IsForbidden()) then
-		return
-	end
+	if (GameTooltip:IsForbidden()) then return end
 	GameTooltip:Hide()
 end
 
 PetButton.OnDragStart = function(self)
-	if InCombatLockdown() then
-		return
-	end
+	if (InCombatLockdown()) then return end
 	if (IsAltKeyDown() and IsControlKeyDown() or IsShiftKeyDown()) or (IsModifiedClick("PICKUPACTION")) then
 		self:SetChecked(false)
 		PickupPetAction(self.id)
@@ -252,10 +270,10 @@ PetButton.OnDragStart = function(self)
 end
 
 PetButton.OnReceiveDrag = function(self)
-	if InCombatLockdown() then
-		return
+	if (InCombatLockdown()) then return end
+	if (GetCursorInfo() == "petaction") then
+		self:SetChecked(false)
+		PickupPetAction(self.id)
+		self:Update()
 	end
-	self:SetChecked(false)
-	PickupPetAction(self.id)
-	self:Update()
 end
