@@ -35,7 +35,6 @@ local select = select
 local string_find = string.find
 local string_gsub = string.gsub
 local string_len = string.len
-local string_split = string.split
 local tonumber = tonumber
 local unpack = unpack
 
