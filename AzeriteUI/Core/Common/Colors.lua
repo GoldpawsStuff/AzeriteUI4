@@ -218,6 +218,10 @@ Colors.power.STAGGER[1] = createColor(132/255, 255/255, 132/255)
 Colors.power.STAGGER[2] = createColor(255/255, 250/255, 183/255)
 Colors.power.STAGGER[3] = createColor(255/255, 107/255, 107/255)
 
+-- There's no official color for evoker's essence,
+-- use the average colour of the essence texture instead.
+Colors.power.ESSENCE = createColor(100/255, 173/255, 206/255)
+
 -- Fallback for the rare cases where an unknown type is requested.
 Colors.power.UNUSED = createColor(195/255, 202/255, 217/255)
 
@@ -246,6 +250,7 @@ Colors.power[11] = Colors.power.MAELSTROM
 Colors.power[13] = Colors.power.INSANITY
 Colors.power[17] = Colors.power.FURY
 Colors.power[18] = Colors.power.PAIN
+Colors.power[19] = colors.power.ESSENCE
 
 -- Reactions
 Colors.reaction = {}
