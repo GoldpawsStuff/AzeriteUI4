@@ -462,7 +462,7 @@ Tracker.UpdatePosition = function(self)
 	ObjectiveTrackerFrame.ignoreFramePositionManager = true
 	UIParentRightManagedFrameContainer:RemoveManagedFrame(ObjectiveTrackerFrame)
 
-	ObjectiveTrackerFrame.IsInDefaultPosition = function() end
+	ObjectiveTrackerFrame.IsInDefaultPosition = noop
 
 	ObjectiveTrackerFrame:SetFrameStrata("LOW")
 	ObjectiveTrackerFrame:SetFrameLevel(50)
