@@ -37,9 +37,15 @@ local noop = ns.Noop
 -- Button Metamethods
 local button_mt = getmetatable(CreateFrame("CheckButton")).__index
 
-ActionBars.RegisterButtonForFading = function(self, button)
+ActionBars.RegisterButtonForFading = function(self, button, fadeGroup)
 	if (self.fadeButtons[button]) then
 		return
+	end
+
+	fadeGroup = fadeGroup or "default"
+
+	if (not self.hoverCount[fadeGroup]) then
+		self.hoverCount[fadeGroup] = 0
 	end
 
 	local methods = { OnEnter = button.OnEnter, OnLeave = button.OnLeave }
@@ -54,6 +60,9 @@ ActionBars.RegisterButtonForFading = function(self, button)
 		ns:Fire("ActionButton_FadeButton_Leaving", self)
 	end
 
+	button.fadeGroup = fadeGroup
+
+	self.fadeGroups[button] = fadeGroup
 	self.fadeButtons[button] = methods
 	self:UpdateFadeButtons()
 end
@@ -68,15 +77,16 @@ ActionBars.UnregisterButtonForFading = function(self, button)
 		button[method] = func
 	end
 
+	self.fadeGroups[button] = nil
 	self.fadeButtons[button] = nil
 	self:UpdateFadeButtons()
 end
 
 ActionBars.UpdateFadeButtons = function(self)
 	if (not self.inWorld) then return end
-	local show = not self.enableBarFading or self.inCombat or self.isMouseOver > 0
+	local show = not self.enableBarFading or self.inCombat
 	for button in next,self.fadeButtons do
-		button_mt.SetAlpha(button, show and 1 or 0)
+		button_mt.SetAlpha(button, (show or (self.hoverCount[button.fadeGroup] > 0)) and 1 or 0)
 	end
 end
 
@@ -180,9 +190,12 @@ end
 
 ActionBars.OnEvent = function(self, event, ...)
 	if (event == "PLAYER_ENTERING_WORLD") then
-		self.isMouseOver = 0
-		self.inCombat = nil
 		self.inWorld = true
+		self.inCombat = nil
+
+		for fadeGroup in next,self.hoverCount do
+			self.hoverCount[fadeGroup] = 0
+		end
 
 	elseif (event == "PLAYER_REGEN_DISABLED") then
 		self.inCombat = true
@@ -191,17 +204,20 @@ ActionBars.OnEvent = function(self, event, ...)
 		self.inCombat = nil
 
 	elseif (event == "ActionButton_FadeButton_Entering") then
-		self.isMouseOver = self.isMouseOver + 1
+		local button = ...
+		self.hoverCount[button.fadeGroup] = self.hoverCount[button.fadeGroup] + 1
 
 	elseif (event == "ActionButton_FadeButton_Leaving") then
-		self.isMouseOver = self.isMouseOver - 1
+		local button = ...
+		self.hoverCount[button.fadeGroup] = self.hoverCount[button.fadeGroup] - 1
 	end
 	self:UpdateFadeButtons()
 end
 
 ActionBars.OnInitialize = function(self)
 	self.fadeButtons = {}
-	self.isMouseOver = 0
+	self.fadeGroups = {}
+	self.hoverCount = { default = 0 }
 	self.enableBarFading = ns.db.global.actionbars.enableBarFading
 
 	self:RegisterChatCommand("enablebar", "EnableBar")
