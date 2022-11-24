@@ -50,7 +50,7 @@ Config.PetBar = {
 		[10] = { "BOTTOMLEFT", 450, 0 }
 	},
 	ButtonSize = { 48, 48 },
-	ButtonHitRects =  { -4, -4, -4, -4 },
+	ButtonHitRects =  { -10, -10, -10, -10 },
 	ButtonMaskTexture = GetMedia("actionbutton-mask-circular"),
 
 	ButtonBackdropPosition = { "CENTER", 0, 0 },

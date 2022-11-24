@@ -92,6 +92,7 @@ local style = function(button)
 
 	button:SetAttribute("buttonLock", true)
 	button:SetSize(unpack(db.ButtonSize))
+	button:SetHitRectInsets(unpack(db.ButtonHitRects))
 	button:SetNormalTexture("")
 	button:SetHighlightTexture("")
 	button:SetCheckedTexture("")
