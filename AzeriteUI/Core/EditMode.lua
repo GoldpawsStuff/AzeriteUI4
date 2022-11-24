@@ -82,7 +82,7 @@ EditMode.OnInitialize = function(self)
 	for i = #registered, 1, -1 do
 		local frame = registered[i]
 		local ignore = IgnoreFrames[frame:GetName()]
-		if ignore and ignore() then
+		if ignore then
 			for _, key in next, ShutdownMode do
 				frame[key] = noop
 			end
