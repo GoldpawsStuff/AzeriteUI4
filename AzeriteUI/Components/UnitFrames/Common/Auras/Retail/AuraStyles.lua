@@ -41,7 +41,7 @@ ns.AuraStyles.PlayerPostUpdateButton = function(element, button, unit, data, pos
 	if (button.isDebuff and element.showDebuffType) or (not button.isDebuff and element.showBuffType) or (element.showType) then
 		color = Colors.debuff[debuffType] or Colors.debuff.none
 	else
-		color = Colors.xp
+		color = Colors.aura
 	end
 	if (color) then
 		button.Border:SetBackdropBorderColor(color[1], color[2], color[3])

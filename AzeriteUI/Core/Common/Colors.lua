@@ -116,6 +116,7 @@ Colors.gray = createColor(128/255, 128/255, 128/255)
 Colors.darkgray = createColor(89/255, 79/255, 69/255)
 Colors.verydarkgray = createColor(69/255, 59/255, 49/255)
 Colors.ui = createColor(192/255, 192/255, 192/255)
+Colors.aura = createColor(251/255, 120/255, 29/255)
 
 -- Item Rarity
 Colors.blizzquality = createColorGroup(ITEM_QUALITY_COLORS)
