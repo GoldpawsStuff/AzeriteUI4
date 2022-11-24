@@ -61,9 +61,6 @@ local noop = ns.Noop
 -- Constants
 local playerClass = ns.PlayerClass
 local BOTTOMLEFT_ACTIONBAR_PAGE = BOTTOMLEFT_ACTIONBAR_PAGE
-local BOTTOMRIGHT_ACTIONBAR_PAGE = BOTTOMRIGHT_ACTIONBAR_PAGE
-local RIGHT_ACTIONBAR_PAGE = RIGHT_ACTIONBAR_PAGE
-local LEFT_ACTIONBAR_PAGE = LEFT_ACTIONBAR_PAGE
 
 local buttonOnEnter = function(self)
 	self.icon.darken:SetAlpha(0)
@@ -94,7 +91,7 @@ local style = function(button)
 
 	button:SetAttribute("buttonLock", true)
 	button:SetSize(unpack(db.ButtonSize))
-	button:SetHitRectInsets(-10,-10,-10,-10)
+	button:SetHitRectInsets(unpack(db.ButtonHitRects))
 	button:SetNormalTexture("")
 	button:SetHighlightTexture("")
 	button:SetCheckedTexture("")

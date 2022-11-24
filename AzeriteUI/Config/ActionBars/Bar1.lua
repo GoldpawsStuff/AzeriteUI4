@@ -52,7 +52,7 @@ Config.Bar1 = {
 		[12] = { "BOTTOMLEFT", 648, 0 }, -- bottom row
 	},
 	ButtonSize = { 64, 64 },
-	ButtonHitRects =  { -4, -4, -4, -4 },
+	ButtonHitRects =  { -10, -10, -10, -10 },
 	ButtonMaskTexture = GetMedia("actionbutton-mask-circular"),
 
 	ButtonBackdropPosition = { "CENTER", 0, 0 },
