@@ -31,6 +31,8 @@ local math_max = math.max
 local math_min = math.min
 local next = next
 local string_lower = string.lower
+local string_gsub = string.gsub
+local string_split = string.split
 local tonumber = tonumber
 
 -- Addon API
@@ -92,14 +94,33 @@ end
 
 ActionBars.SetButtons = function(self, input)
 	if (InCombatLockdown()) then return end
+	if (not input) then return end
 
-	local id, numButtons = self:GetArgs(string_lower(input))
-	local barModName = id == "1" and "Bar1" or id == "2" and "Bar2"
+	input = string_gsub(input, "%s+", " ")
+
+	local args = { string_split(" ", input) }
+	local barModName = args[1] == "1" and "Bar1" or args[1] == "2" and "Bar2"
 	local barMod = barModName and self:GetModule(barModName, true)
 
 	if (not barMod) then return end
 
-	ns.db.global.actionbars["numButtons"..barModName] = math_max(math_min(tonumber(numButtons), 12), id == "1" and 7 or 1)
+	args[2] = tonumber(args[2])
+
+	if (args[2] > 12) then
+		args[2] = 12
+	end
+
+	if (args[1] == "1") then
+		if (args[2] < 7) then
+			args[2] = 7
+		end
+	elseif (args[1] == "2") then
+		if (args[2] < 1) then
+			args[2] = 1
+		end
+	end
+
+	ns.db.global.actionbars["numButtons"..barModName] = args[2]
 
 	barMod:UpdateSettings()
 end
