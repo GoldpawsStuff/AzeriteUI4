@@ -204,12 +204,10 @@ ActionBars.OnEvent = function(self, event, ...)
 	elseif (event == "ActionButton_FadeButton_Entering") then
 		local button, fadeGroup = ...
 		self.hoverCount[fadeGroup] = self.hoverCount[fadeGroup] + 1
-		print(fadeGroup, self.hoverCount[fadeGroup])
 
 	elseif (event == "ActionButton_FadeButton_Leaving") then
 		local button, fadeGroup = ...
 		self.hoverCount[fadeGroup] = self.hoverCount[fadeGroup] - 1
-		print(fadeGroup, self.hoverCount[fadeGroup])
 	end
 	self:UpdateFadeButtons()
 end
