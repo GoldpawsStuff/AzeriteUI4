@@ -24,6 +24,7 @@
 	<!-- Actionbar specific libraries -->
 	<Include file="LibKeyBound-1.0\lib.xml"/>
 	<Script file="LibActionButton-1.0\LibActionButton-1.0.lua"/>
+	<Script file="LibButtonGlow-1.0\LibButtonGlow-1.0.lua"/>
 
 	<!-- Unitframe specific libraries -->
 	<Include file="LibHealComm-4.0\LibHealComm-4.0.xml"/>
