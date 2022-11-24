@@ -649,6 +649,7 @@ UnitStyles["NamePlate"] = function(self, unit, id)
 	auras["growth-y"] = db.AurasGrowthY
 	auras.sortMethod = db.AurasSortMethod
 	auras.sortDirection = db.AurasSortDirection
+	auras.reanchorIfVisibleChanged = true
 	auras.CustomFilter = ns.AuraFilters.NameplateAuraFilter
 	auras.CreateButton = ns.AuraStyles.CreateSmallButton
 	auras.PostUpdateButton = ns.AuraStyles.NameplatePostUpdateButton

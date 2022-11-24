@@ -753,6 +753,7 @@ UnitStyles["Player"] = function(self, unit, id)
 	auras.sortMethod = db.AurasSortMethod
 	auras.sortDirection = db.AurasSortDirection
 	auras.CreateButton = ns.AuraStyles.CreateButton
+	auras.reanchorIfVisibleChanged = true
 	auras.PostUpdateButton = ns.AuraStyles.PlayerPostUpdateButton
 	auras.CustomFilter = ns.AuraFilters.PlayerAuraFilter
 	auras.PreSetPosition = ns.AuraSorts.Default -- only in classic

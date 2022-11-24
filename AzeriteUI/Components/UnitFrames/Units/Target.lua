@@ -867,6 +867,7 @@ UnitStyles["Target"] = function(self, unit, id)
 	auras.tooltipAnchor = db.AurasTooltipAnchor
 	auras.sortMethod = db.AurasSortMethod
 	auras.sortDirection = db.AurasSortDirection
+	auras.reanchorIfVisibleChanged = true
 	auras.CreateButton = ns.AuraStyles.CreateButton
 	auras.PostUpdateButton = ns.AuraStyles.TargetPostUpdateButton
 	auras.CustomFilter = ns.AuraFilters.TargetAuraFilter
