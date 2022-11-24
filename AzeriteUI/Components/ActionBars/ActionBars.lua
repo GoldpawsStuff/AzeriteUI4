@@ -27,6 +27,8 @@ local Addon, ns = ...
 local ActionBars = ns:NewModule("ActionBars", "AceConsole-3.0", "LibMoreEvents-1.0")
 
 -- Lua API
+local math_max = math.max
+local math_min = math.min
 local next = next
 local string_lower = string.lower
 local tonumber = tonumber
