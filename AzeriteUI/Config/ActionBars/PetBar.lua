@@ -61,7 +61,7 @@ Config.PetBar = {
 	ButtonIconPosition = { "CENTER", 0, 0 },
 	ButtonIconSize = { 33, 33 },
 
-	ButtonKeybindPosition = { "TOPLEFT", -15, -5 },
+	ButtonKeybindPosition = { "TOPLEFT", -5, -5 },
 	ButtonKeybindJustifyH = "CENTER",
 	ButtonKeybindJustifyV = "BOTTOM",
 	ButtonKeybindFont = GetFont(15, true),
