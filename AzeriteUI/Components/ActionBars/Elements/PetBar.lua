@@ -113,6 +113,9 @@ local style = function(button)
 	darken:SetVertexColor(0, 0, 0, .1)
 	button.icon.darken = darken
 
+	button.OnEnter = button:GetScript("OnEnter")
+	button.OnLeave = button:GetScript("OnLeave")
+
 	button:SetScript("OnEnter", buttonOnEnter)
 	button:SetScript("OnLeave", buttonOnLeave)
 
@@ -206,15 +209,15 @@ local style = function(button)
 	local autoCastable = button.AutoCastable
 	autoCastable:SetParent(overlay)
 	autoCastable:ClearAllPoints()
-	autoCastable:SetPoint(unpack(db.ButtonAutoCastablePosition))
-	autoCastable:SetSize(unpack(db.ButtonAutoCastableSize))
+	autoCastable:SetPoint("TOPLEFT", -db.ButtonAutoCastableOffset, db.ButtonAutoCastableOffset)
+	autoCastable:SetPoint("BOTTOMRIGHT", db.ButtonAutoCastableOffset, -db.ButtonAutoCastableOffset)
 
 	-- Todo: Check if I should add a round texture here
 	local autoCastShine = button.AutoCastShine
 	autoCastShine:SetParent(overlay)
 	autoCastShine:ClearAllPoints()
-	autoCastShine:SetPoint(unpack(db.ButtonAutoCastShinePosition))
-	autoCastShine:SetSize(unpack(db.ButtonAutoCastShineSize))
+	autoCastShine:SetPoint("TOPLEFT", -db.ButtonAutoCastShineOffset, db.ButtonAutoCastShineOffset)
+	autoCastShine:SetPoint("BOTTOMRIGHT", db.ButtonAutoCastShineOffset, -db.ButtonAutoCastShineOffset)
 
 	RegisterCooldown(button.cooldown, button.cooldownCount)
 
