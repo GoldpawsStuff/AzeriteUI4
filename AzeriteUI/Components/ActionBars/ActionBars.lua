@@ -51,16 +51,14 @@ ActionBars.RegisterButtonForFading = function(self, button, fadeGroup)
 	local methods = { OnEnter = button.OnEnter, OnLeave = button.OnLeave }
 
 	button.SetAlpha = noop
-	button.OnEnter = function(self)
-		if (methods.OnEnter) then methods.OnEnter(self) end
-		ns:Fire("ActionButton_FadeButton_Entering", self)
+	button.OnEnter = function(button)
+		if (methods.OnEnter) then methods.OnEnter(button) end
+		ns:Fire("ActionButton_FadeButton_Entering", button, self.fadeGroups[button])
 	end
-	button.OnLeave = function(self)
-		if (methods.OnLeave) then methods.OnLeave(self) end
-		ns:Fire("ActionButton_FadeButton_Leaving", self)
+	button.OnLeave = function(button)
+		if (methods.OnLeave) then methods.OnLeave(button) end
+		ns:Fire("ActionButton_FadeButton_Leaving", button, self.fadeGroups[button])
 	end
-
-	button.fadeGroup = fadeGroup
 
 	self.fadeGroups[button] = fadeGroup
 	self.fadeButtons[button] = methods
@@ -86,7 +84,7 @@ ActionBars.UpdateFadeButtons = function(self)
 	if (not self.inWorld) then return end
 	local show = not self.enableBarFading or self.inCombat
 	for button in next,self.fadeButtons do
-		button_mt.SetAlpha(button, (show or (self.hoverCount[button.fadeGroup] > 0)) and 1 or 0)
+		button_mt.SetAlpha(button, (show or (self.hoverCount[self.fadeGroups[button]] > 0)) and 1 or 0)
 	end
 end
 
@@ -204,12 +202,14 @@ ActionBars.OnEvent = function(self, event, ...)
 		self.inCombat = nil
 
 	elseif (event == "ActionButton_FadeButton_Entering") then
-		local button = ...
-		self.hoverCount[button.fadeGroup] = self.hoverCount[button.fadeGroup] + 1
+		local button, fadeGroup = ...
+		self.hoverCount[fadeGroup] = self.hoverCount[fadeGroup] + 1
+		print(fadeGroup, self.hoverCount[fadeGroup])
 
 	elseif (event == "ActionButton_FadeButton_Leaving") then
-		local button = ...
-		self.hoverCount[button.fadeGroup] = self.hoverCount[button.fadeGroup] - 1
+		local button, fadeGroup = ...
+		self.hoverCount[fadeGroup] = self.hoverCount[fadeGroup] - 1
+		print(fadeGroup, self.hoverCount[fadeGroup])
 	end
 	self:UpdateFadeButtons()
 end
