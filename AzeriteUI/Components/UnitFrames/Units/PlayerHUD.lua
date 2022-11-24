@@ -41,6 +41,7 @@ local Colors = ns.Colors
 local GetFont = ns.API.GetFont
 local GetMedia = ns.API.GetMedia
 local IsAddOnEnabled = ns.API.IsAddOnEnabled
+local noop = ns.Noop
 
 -- Constants
 local playerClass = ns.PlayerClass
@@ -138,11 +139,11 @@ local ClassPower_PostUpdate = function(element, cur, max)
 		local point = element[i]
 		if (point:IsShown()) then
 			local value = point:GetValue()
-			local min, max = point:GetMinMaxValues()
+			local pmin, pmax = point:GetMinMaxValues()
 			if (element.inCombat) then
-				point:SetAlpha((cur == max) and 1 or (value < max) and .5 or 1)
+				point:SetAlpha((cur == max) and 1 or (value < pmax) and .5 or 1)
 			else
-				point:SetAlpha((cur == max) and 0 or (value < max) and .5 or 1)
+				point:SetAlpha((cur == max) and 0 or (value < pmax) and .5 or 1)
 			end
 		end
 	end
@@ -216,6 +217,35 @@ local Runes_PostUpdateColor = function(element, r, g, b, color, rune)
 				r, g, b = color[1], color[2], color[3]
 			end
 			rune:SetStatusBarColor(r, g, b)
+		end
+	end
+end
+
+local Stagger_SetStatusBarColor = function(element, r, g, b)
+	for i,point in next,element do
+		point:SetStatusBarColor(r, g, b)
+	end
+end
+
+local Stagger_PostUpdate = function(element, amount, maxHealth)
+
+	element[1].min = 0
+	element[1].max = maxHealth * .3
+	element[2].min = element[1].max
+	element[2].max = maxHealth * .6
+	element[3].min = element[2].max
+	element[3].max = maxHealth
+
+	for i,point in next,element do
+		local value = (cur > point.max) and point.max or (cur < point.min) and point.min or cur
+
+		point:SetMinMaxValues(point.min, point.max)
+		point:SetValue(value)
+
+		if (element.inCombat) then
+			point:SetAlpha((cur == max) and 1 or (value < point.max) and .5 or 1)
+		else
+			point:SetAlpha((cur == 0) and 0 or (value < point.max) and .5 or 1)
 		end
 	end
 end
@@ -358,6 +388,10 @@ UnitStyles["PlayerHUD"] = function(self, unit, id)
 	if (playerClass == "MONK") and (not SCP) then
 
 		local stagger = CreateFrame("Frame", nil, self)
+		stagger.SetValue = noop
+		stagger.SetMinMaxValues = noop
+		stagger.SetStatusBarColor = Stagger_SetStatusBarColor
+
 		for i = 1,3 do
 			stagger[i] = ClassPower_CreatePoint(stagger)
 		end
@@ -365,6 +399,7 @@ UnitStyles["PlayerHUD"] = function(self, unit, id)
 		ClassPower_PostUpdate(stagger, 0, 3)
 
 		self.Stagger = stagger
+		self.Stagger.PostUpdate = Stagger_PostUpdate
 	end
 
 	-- Death Knight Runes
