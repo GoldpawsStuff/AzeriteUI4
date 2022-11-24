@@ -250,7 +250,7 @@ Colors.power[11] = Colors.power.MAELSTROM
 Colors.power[13] = Colors.power.INSANITY
 Colors.power[17] = Colors.power.FURY
 Colors.power[18] = Colors.power.PAIN
-Colors.power[19] = colors.power.ESSENCE
+Colors.power[19] = Colors.power.ESSENCE
 
 -- Reactions
 Colors.reaction = {}
