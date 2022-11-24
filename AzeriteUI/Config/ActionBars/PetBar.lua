@@ -88,10 +88,7 @@ Config.PetBar = {
 	ButtonSpellHighlightSize = { 100.721311475, 100.721311475 },
 	ButtonSpellHighlightTexture = GetMedia("actionbutton-spellhighlight"),
 
-	ButtonAutoCastablePosition = { "CENTER", 0, 0 },
-	ButtonAutoCastableSize = { 36, 36 },
-
-	ButtonAutoCastShinePosition = { "CENTER", 0, 0 },
-	ButtonAutoCastShineSize = { 36, 36 },
+	ButtonAutoCastableOffset = 6,
+	ButtonAutoCastShineOffset = -6,
 
 }
