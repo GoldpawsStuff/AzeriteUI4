@@ -152,17 +152,17 @@ PetButton.UpdateHotkeys = function(self)
 end
 
 PetButton.ShowButton = function(self)
-	self.pushedTexture:SetTexture(self.textureCache.pushed)
-	self.highlightTexture:SetTexture(self.textureCache.highlight)
+	--self.pushedTexture:SetTexture(self.textureCache.pushed)
+	--self.highlightTexture:SetTexture(self.textureCache.highlight)
 	self:SetAlpha(1)
 end
 
 PetButton.HideButton = function(self)
-	self.textureCache.pushed = self.pushedTexture:GetTexture()
-	self.textureCache.highlight = self.highlightTexture:GetTexture()
+	--self.textureCache.pushed = self.pushedTexture:GetTexture()
+	--self.textureCache.highlight = self.highlightTexture:GetTexture()
 
-	self.pushedTexture:SetTexture("")
-	self.highlightTexture:SetTexture("")
+	--self.pushedTexture:SetTexture("")
+	--self.highlightTexture:SetTexture("")
 
 	if (self.showgrid == 0 and not self.parent.config.showgrid) then
 		self:SetAlpha(0)
