@@ -36,7 +36,7 @@ Config.Tracker = {
 	-- Size of the holder. Set to same width as our Minimap.
 	-- *Wrath WatchFrame is 306 expanded, 204 standard width, Retail ObjectiveTracker 248
 	Size = { 213, 22 },
-	Position = { "TOPRIGHT", UIParent, "TOPRIGHT", -20, -240 },
+	Position = { "TOPRIGHT", UIParent, "TOPRIGHT", -60, -240 },
 	BottomOffset = 380,
 	WrathScale = 1.0625,
 	WrathTitleFont = GetFont(12,true),
