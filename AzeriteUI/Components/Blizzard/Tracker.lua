@@ -300,15 +300,8 @@ end
 local AutoHider_OnHide = function()
 	if (ns.IsRetail) then
 		if (not ObjectiveTrackerFrame.collapsed) then
-			--local _, _, difficultyID = GetInstanceInfo()
-			--if (difficultyID ~= 8) then -- keystone runs
 			ObjectiveTracker_Collapse()
-			--end
 		end
-	else
-		--if (not WatchFrame.collapsed) then
-		--	WatchFrame_Collapse()
-		--end
 	end
 end
 
@@ -317,10 +310,6 @@ local AutoHider_OnShow = function()
 		if (ObjectiveTrackerFrame.collapsed) then
 			ObjectiveTracker_Expand()
 		end
-	else
-		--if (WatchFrame.collapsed) then
-		--	WatchFrame_Expand()
-		--end
 	end
 end
 
