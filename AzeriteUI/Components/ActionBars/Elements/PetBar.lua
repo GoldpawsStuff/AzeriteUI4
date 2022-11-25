@@ -335,10 +335,10 @@ PetBar.OnEvent = function(self, event, ...)
 end
 
 PetBar.OnInitialize = function(self)
-	if (not ns.db.global.core.enableDevelopmentMode) then
-		self:Disable()
-		return
-	end
+	--if (not ns.db.global.core.enableDevelopmentMode) then
+	--	self:Disable()
+	--	return
+	--end
 	self:SpawnBar()
 end
 
