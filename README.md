@@ -3,7 +3,15 @@
 [![discord](https://www.goldpawsstuff.com/shared/img/common/dd-button.png)](https://discord.gg/MUSfWXd)
 [![twitter](https://www.goldpawsstuff.com/shared/img/common/tw-button.png)](https://twitter.com/GoldpawsStuff)
 
-Work in progress.
+Work in progress. You probably have questions. I'll answer a few:
+
+- Yes, I killed the EditMode on purpose.
+- Yes, the chat frames will be made movable in retail too.
+- Yes, I plan to make a config menu instead of these chat commands.
+- Yes, the config menu will allow you to manually disable nearly every module in the UI.
+- Yes, I will be making party-, arena- and boss frames.
+- Yes, this UI is currently in an alpha state, thus all of the above.
+- Yes, I do accept donations and will love you for it. Links above.
 
 ## Chat Commands
 Note that the following commands do NOT work while engaged in combat. All settings are stored in the addons saved settings.
