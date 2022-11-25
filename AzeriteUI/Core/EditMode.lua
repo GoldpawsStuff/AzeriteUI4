@@ -28,23 +28,24 @@ if (not ns.IsRetail) then
 	return
 end
 
-do return end
-
 local noop = ns.Noop
 
-for i,frame in pairs(EditModeManagerFrame.registeredSystemFrames) do
-	table.remove(EditModeManagerFrame.registeredSystemFrames, i)
+EditModeManagerFrame:SetParent(ns.Hider)
+
+local removeAllRegisteredSystemFrames = function()
+	for i,frame in pairs(EditModeManagerFrame.registeredSystemFrames) do
+		table.remove(EditModeManagerFrame.registeredSystemFrames, i)
+	end
 end
 
-EditModeManagerFrame.EnterEditMode = noop
-EditModeManagerFrame.ExitEditMode = noop
-EditModeManagerFrame.RegisterSystemFrame = noop
-EditModeManagerFrameMixin.EnterEditMode = noop
-EditModeManagerFrameMixin.ExitEditMode = noop
-EditModeManagerFrameMixin.RegisterSystemFrame = noop
+-- Taints, but stops our stuff from breaking.
+EditModeManagerFrame.UpdateActionBarLayout = noop
+EditModeManagerFrame.UpdateActionBarPositions = noop
+EditModeManagerFrame.UpdateBottomActionBarPositions = noop
+
+hooksecurefunc(EditModeManagerFrame, "RegisterSystemFrame", removeAllRegisteredSystemFrames)
+hooksecurefunc(EditModeManagerFrameMixin, "RegisterSystemFrame", removeAllRegisteredSystemFrames)
 
 hooksecurefunc(EditModeManagerFrame, "EnterEditMode", function()
 	HideUIPanel(EditModeManagerFrame)
 end)
-
-EditModeManagerFrame:SetParent(ns.Hider)
