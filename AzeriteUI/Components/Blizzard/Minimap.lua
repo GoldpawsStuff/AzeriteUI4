@@ -366,13 +366,6 @@ MinimapMod.UpdateZone = function(self)
 	zoneName:SetText(minimapZoneName)
 end
 
-MinimapMod.UpdatePosition = function(self)
-	if (InCombatLockdown()) then
-		return self:RegisterEvent("PLAYER_REGEN_ENABLED", "OnEvent")
-	end
-	-- Do we still need this at all?
-end
-
 MinimapMod.InitializeMinimap = function(self)
 
 	local db = ns.Config.Minimap
@@ -630,8 +623,6 @@ MinimapMod.InitializeMinimap = function(self)
 		end
 
 	end
-
-	self:UpdatePosition()
 end
 
 MinimapMod.InitializeMBB = function(self)
@@ -776,17 +767,14 @@ MinimapMod.OnEvent = function(self, event)
 		self:UpdateZone()
 		self:UpdateMail()
 		self:UpdateTimers()
-		self:UpdatePosition()
 
 	elseif (event == "VARIABLES_LOADED") or (event == "SETTINGS_LOADED") then
 		self:UpdateTimers()
-		self:UpdatePosition()
 
 	elseif (event == "PLAYER_REGEN_ENABLED") then
 		if (not InCombatLockdown()) then
 			self:UnregisterEvent("PLAYER_REGEN_ENABLED", "OnEvent")
 			self:UpdateTimers()
-			self:UpdatePosition()
 		end
 
 	elseif (event == "CVAR_UPDATE") then
