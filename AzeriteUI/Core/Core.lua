@@ -199,14 +199,9 @@ ns.UpdateSettings = function(self, event, ...)
 	ns.callbacks:Fire("Saved_Settings_Updated")
 end
 
--- Allow other modules and addons to use this.
-ns.GetSettings = function(self)
-	return self.db or SanitizeSettings(LibStub("AceDB-3.0"):New("AzeriteUI4_DB", defaults, true))
-end
-
 ns.OnInitialize = function(self)
 
-	self.db = self:GetSettings()
+	self.db = SanitizeSettings(LibStub("AceDB-3.0"):New("AzeriteUI4_DB", defaults, true))
 	self.db.RegisterCallback(self, "OnProfileChanged", "UpdateSettings")
 	self.db.RegisterCallback(self, "OnProfileCopied", "UpdateSettings")
 	self.db.RegisterCallback(self, "OnProfileReset", "UpdateSettings")
