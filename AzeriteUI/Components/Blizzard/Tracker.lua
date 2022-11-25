@@ -451,16 +451,17 @@ Tracker.UpdatePosition = function(self)
 	ObjectiveTrackerFrame.ignoreFramePositionManager = true
 	UIParentRightManagedFrameContainer:RemoveManagedFrame(ObjectiveTrackerFrame)
 
-	ObjectiveTrackerFrame.IsInDefaultPosition = noop
+	ObjectiveTrackerFrame.IsInDefaultPosition = noop -- taint?
 
 	ObjectiveTrackerFrame:SetFrameStrata("LOW")
 	ObjectiveTrackerFrame:SetFrameLevel(50)
 	ObjectiveTrackerFrame:SetClampedToScreen(false)
 	ObjectiveTrackerFrame:ClearAllPoints()
-	ObjectiveTrackerFrame:SetPoint("TOP", UIParent, "TOP", 0, ns.Config.Tracker.TopOffset)
-	ObjectiveTrackerFrame:SetPoint("BOTTOMRIGHT", self.holder, "BOTTOMRIGHT")
-	--ObjectiveTrackerFrame:SetPoint("TOP", self.holder, "TOP")
-	--ObjectiveTrackerFrame:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, 90)
+	ObjectiveTrackerFrame:SetPoint("TOP", self.holder, "TOP")
+	ObjectiveTrackerFrame:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, ns.Config.Tracker.BottomOffset)
+
+	--ObjectiveTrackerFrame:SetPoint("TOP", UIParent, "TOP", 0, ns.Config.Tracker.TopOffset)
+	--ObjectiveTrackerFrame:SetPoint("BOTTOMRIGHT", self.holder, "BOTTOMRIGHT")
 
 end
 
