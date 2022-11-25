@@ -4,5 +4,5 @@ All notable changes to this project will be documented in this file. Be aware th
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [4.0.0-Alpha] 2022-10-15
-- First commit.
+## [4.0.0-Alpha] 2022-11-25
+- First public alpha.
