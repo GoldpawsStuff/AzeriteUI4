@@ -43,6 +43,9 @@ EditModeManagerFrame.UpdateActionBarLayout = noop
 EditModeManagerFrame.UpdateActionBarPositions = noop
 EditModeManagerFrame.UpdateBottomActionBarPositions = noop
 
+-- Hell yeah we're doing this!
+_G.INTERFACE_ACTION_BLOCKED = ""
+
 hooksecurefunc(EditModeManagerFrame, "RegisterSystemFrame", removeAllRegisteredSystemFrames)
 hooksecurefunc(EditModeManagerFrameMixin, "RegisterSystemFrame", removeAllRegisteredSystemFrames)
 
