@@ -177,8 +177,6 @@ local Tab_OnDragStart = function(tab, button)
 
 		chatTab:ClearAllPoints()
 		frame:ClearAllPoints()
-
-		-- TODO: FIX SCALE!
 		frame:SetPoint("TOPLEFT", "UIParent", "BOTTOMLEFT", x, y)
 
 		FCF_SetTabPosition(frame, 0)
@@ -505,17 +503,14 @@ ChatFrames.StyleChat = function(self, frame)
 		end
 
 		-- Replace the drag handler with one supporting our scale
-		tab:SetScript("OnDragStart", Tab_OnDragStart)
+		-- This taints the editmode, have to redo this whole system for WoW10.
+		if (not ns.IsRetail) then
+			tab:SetScript("OnDragStart", Tab_OnDragStart)
+		end
 
 		-- Toggle tab text visibility on hover
 		tab:HookScript("OnEnter", Tab_PostEnter)
 		tab:HookScript("OnLeave", Tab_PostLeave)
-
-		--tab:HookScript("OnClick", function()
-		--	--self:UpdateClutter()
-		--	--self:UpdateDockedChatTabs()
-		--end)
-
 	end
 
 	if (editBox) then
