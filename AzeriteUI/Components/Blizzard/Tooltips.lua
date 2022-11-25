@@ -634,7 +634,7 @@ Tooltips.OnInitialize = function(self)
 	self:StyleStatusBar()
 	self:StyleTooltips()
 
-	self:SetFonts()
+	--self:SetFonts()
 	self:SetHooks()
 end
 
