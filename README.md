@@ -18,27 +18,27 @@ Note that the following commands do NOT work while engaged in combat. All settin
 
 ### Action Bars
 Change actionbar settings like enabled bars, number of buttons and fading.
-* **/setbuttons \<bar\> \<numbuttons\>** - Sets number of visible buttons on a bar. *(7-12 for bar 1, 1-12 for bar 2.)*
-* **/enablebar \<bar\>** - Enable a bar. *(1 = primary, 2 = bottom left bar in the blizz UI.)*
-* **/disablebar \<bar\>** - Disable a bar.
-* **/enablebarfade** - Enable bar fading.
-* **/disablebarfade** - Disable bar fading, keeping buttons always visible.
+- **/setbuttons \<bar\> \<numbuttons\>** - Sets number of visible buttons on a bar. *(7-12 for bar 1, 1-12 for bar 2.)*
+- **/enablebar \<bar\>** - Enable a bar. *(1 = primary, 2 = bottom left bar in the blizz UI.)*
+- **/disablebar \<bar\>** - Disable a bar.
+- **/enablebarfade** - Enable bar fading.
+- **/disablebarfade** - Disable bar fading, keeping buttons always visible.
 
 ### Movable Frames
 Toggle movable frames. *(Frames can be reset to default position when they are unlocked.)*
-* **/lock** - Hide frame anchors, disabling movement.
-* **/unlock** - Show frame anchors, enabling movement.
-* **/togglelock** - Toggle frame anchors.
+- **/lock** - Hide frame anchors, disabling movement.
+- **/unlock** - Show frame anchors, enabling movement.
+- **/togglelock** - Toggle frame anchors.
 
 ### Scale
 Change the relative scale of the custom user interface elements created by the addon.
-* **/setscale n** - Set the scale to `n`. *(n = [0.75 to 1.25])*
-* **/resetscale** - Resets the relative scale.
+- **/setscale n** - Set the scale to `n`. *(n = [0.75 to 1.25])*
+- **/resetscale** - Resets the relative scale.
 
 ### Minimap Clock
 Change how the time is displayed on the minimap.
-* **/setclock**
-  * **12** - Use a 12-hour AM/PM clock. *(default)*
-  * **24** - Use a 24-hour clock.
-  * **local** - Use local computer time. *(default)*
-  * **realm** - Use the game server time.
+- **/setclock**
+  - **12** - Use a 12-hour AM/PM clock. *(default)*
+  - **24** - Use a 24-hour clock.
+  - **local** - Use local computer time. *(default)*
+  - **realm** - Use the game server time.
