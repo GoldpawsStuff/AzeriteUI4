@@ -442,7 +442,7 @@ UnitStyles["Boss"] = function(self, unit, id)
 
 	-- Target Highlight
 	--------------------------------------------
-	local targetHighlight = overlay:CreateTexture(nil, "BACKGROUND", -2)
+	local targetHighlight = overlay:CreateTexture(nil, "BACKGROUND", nil, -2)
 	targetHighlight:SetPoint(unpack(db.TargetHighlightPosition))
 	targetHighlight:SetSize(unpack(db.TargetHighlightSize))
 	targetHighlight:SetTexture(db.TargetHighlightTexture)
