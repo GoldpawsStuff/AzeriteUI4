@@ -387,7 +387,7 @@ UnitFrames.SpawnGroupFrames = function(self)
 	oUF:Factory(function(oUF)
 		oUF:SetActiveStyle(ns.Prefix)
 
-		local db = ns.Config.Party
+		local config = ns.Config.Party
 		local dev = true
 
 		-- oUF:SpawnHeader(overrideName, overrideTemplate, visibility, attributes ...)
@@ -396,17 +396,16 @@ UnitFrames.SpawnGroupFrames = function(self)
 				-- Set header attributes
 				"showParty", true,
 				"showPlayer", dev,
-				"point", db.Anchor,
-				"xOffset", db.GrowthX,
-				"yOffset", db.GrowthY,
-				"sortMethod", db.Sorting
-				"sortDir", db.SortDirection
+				"point", config.Anchor,
+				"xOffset", config.GrowthX,
+				"yOffset", config.GrowthY,
+				"sortMethod", config.Sorting,
+				"sortDir", config.SortDirection
 		)
-		party:SetPoint(unpack(db.Position))
+		party:SetPoint(unpack(config.Position))
 
 		local db = ns.db.global.unitframes.storedFrames
-		db.Party = RegisterFrameForMovement(party, db.Party, unpack(db.Size))
-
+		db.Party = RegisterFrameForMovement(party, db.Party, config.Size[1], config.Size[2])
 
 	end)
 end
