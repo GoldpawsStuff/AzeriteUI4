@@ -9,8 +9,8 @@ Work in progress. You probably have questions. I'll answer a few:
 - Yes, the chat frames will be made movable in retail too.
 - Yes, I plan to make a config menu instead of these chat commands.
 - Yes, the config menu will allow you to manually disable nearly every module in the UI.
-- Yes, I will be making party-, arena- and boss frames.
-- Yes, this UI is currently in an alpha state, thus all of the above.
+- Yes, I will be making boss-, raid- and arena frames.
+- No, I will not be adding `/go legacy`for the alternate theme. If anything I'll release a version of that as another standalone UI. But I will no longer attempt to integrate multiple UIs into a single addon.
 - Yes, I do accept donations and will love you for it. Links above.
 
 ## Chat Commands
