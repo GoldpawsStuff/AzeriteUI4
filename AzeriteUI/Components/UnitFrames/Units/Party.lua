@@ -30,6 +30,7 @@ if (not UnitStyles) then
 end
 
 -- Lua API
+local string_gsub = string.gsub
 local unpack = unpack
 
 -- WoW API
@@ -392,7 +393,7 @@ UnitStyles["Party"] = function(self, unit, id, ...)
 	healthValue:SetTextColor(unpack(db.HealthValueColor))
 	healthValue:SetJustifyH(db.HealthValueJustifyH)
 	healthValue:SetJustifyV(db.HealthValueJustifyV)
-	self:Tag(healthValue, prefix("[*:Health(true)]"))
+	self:Tag(healthValue, prefix("[*:Health(true, nil, nil, true)]"))
 
 	self.Health.Value = healthValue
 
