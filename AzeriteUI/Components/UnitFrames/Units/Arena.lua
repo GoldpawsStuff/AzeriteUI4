@@ -30,8 +30,8 @@ if (not UnitStyles) then
 end
 
 -- Lua API
-local unpack = unpack
 local string_gsub = string.gsub
+local unpack = unpack
 
 -- WoW API
 local UnitIsUnit = UnitIsUnit
