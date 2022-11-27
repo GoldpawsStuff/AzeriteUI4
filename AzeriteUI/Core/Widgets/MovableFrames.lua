@@ -62,7 +62,7 @@ local Anchor_MT = { __index = Anchor }
 -- Anchor API
 --------------------------------------
 -- Constructor
-Anchor.Create = function(self, frame, savedPosition, anchorWidth, anchorHeight)
+Anchor.Create = function(self, frame, savedPosition, ...)
 
 	local anchor = setmetatable(CreateFrame("Button", nil, UIParent), Anchor_MT)
 	anchor:Hide()
@@ -73,10 +73,11 @@ Anchor.Create = function(self, frame, savedPosition, anchorWidth, anchorHeight)
 	anchor.frame = frame
 	anchor.savedPosition = savedPosition or {}
 	anchor.defaultPosition = { GetPosition(frame) }
-	anchor.anchorWidth = anchorWidth
-	anchor.anchorHeight = anchorHeight
 
-	if (anchor.anchorWidth and anchor.anchorHeight) then
+	local anchorWidth, anchorHeight = ...
+	if (anchorWidth and anchorHeight) then
+		anchor.anchorWidth = anchorWidth
+		anchor.anchorHeight = anchorHeight
 		anchor:SetSize(anchor.anchorWidth, anchor.anchorHeight)
 	end
 
@@ -325,9 +326,9 @@ end
 
 -- Public API
 --------------------------------------
-Widgets.RegisterFrameForMovement = function(frame, db)
+Widgets.RegisterFrameForMovement = function(frame, db, ...)
 	if (InCombatLockdown()) then return end
-	return Anchor:Create(frame, db).savedPosition
+	return Anchor:Create(frame, db, ...).savedPosition
 end
 
 Widgets.ShowMovableFrameAnchors = function()
