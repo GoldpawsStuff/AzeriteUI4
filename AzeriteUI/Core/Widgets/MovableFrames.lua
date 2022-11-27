@@ -62,7 +62,7 @@ local Anchor_MT = { __index = Anchor }
 -- Anchor API
 --------------------------------------
 -- Constructor
-Anchor.Create = function(self, frame, savedPosition)
+Anchor.Create = function(self, frame, savedPosition, anchorWidth, anchorHeight)
 
 	local anchor = setmetatable(CreateFrame("Button", nil, UIParent), Anchor_MT)
 	anchor:Hide()
@@ -73,6 +73,12 @@ Anchor.Create = function(self, frame, savedPosition)
 	anchor.frame = frame
 	anchor.savedPosition = savedPosition or {}
 	anchor.defaultPosition = { GetPosition(frame) }
+	anchor.anchorWidth = anchorWidth
+	anchor.anchorHeight = anchorHeight
+
+	if (anchor.anchorWidth and anchor.anchorHeight) then
+		anchor:SetSize(anchor.anchorWidth, anchor.anchorHeight)
+	end
 
 	local overlay = anchor:CreateTexture(nil, "ARTWORK", nil, 1)
 	overlay:SetAllPoints()
@@ -144,11 +150,14 @@ Anchor.ResetLastChange = function(self)
 	self.frame:ClearAllPoints()
 	self.frame:SetPoint(point, UIParent, point, x, y)
 
-	local width, height = self.frame:GetSize()
-
 	self:ClearAllPoints()
 	self:SetPoint(point, UIParent, point, x, y)
-	self:SetSize(width, height)
+
+	if (not self.anchorWidth or not self.anchorHeight) then
+		local width, height = self.frame:GetSize()
+		self:SetSize(width, height)
+	end
+
 	self:UpdateText()
 end
 
@@ -162,11 +171,14 @@ Anchor.ResetToSaved = function(self)
 	self.frame:ClearAllPoints()
 	self.frame:SetPoint(point, UIParent, point, x, y)
 
-	local width, height = self.frame:GetSize()
-
 	self:ClearAllPoints()
 	self:SetPoint(point, UIParent, point, x, y)
-	self:SetSize(width, height)
+
+	if (not self.anchorWidth or not self.anchorHeight) then
+		local width, height = self.frame:GetSize()
+		self:SetSize(width, height)
+	end
+
 	self:UpdateText()
 end
 
@@ -185,11 +197,14 @@ Anchor.ResetToDefault = function(self)
 	self.frame:ClearAllPoints()
 	self.frame:SetPoint(point, UIParent, point, x, y)
 
-	local width, height = self.frame:GetSize()
-
 	self:ClearAllPoints()
 	self:SetPoint(point, UIParent, point, x, y)
-	self:SetSize(width, height)
+
+	if (not self.anchorWidth or not self.anchorHeight) then
+		local width, height = self.frame:GetSize()
+		self:SetSize(width, height)
+	end
+
 	self:UpdateText()
 end
 
@@ -269,7 +284,6 @@ Anchor.OnShow = function(self)
 	self.lastPosition = { point, x, y }
 	self.currentPosition = { point, x, y }
 
-	local width, height = self.frame:GetSize()
 	local effectiveScale = self.frame:GetEffectiveScale()
 
 	self:SetFrameLevel(50)
@@ -277,7 +291,12 @@ Anchor.OnShow = function(self)
 	self:SetScale(effectiveScale)
 	self:ClearAllPoints()
 	self:SetPoint(point, UIParent, point, x, y)
-	self:SetSize(width, height)
+
+	if (not self.anchorWidth or not self.anchorHeight) then
+		local width, height = self.frame:GetSize()
+		self:SetSize(width, height)
+	end
+
 	self:UpdateText()
 end
 
