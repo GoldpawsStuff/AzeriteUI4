@@ -387,15 +387,27 @@ UnitFrames.SpawnGroupFrames = function(self)
 	oUF:Factory(function(oUF)
 		oUF:SetActiveStyle(ns.Prefix)
 
+		local db = ns.Config.Party
+		local dev = true
+
 		-- oUF:SpawnHeader(overrideName, overrideTemplate, visibility, attributes ...)
-		--local party = oUF:SpawnHeader(nil, nil, "raid,party,solo",
-		--		-- http://wowprogramming.com/docs/secure_template/Group_Headers
-		--		-- Set header attributes
-		--		"showParty", true,
-		--		"showPlayer", true,
-		--		"yOffset", -20
-		--)
-		--party:SetPoint("TOPLEFT", 30, -30)
+		local party = oUF:SpawnHeader(ns.Prefix.."Party", nil, dev and "party,solo" or "party",
+				-- http://wowprogramming.com/docs/secure_template/Group_Headers
+				-- Set header attributes
+				"showParty", true,
+				"showPlayer", dev,
+				"point", db.Anchor,
+				"xOffset", db.GrowthX,
+				"yOffset", db.GrowthY,
+				"sortMethod", db.Sorting
+				"sortDir", db.SortDirection
+		)
+		party:SetPoint(unpack(db.Position))
+
+		local db = ns.db.global.unitframes.storedFrames
+		db.Party = RegisterFrameForMovement(party, db.Party, unpack(db.Size))
+
+
 	end)
 end
 
