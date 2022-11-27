@@ -387,25 +387,41 @@ UnitFrames.SpawnGroupFrames = function(self)
 	oUF:Factory(function(oUF)
 		oUF:SetActiveStyle(ns.Prefix)
 
+		-- Uncomment for a visible player frame for testing purposes.
+		local dev --= true
 		local config = ns.Config.Party
-		local dev = true
 
 		-- oUF:SpawnHeader(overrideName, overrideTemplate, visibility, attributes ...)
-		local party = oUF:SpawnHeader(ns.Prefix.."Party", nil, dev and "party,solo" or "party",
+		local party = SetObjectScale(oUF:SpawnHeader(ns.Prefix.."Party", nil, dev and "party,solo" or "party",
 				-- http://wowprogramming.com/docs/secure_template/Group_Headers
 				-- Set header attributes
 				"showParty", true,
 				"showPlayer", dev,
+				"showSolo", dev,
 				"point", config.Anchor,
 				"xOffset", config.GrowthX,
 				"yOffset", config.GrowthY,
 				"sortMethod", config.Sorting,
 				"sortDir", config.SortDirection
-		)
-		party:SetPoint(unpack(config.Position))
+		))
 
+		-- The secure groupheader can have its points cleared when empty,
+		-- so we need a fake anchor to avoid it bugging out.
+		local anchor = SetObjectScale(CreateFrame("Frame", nil, UIParent))
+		anchor:SetPoint(unpack(config.Position))
+		anchor:SetSize(unpack(config.Size))
+		anchor.PostUpdateAnchoring = function(self, width, height, ...)
+			if (InCombatLockdown()) then return end
+			party:ClearAllPoints()
+			party:SetPoint(config.Anchor, anchor, config.Anchor)
+		end
+
+		-- Initial positioning
+		party:SetPoint(config.Anchor, anchor, config.Anchor)
+
+		-- Set up movable frame
 		local db = ns.db.global.unitframes.storedFrames
-		db.Party = RegisterFrameForMovement(party, db.Party, config.Size[1], config.Size[2])
+		db.Party = RegisterFrameForMovement(anchor, db.Party)
 
 	end)
 end

@@ -263,7 +263,9 @@ local GroupRoleIndicator_Override = function(self, event)
 		element.Icon:SetTexture(element[role])
 		element:Show()
 	else
-		element:Hide()
+		element.Icon:SetTexture(element.DAMAGER)
+		element:Show()
+		--element:Hide()
 	end
 
 	--[[ Callback: GroupRoleIndicator:PostUpdate(role)
@@ -274,6 +276,32 @@ local GroupRoleIndicator_Override = function(self, event)
 	--]]
 	if (element.PostUpdate) then
 		return element:PostUpdate(role)
+	end
+end
+
+-- Make the portrait look better for offline or invisible units.
+local Portrait_PostUpdate = function(element, unit, hasStateChanged)
+	if (not element.state) then
+		element:ClearModel()
+		if (not element.fallback2DTexture) then
+			element.fallback2DTexture = element:CreateTexture()
+			element.fallback2DTexture:SetDrawLayer("ARTWORK")
+			element.fallback2DTexture:SetAllPoints()
+			element.fallback2DTexture:SetTexCoord(.1, .9, .1, .9)
+		end
+		SetPortraitTexture(element.fallback2DTexture, unit)
+		element.fallback2DTexture:Show()
+	else
+		if (element.fallback2DTexture) then
+			element.fallback2DTexture:Hide()
+		end
+		element:SetCamDistanceScale(element.distanceScale or 1)
+		element:SetPortraitZoom(1)
+		element:SetPosition(element.positionX or 0, element.positionY or 0, element.positionZ or 0)
+		element:SetRotation(element.rotation and element.rotation*degToRad or 0)
+		element:ClearModel()
+		element:SetUnit(unit)
+		element.guid = guid
 	end
 end
 
@@ -340,6 +368,12 @@ UnitStyles["Party"] = function(self, unit, id, ...)
 	self.Health.PostUpdate = Health_PostUpdate
 	self.Health.PostUpdateColor = Health_PostUpdateColor
 
+	local healthOverlay = CreateFrame("Frame", nil, health)
+	healthOverlay:SetFrameLevel(overlay:GetFrameLevel())
+	healthOverlay:SetAllPoints()
+
+	self.Health.Overlay = healthOverlay
+
 	local healthBackdrop = health:CreateTexture(nil, "BACKGROUND", nil, -1)
 	healthBackdrop:SetPoint(unpack(db.HealthBackdropPosition))
 	healthBackdrop:SetSize(unpack(db.HealthBackdropSize))
@@ -387,7 +421,7 @@ UnitStyles["Party"] = function(self, unit, id, ...)
 
 	-- Health Value
 	--------------------------------------------
-	local healthValue = health:CreateFontString(nil, "OVERLAY", nil, 1)
+	local healthValue = healthOverlay:CreateFontString(nil, "OVERLAY", nil, 1)
 	healthValue:SetPoint(unpack(db.HealthValuePosition))
 	healthValue:SetFontObject(db.HealthValueFont)
 	healthValue:SetTextColor(unpack(db.HealthValueColor))
@@ -419,6 +453,54 @@ UnitStyles["Party"] = function(self, unit, id, ...)
 	powerBackdrop:SetVertexColor(unpack(db.PowerBackdropColor))
 
 	self.Power.Backdrop = powerBackdrop
+
+	-- Portrait
+	--------------------------------------------
+	local portraitFrame = CreateFrame("Frame", nil, self)
+	portraitFrame:SetFrameLevel(self:GetFrameLevel() - 2)
+	portraitFrame:SetAllPoints()
+
+	local portrait = CreateFrame("PlayerModel", nil, portraitFrame)
+	portrait:SetFrameLevel(portraitFrame:GetFrameLevel())
+	portrait:SetPoint(unpack(db.PortraitPosition))
+	portrait:SetSize(unpack(db.PortraitSize))
+	portrait:SetAlpha(db.PortraitAlpha)
+	portrait.distanceScale = db.PortraitDistanceScale
+	portrait.positionX = db.PortraitPositionX
+	portrait.positionY = db.PortraitPositionY
+	portrait.positionZ = db.PortraitPositionZ
+	portrait.rotation = db.PortraitRotation
+	portrait.showFallback2D = db.PortraitShowFallback2D
+
+	self.Portrait = portrait
+	self.Portrait.PostUpdate = Portrait_PostUpdate
+
+	local portraitBg = portraitFrame:CreateTexture(nil, "BACKGROUND", nil, 0)
+	portraitBg:SetPoint(unpack(db.PortraitBackgroundPosition))
+	portraitBg:SetSize(unpack(db.PortraitBackgroundSize))
+	portraitBg:SetTexture(db.PortraitBackgroundTexture)
+	portraitBg:SetVertexColor(unpack(db.PortraitBackgroundColor))
+
+	self.Portrait.Bg = portraitBg
+
+	local portraitOverlayFrame = CreateFrame("Frame", nil, self)
+	portraitOverlayFrame:SetFrameLevel(self:GetFrameLevel() - 1)
+	portraitOverlayFrame:SetAllPoints()
+
+	local portraitShade = portraitOverlayFrame:CreateTexture(nil, "BACKGROUND", nil, -1)
+	portraitShade:SetPoint(unpack(db.PortraitShadePosition))
+	portraitShade:SetSize(unpack(db.PortraitShadeSize))
+	portraitShade:SetTexture(db.PortraitShadeTexture)
+
+	self.Portrait.Shade = portraitShade
+
+	local portraitBorder = portraitOverlayFrame:CreateTexture(nil, "BACKGROUND", nil, 0)
+	portraitBorder:SetPoint(unpack(db.PortraitBorderPosition))
+	portraitBorder:SetSize(unpack(db.PortraitBorderSize))
+	portraitBorder:SetTexture(db.PortraitBorderTexture)
+	portraitBorder:SetVertexColor(unpack(db.PortraitBorderColor))
+
+	self.Portrait.Border = portraitBorder
 
 	-- Absorb Bar (Retail)
 	--------------------------------------------
@@ -477,6 +559,7 @@ UnitStyles["Party"] = function(self, unit, id, ...)
 	local groupRoleBackdrop = groupRoleIndicator:CreateTexture(nil, "BACKGROUND", nil, 1)
 	groupRoleBackdrop:SetSize(unpack(db.GroupRoleBackdropSize))
 	groupRoleBackdrop:SetPoint(unpack(db.GroupRoleBackdropPosition))
+	groupRoleBackdrop:SetTexture(db.GroupRoleBackdropTexture)
 	groupRoleBackdrop:SetVertexColor(unpack(db.GroupRoleBackdropColor))
 
 	groupRoleIndicator.Backdrop = groupRoleBackdrop
