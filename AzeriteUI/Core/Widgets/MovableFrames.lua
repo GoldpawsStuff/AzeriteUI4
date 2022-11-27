@@ -161,8 +161,8 @@ Anchor.ResetLastChange = function(self)
 	self:SetSize(self.anchorWidth or width, self.anchorHeight or height)
 	self:UpdateText()
 
-	if (self.PostUpdate) then
-		self:PostUpdate(self.anchorWidth or width, self.anchorHeight or height, point, UIParent, point, x, y)
+	if (self.frame.PostUpdateAnchoring) then
+		self.frame:PostUpdateAnchoring(self.anchorWidth or width, self.anchorHeight or height, point, UIParent, point, x, y)
 	end
 end
 
@@ -183,8 +183,8 @@ Anchor.ResetToSaved = function(self)
 	self:SetSize(self.anchorWidth or width, self.anchorHeight or height)
 	self:UpdateText()
 
-	if (self.PostUpdate) then
-		self:PostUpdate(self.anchorWidth or width, self.anchorHeight or height, point, UIParent, point, x, y)
+	if (self.frame.PostUpdateAnchoring) then
+		self.frame:PostUpdateAnchoring(self.anchorWidth or width, self.anchorHeight or height, point, UIParent, point, x, y)
 	end
 end
 
@@ -210,8 +210,8 @@ Anchor.ResetToDefault = function(self)
 	self:SetSize(self.anchorWidth or width, self.anchorHeight or height)
 	self:UpdateText()
 
-	if (self.PostUpdate) then
-		self:PostUpdate(self.anchorWidth or width, self.anchorHeight or height, point, UIParent, point, x, y)
+	if (self.frame.PostUpdateAnchoring) then
+		self.frame:PostUpdateAnchoring(self.anchorWidth or width, self.anchorHeight or height, point, UIParent, point, x, y)
 	end
 end
 
@@ -273,6 +273,10 @@ Anchor.OnDragStop = function(self)
 
 	self.frame:ClearAllPoints()
 	self.frame:SetPoint(point, UIParent, point, x, y)
+
+	if (self.frame.PostUpdateAnchoring) then
+		self.frame:PostUpdateAnchoring(self.anchorWidth or width, self.anchorHeight or height, point, UIParent, point, x, y)
+	end
 end
 
 Anchor.OnEnter = function(self)
@@ -302,8 +306,8 @@ Anchor.OnShow = function(self)
 	self:SetSize(self.anchorWidth or width, self.anchorHeight or height)
 	self:UpdateText()
 
-	if (self.PostUpdate) then
-		self:PostUpdate(self.anchorWidth or width, self.anchorHeight or height, point, UIParent, point, x, y)
+	if (self.frame.PostUpdateAnchoring) then
+		self.frame:PostUpdateAnchoring(self.anchorWidth or width, self.anchorHeight or height, point, UIParent, point, x, y)
 	end
 end
 
