@@ -62,6 +62,7 @@ local defaults = {
 			enableToT = true,
 			enableFocus = true,
 			enablePet = true,
+			enableBoss = true,
 			enableParty = true,
 			enableRaid = true
 		}

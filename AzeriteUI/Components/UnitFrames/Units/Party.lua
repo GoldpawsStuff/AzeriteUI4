@@ -315,10 +315,12 @@ local TargetHighlight_Update = function(self, event, unit, ...)
 	if (UnitIsUnit(unit, "target")) then
 		element:SetVertexColor(unpack(element.colorTarget))
 		element:Show()
+	elseif (UnitIsUnit(unit, "focus")) then
+		element:SetVertexColor(unpack(element.colorFocus))
+		element:Show()
 	else
 		element:Hide()
 	end
-
 end
 
 local UnitFrame_PostUpdate = function(self)

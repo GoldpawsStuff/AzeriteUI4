@@ -53,16 +53,21 @@ local barSparkMap = {
 
 Config.Boss = {
 
-	Size = { 136, 47 },
-	Position = { "TOPRIGHT", UIParent, "RIGHT", -64, 261 },
+	AnchorSize = { 136, 97*5 },
+	AnchorPosition = { "TOPRIGHT", UIParent, "TOPRIGHT", -64, -279 },
+	Anchor = "TOPRIGHT",
 	GrowthX = 0,
 	GrowthY = -97,
-	HitRectInsets = { 0, 0, 0, 0 },
 
+	Size = { 136, 47 },
+	HitRectInsets = { -20, -20	, -20, -10 },
+
+	-- Health
+	-----------------------------------------
 	HealthBarPosition = { "CENTER", 0, 0 },
 	HealthBarSize = { 112, 11 },
 	HealthBarTexture = GetMedia("cast_bar"),
-	HealthBarOrientation = "RIGHT",
+	HealthBarOrientation = "LEFT",
 	HealthBarSparkMap = barSparkMap,
 	HealthAbsorbColor = { 1, 1, 1, .5 },
 	HealthCastOverlayColor = { 1, 1, 1, .5 },
@@ -78,16 +83,59 @@ Config.Boss = {
 	HealthValueFont = GetFont(14, true),
 	HealthValueColor = { Colors.offwhite[1], Colors.offwhite[2], Colors.offwhite[3], .75 },
 
+	-- Power
+	-----------------------------------------
+	PowerBarPosition = { "CENTER", 0, -1.5 },
+	PowerBarSize = { 104, 1 },
+	PowerBarTexture = [[Interface\ChatFrame\ChatFrameBackground]],
+	PowerBarOrientation = "LEFT",
+	PowerBackdropSize = { 74, 3 },
+	PowerBackdropPosition = { "CENTER", 0, 0 },
+	PowerBackdropTexture = [[Interface\ChatFrame\ChatFrameBackground]],
+	PowerBackdropColor = { 0, 0, 0, .75 },
+
+	-- Unit Name
+	-----------------------------------------
 	NamePosition = { "BOTTOMRIGHT", -12, 52 },
 	NameJustifyH = "CENTER",
 	NameJustifyV = "TOP",
 	NameFont = GetFont(14, true),
 	NameColor = { Colors.highlight[1], Colors.highlight[2], Colors.highlight[3], .75 },
 
+	-- Target Highlighting
+	-----------------------------------------
 	TargetHighlightPosition = { "CENTER", 1, -2 },
 	TargetHighlightSize = { 193,93 },
 	TargetHighlightTexture = GetMedia("cast_back_outline"),
 	TargetHighlightTargetColor = { 255/255, 239/255, 169/255, 1 },
 	TargetHighlightFocusColor = { 144/255, 195/255, 255/255, 1 },
+
+	-- Combat Feedback Text
+	-----------------------------------------
+	CombatFeedbackAnchorElement = "Health",
+	CombatFeedbackPosition = { "BOTTOM", 0, -20 }, -- must adjust this
+	CombatFeedbackFont = GetFont(20, true), -- standard font
+	CombatFeedbackFontLarge = GetFont(24, true), -- crit/drushing font
+	CombatFeedbackFontSmall = GetFont(18, true), -- glancing blow font
+
+	-- Auras
+	-----------------------------------------
+	AurasPosition = { "RIGHT", -149, -1 },
+	AurasSize = { 30*3 + 2*5, 30*2 + 5  },
+	AuraSize = 30,
+	AuraSpacing = 4,
+	AurasNumTotal = 6,
+	AurasDisableMouse = false,
+	AurasDisableCooldown = false,
+	AurasOnlyShowPlayer = false,
+	AurasShowStealableBuffs = false,
+	AurasInitialAnchor = "TOPRIGHT",
+	AurasSpacingX = 4,
+	AurasSpacingY = 4,
+	AurasGrowthX = "LEFT",
+	AurasGrowthY = "DOWN",
+	AurasTooltipAnchor = "ANCHOR_TOPLEFT",
+	AurasSortMethod = "TIME_REMAINING",
+	AurasSortDirection = "DESCENDING",
 
 }

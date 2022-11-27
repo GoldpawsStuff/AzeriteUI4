@@ -123,6 +123,10 @@ local UnitSpecific = function(self, unit)
 	if (unit == "player") then
 		style = self:GetName():find("HUD") and "PlayerHUD" or "Player"
 
+		if (self:GetName():find("Boss")) then
+			style = "Boss"
+		end
+
 	elseif (unit == "target") then
 		style = "Target"
 
@@ -369,6 +373,7 @@ UnitFrames.SpawnUnitFrames = function(self)
 		-- as its contents including every single point in
 		-- every variation of the class resource layout are
 		-- all placed relative to UIParent not to the unit frame.
+		-- Movement is coming, it's just fairly low on my priority list.
 		Spawn("player", "PlayerHUD")
 
 		-- This both updates and creates the saved position entries.
@@ -378,6 +383,19 @@ UnitFrames.SpawnUnitFrames = function(self)
 		db.Focus = RegisterFrameForMovement(Spawn("focus", "Focus"), db.Focus)
 		db.Target = RegisterFrameForMovement(Spawn("target", "Target"), db.Target)
 		db.ToT = RegisterFrameForMovement(Spawn("targettarget", "ToT"), db.ToT)
+
+		-- Spawn boss frames
+		local config = ns.Config.Boss
+		local boss = SetObjectScale(CreateFrame("Frame", nil, UIParent))
+		boss:SetPoint(unpack(config.AnchorPosition))
+		boss:SetSize(unpack(config.AnchorSize))
+		for id = 1,5 do
+			Spawn("boss"..id, "Boss"..id):SetPoint(config.Anchor, bossFrames, config.Anchor, (id -1)*config.GrowthX, (id -1)*config.GrowthY)
+		end
+
+		-- Set up movable frame system for boss anchor.
+		local db = ns.db.global.unitframes.storedFrames
+		db.Boss = RegisterFrameForMovement(boss, db.Boss)
 
 		self:UpdateSettings()
 	end)
@@ -575,6 +593,17 @@ UnitFrames.UpdateSettings = function(self)
 			Pet:Enable()
 		elseif (not db.enablePet and Pet:IsEnabled()) then
 			Pet:Disable()
+		end
+	end
+
+	for id = 1,5 do
+		local Boss = ns.UnitFramesByName["Boss"..id]
+		if (Boss) then
+			if (db.enableBoss and not Boss:IsEnabled()) then
+				Boss:Enable()
+			elseif (not db.enableBoss and Boss:IsEnabled()) then
+				Boss:Disable()
+			end
 		end
 	end
 

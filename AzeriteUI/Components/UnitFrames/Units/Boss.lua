@@ -30,8 +30,8 @@ if (not UnitStyles) then
 end
 
 -- Lua API
-local unpack = unpack
 local string_gsub = string.gsub
+local unpack = unpack
 
 -- WoW API
 local UnitIsUnit = UnitIsUnit
@@ -45,6 +45,7 @@ local SetObjectScale = ns.API.SetObjectScale
 
 -- Constants
 local playerClass = ns.PlayerClass
+
 -- Utility Functions
 --------------------------------------------
 -- Simplify the tagging process a little.
@@ -210,6 +211,37 @@ local HealPredict_PostUpdate = function(element, unit, myIncomingHeal, otherInco
 
 end
 
+local Power_PostUpdate = function(element, unit, cur, min, max)
+
+	local shouldShow = not UnitHasVehicleUI("player") and UnitPowerType(unit) == Enum.PowerType.Mana
+
+	if (not shouldShow or cur == 0 or max == 0) then
+		element:SetAlpha(0)
+	else
+		local _,class = UnitClass(unit)
+		if (class == "DRUID" or class == "PALADIN" or class == "PRIEST" or class == "SHAMAN") then
+			if (cur/max < .9) then
+				element:SetAlpha(.75)
+			else
+				element:SetAlpha(0)
+			end
+		elseif (class == "MAGE" or class == "WARLOCK") then
+			if (cur/max < .5) then
+				element:SetAlpha(.75)
+			else
+				element:SetAlpha(0)
+			end
+		else
+			-- The threshold for the "oom" message is .25 (not yet added!)
+			if (cur/max < .25) then
+				element:SetAlpha(.75)
+			else
+				element:SetAlpha(0)
+			end
+		end
+	end
+end
+
 -- Update targeting highlight outline
 local TargetHighlight_Update = function(self, event, unit, ...)
 	if (unit and unit ~= self.unit) then return end
@@ -226,7 +258,6 @@ local TargetHighlight_Update = function(self, event, unit, ...)
 	else
 		element:Hide()
 	end
-
 end
 
 local UnitFrame_PostUpdate = function(self)
@@ -243,12 +274,7 @@ UnitStyles["Boss"] = function(self, unit, id)
 
 	local db = ns.Config.Boss
 
-	local position = { unpack(db.Position) }
-	position[#position - 1] = position[#position - 1] + (id -1)*db.GrowthX
-	position[#position] = position[#position] + (id -1)*db.GrowthY
-
 	self:SetSize(unpack(db.Size))
-	self:SetPoint(position)
 	self:SetHitRectInsets(unpack(db.HitRectInsets))
 	self:SetFrameLevel(self:GetFrameLevel() + 10)
 
@@ -278,6 +304,12 @@ UnitStyles["Boss"] = function(self, unit, id)
 	self.Health.Override = ns.API.UpdateHealth
 	self.Health.PostUpdate = Health_PostUpdate
 	self.Health.PostUpdateColor = Health_PostUpdateColor
+
+	local healthOverlay = CreateFrame("Frame", nil, health)
+	healthOverlay:SetFrameLevel(overlay:GetFrameLevel())
+	healthOverlay:SetAllPoints()
+
+	self.Health.Overlay = healthOverlay
 
 	local healthBackdrop = health:CreateTexture(nil, "BACKGROUND", nil, -1)
 	healthBackdrop:SetPoint(unpack(db.HealthBackdropPosition))
@@ -326,15 +358,39 @@ UnitStyles["Boss"] = function(self, unit, id)
 
 	-- Health Value
 	--------------------------------------------
-	--local healthValue = health:CreateFontString(nil, "OVERLAY", nil, 1)
-	--healthValue:SetPoint(unpack(db.HealthValuePosition))
-	--healthValue:SetFontObject(db.HealthValueFont)
-	--healthValue:SetTextColor(unpack(db.HealthValueColor))
-	--healthValue:SetJustifyH(db.HealthValueJustifyH)
-	--healthValue:SetJustifyV(db.HealthValueJustifyV)
-	--self:Tag(healthValue, prefix("[*:Health(true)]"))
+	local healthValue = healthOverlay:CreateFontString(nil, "OVERLAY", nil, 1)
+	healthValue:SetPoint(unpack(db.HealthValuePosition))
+	healthValue:SetFontObject(db.HealthValueFont)
+	healthValue:SetTextColor(unpack(db.HealthValueColor))
+	healthValue:SetJustifyH(db.HealthValueJustifyH)
+	healthValue:SetJustifyV(db.HealthValueJustifyV)
+	self:Tag(healthValue, prefix("[*:Health(true)]"))
 
-	--self.Health.Value = healthValue
+	self.Health.Value = healthValue
+
+	-- Power
+	--------------------------------------------
+	local power = self:CreateBar()
+	power:SetFrameLevel(health:GetFrameLevel() + 2)
+	power:SetPoint(unpack(db.PowerBarPosition))
+	power:SetSize(unpack(db.PowerBarSize))
+	power:SetStatusBarTexture(db.PowerBarTexture)
+	power:SetOrientation(db.PowerBarOrientation)
+	power.frequentUpdates = true
+	power.displayAltPower = true
+	power.colorPower = true
+
+	self.Power = power
+	self.Power.Override = ns.API.UpdatePower
+	self.Power.PostUpdate = Power_PostUpdate
+
+	local powerBackdrop = power:CreateTexture(nil, "BACKGROUND", nil, -2)
+	powerBackdrop:SetPoint(unpack(db.PowerBackdropPosition))
+	powerBackdrop:SetSize(unpack(db.PowerBackdropSize))
+	powerBackdrop:SetTexture(db.PowerBackdropTexture)
+	powerBackdrop:SetVertexColor(unpack(db.PowerBackdropColor))
+
+	self.Power.Backdrop = powerBackdrop
 
 	-- Unit Name
 	--------------------------------------------
@@ -373,6 +429,17 @@ UnitStyles["Boss"] = function(self, unit, id)
 		self.Health.Absorb = absorb
 	end
 
+	-- CombatFeedback Text
+	--------------------------------------------
+	local feedbackText = overlay:CreateFontString(nil, "OVERLAY")
+	feedbackText:SetPoint(db.CombatFeedbackPosition[1], self[db.CombatFeedbackAnchorElement], unpack(db.CombatFeedbackPosition))
+	feedbackText:SetFontObject(db.CombatFeedbackFont)
+	feedbackText.feedbackFont = db.CombatFeedbackFont
+	feedbackText.feedbackFontLarge = db.CombatFeedbackFontLarge
+	feedbackText.feedbackFontSmall = db.CombatFeedbackFontSmall
+
+	self.CombatFeedback = feedbackText
+
 	-- Target Highlight
 	--------------------------------------------
 	local targetHighlight = overlay:CreateTexture(nil, "BACKGROUND", -2)
@@ -395,11 +462,4 @@ UnitStyles["Boss"] = function(self, unit, id)
 	self:RegisterEvent("PLAYER_TARGET_CHANGED", OnEvent, true)
 	self:RegisterEvent("PLAYER_FOCUS_CHANGED", OnEvent, true)
 
-end
-
--- This is temporary, just to move the default frames to a better position.
-Boss1TargetFrame:SetPoint("TOPRIGHT", 0, -420) -- Default is "TOPRIGHT", 55, -236
-for i = 1, MAX_BOSS_FRAMES do
-	local frame = SetObjectScale(_G["Boss"..i.."TargetFrame"])
-	frame:Show() -- Remind me... why?
 end
