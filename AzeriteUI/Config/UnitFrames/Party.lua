@@ -52,7 +52,7 @@ Config.Party = {
 	-- Header Position & Layut
 	-----------------------------------------
 	Position = { "TOPLEFT", UIParent, "TOPLEFT", 50, -42 }, -- party header position
-	Size = { 130*4, 130 }, -- size of a full party frame
+	Size = { 130*4, 130 }, -- size of the entire header frame area
 	Anchor = "TOPLEFT", -- party member frame anchor
 	GrowthX = 130, -- party member horizontal offset
 	GrowthY = 0, -- party member vertical offset
