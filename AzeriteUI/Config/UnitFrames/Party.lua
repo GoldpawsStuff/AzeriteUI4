@@ -86,7 +86,14 @@ Config.Party = {
 
 	-- Power
 	-----------------------------------------
-
+	PowerBarSize = { 72, 1 },
+	PowerBarPosition = { "BOTTOM", 0, -1.5 },
+	PowerBarTexture = [[Interface\ChatFrame\ChatFrameBackground]],
+	PowerBarOrientation = "RIGHT",
+	PowerBackdropSize = { 74, 3 },
+	PowerBackdropPosition = { "CENTER", 0, 0 },
+	PowerBackdropTexture = [[Interface\ChatFrame\ChatFrameBackground]],
+	PowerBackdropColor = { 0, 0, 0, .75 },
 
 	-- Portrait
 	-----------------------------------------
