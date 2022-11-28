@@ -53,8 +53,8 @@ Config.Party = {
 	-----------------------------------------
 	Position = { "TOPLEFT", UIParent, "TOPLEFT", 50, -42 }, -- party header position
 	Size = { 130*4, 130 }, -- size of the entire header frame area
-	Anchor = "TOPLEFT", -- party member frame anchor
-	GrowthX = 130, -- party member horizontal offset
+	Anchor = "LEFT", -- party member frame anchor
+	GrowthX = 0, -- party member horizontal offset
 	GrowthY = 0, -- party member vertical offset
 	Sorting = "INDEX", -- sort method
 	SortDirection = "ASC", -- sort direction
@@ -158,8 +158,8 @@ Config.Party = {
 
 	-- Auras
 	-----------------------------------------
-	AurasPosition = { "BOTTOM", 0, -(30*2 + 5 + 16) },
-	AurasSize = { 30*3 + 2*5, 30*2 + 5  },
+	AurasPosition = { "BOTTOM", 0, -(34*2 + 22) },
+	AurasSize = { 34*3 - 4, 34*2 - 4 },
 	AuraSize = 30,
 	AuraSpacing = 4,
 	AurasNumTotal = 6,
@@ -167,7 +167,7 @@ Config.Party = {
 	AurasDisableCooldown = false,
 	AurasOnlyShowPlayer = false,
 	AurasShowStealableBuffs = false,
-	AurasInitialAnchor = "BOTTOMLEFT",
+	AurasInitialAnchor = "TOPLEFT",
 	AurasSpacingX = 4,
 	AurasSpacingY = 4,
 	AurasGrowthX = "RIGHT",

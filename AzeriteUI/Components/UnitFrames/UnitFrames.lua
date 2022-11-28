@@ -406,13 +406,15 @@ UnitFrames.SpawnGroupFrames = function(self)
 		oUF:SetActiveStyle(ns.Prefix)
 
 		-- Uncomment for a visible player frame for testing purposes.
-		local dev --= true
+		local dev = true
 		local config = ns.Config.Party
 
 		-- oUF:SpawnHeader(overrideName, overrideTemplate, visibility, attributes ...)
 		local party = SetObjectScale(oUF:SpawnHeader(ns.Prefix.."Party", nil, dev and "party,solo" or "party",
 				-- http://wowprogramming.com/docs/secure_template/Group_Headers
 				-- Set header attributes
+				"initial-width", config.PartySize[1],
+				"initial-height", config.PartySize[2],
 				"showParty", true,
 				"showPlayer", dev,
 				"showSolo", dev,

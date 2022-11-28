@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file. Be aware th
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [4.0.5-Beta] 2022-11-28
+- No 4.0.4 build. It can't be found.
+
+### Fixed
+- Party frame layout should be slightly more sane now.
+
 ## [4.0.3-Beta] 2022-11-27
 ### Fixed
 - Fixed the faulty arguments to a CreateTexture call in the boss frames that caused the previous build to bug out in retail.
