@@ -530,6 +530,7 @@ UnitStyles["NamePlate"] = function(self, unit, id)
 	castbar:SetSparkMap(db.HealthBarSparkMap)
 	castbar:SetStatusBarTexture(db.HealthBarTexture)
 	castbar:SetStatusBarColor(unpack(db.HealthCastOverlayColor))
+	castbar:SetTexCoord(unpack(db.HealthBarTexCoord))
 	castbar:DisableSmoothing(true)
 
 	self.Castbar = castbar

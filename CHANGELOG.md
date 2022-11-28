@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file. Be aware th
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [4.0.8-Beta] 2022-11-28
+### Fixed
+- Fixed an issue where the nameplate castbar overlay would appear too small, not covering the entire health bar.
+
 ## [4.0.7-Beta] 2022-11-28
 ### Fixed
 - Fixed a bug where protected casts appeared borderless, instead of with the spiked border as intended.
