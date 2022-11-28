@@ -197,6 +197,7 @@ local style = function(button)
 	count:SetFontObject(db.ButtonCountFont)
 	count:SetJustifyH(db.ButtonCountJustifyH)
 	count:SetJustifyV(db.ButtonCountJustifyV)
+	count:SetTextColor(unpack(db.ButtonCountColor))
 
 	-- Button keybind
 	local hotkey = button.HotKey
@@ -226,6 +227,41 @@ local style = function(button)
 		hooksecurefunc(button, "SetHighlightTexture", function(b,...) if(...~="")then b:SetHighlightTexture("") end end)
 		hooksecurefunc(button, "SetCheckedTexture", function(b,...) if(...~="")then b:SetCheckedTexture("") end end)
 	end
+
+	local config = button.config or {}
+	config.text = {
+		hotkey = {
+			font = {
+				font = db.ButtonKeybindFont:GetFont(),
+				size = select(2, db.ButtonKeybindFont:GetFont()),
+				flags = select(3, db.ButtonKeybindFont:GetFont()),
+			},
+			color = db.ButtonKeybindColor,
+			position = {
+				anchor = db.ButtonKeybindPosition[1],
+				relAnchor = db.ButtonKeybindPosition[1],
+				offsetX = db.ButtonKeybindPosition[2],
+				offsetY = db.ButtonKeybindPosition[3],
+			},
+			justifyH = db.ButtonKeybindJustifyH,
+		},
+		count = {
+			font = {
+				font = db.ButtonCountFont:GetFont(),
+				size = select(2, db.ButtonCountFont:GetFont()),
+				flags = select(3, db.ButtonCountFont:GetFont()),
+			},
+			color = db.ButtonCountColor,
+			position = {
+				anchor = db.ButtonCountPosition[1],
+				relAnchor = db.ButtonCountPosition[1],
+				offsetX = db.ButtonCountPosition[2],
+				offsetY = db.ButtonCountPosition[3],
+			},
+			justifyH = db.ButtonCountJustifyH,
+		}
+	}
+	button:UpdateConfig(config)
 
 	-- Disable masque for our buttons,
 	-- they are not compatible.
