@@ -307,13 +307,13 @@ Bars.SpawnBar = function(self)
 
 	self.Bar.Disable = function(self)
 		ns.ActionBar.Disable(self)
-		self:UpdateBindings()
+		ClearOverrideBindings(self)
 		UnregisterStateDriver(controller, "petbattle")
 	end
 
 	self.Bar.Enable = function(self)
 		ns.ActionBar.Enable(self)
-		ClearOverrideBindings(self)
+		self:UpdateBindings()
 		RegisterStateDriver(controller, "petbattle", "[petbattle]petbattle;nopetbattle")
 	end
 
