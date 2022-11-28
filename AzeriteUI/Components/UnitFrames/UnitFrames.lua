@@ -301,6 +301,27 @@ end
 
 -- Module API
 -----------------------------------------------------
+UnitFrames.GetPartyAttributes = function(self)
+	local db = ns.Config.Party
+	return ns.Prefix.."Party", nil,
+	"party",
+	--"solo,party", "showPlayer", true, "showSolo", true,
+	"oUF-initialConfigFunction", [[
+		local header = self:GetParent();
+		self:SetWidth(header:GetAttribute("initial-width"));
+		self:SetHeight(header:GetAttribute("initial-height"));
+		self:SetFrameLevel(self:GetFrameLevel() + 10);
+	]],
+	"initial-width", db.PartySize[1],
+	"initial-height", db.PartySize[2],
+	"showParty", true,
+	"point", db.Anchor,
+	"xOffset", db.GrowthX,
+	"yOffset", db.GrowthY,
+	"sortMethod", db.Sorting,
+	"sortDir", db.SortDirection
+end
+
 UnitFrames.RegisterStyles = function(self)
 
 	oUF:RegisterStyle(ns.Prefix, function(self, unit)
@@ -405,31 +426,16 @@ UnitFrames.SpawnGroupFrames = function(self)
 	oUF:Factory(function(oUF)
 		oUF:SetActiveStyle(ns.Prefix)
 
-		-- Uncomment for a visible player frame for testing purposes.
-		local dev = true
-		local config = ns.Config.Party
-
-		-- oUF:SpawnHeader(overrideName, overrideTemplate, visibility, attributes ...)
-		local party = SetObjectScale(oUF:SpawnHeader(ns.Prefix.."Party", nil, dev and "party,solo" or "party",
-				-- http://wowprogramming.com/docs/secure_template/Group_Headers
-				-- Set header attributes
-				"initial-width", config.PartySize[1],
-				"initial-height", config.PartySize[2],
-				"showParty", true,
-				"showPlayer", dev,
-				"showSolo", dev,
-				"point", config.Anchor,
-				"xOffset", config.GrowthX,
-				"yOffset", config.GrowthY,
-				"sortMethod", config.Sorting,
-				"sortDir", config.SortDirection
-		))
+		local party = SetObjectScale(oUF:SpawnHeader(self:GetPartyAttributes()))
 
 		-- The secure groupheader can have its points cleared when empty,
 		-- so we need a fake anchor to avoid it bugging out.
+		local config = ns.Config.Party
 		local anchor = SetObjectScale(CreateFrame("Frame", nil, UIParent))
 		anchor:SetPoint(unpack(config.Position))
 		anchor:SetSize(unpack(config.Size))
+
+		-- This is called by the movable frame widget.
 		anchor.PostUpdateAnchoring = function(self, width, height, ...)
 			if (InCombatLockdown()) then return end
 			party:ClearAllPoints()

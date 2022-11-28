@@ -263,9 +263,7 @@ local GroupRoleIndicator_Override = function(self, event)
 		element.Icon:SetTexture(element[role])
 		element:Show()
 	else
-		element.Icon:SetTexture(element.DAMAGER)
-		element:Show()
-		--element:Hide()
+		element:Hide()
 	end
 
 	--[[ Callback: GroupRoleIndicator:PostUpdate(role)
@@ -337,9 +335,9 @@ UnitStyles["Party"] = function(self, unit, id, ...)
 
 	local db = ns.Config.Party
 
-	self:SetSize(unpack(db.PartySize))
+	--self:SetSize(unpack(db.PartySize))
 	self:SetHitRectInsets(unpack(db.PartyHitRectInsets))
-	self:SetFrameLevel(self:GetFrameLevel() + 10)
+	--self:SetFrameLevel(self:GetFrameLevel() + 10)
 
 	-- Overlay for icons and text
 	--------------------------------------------
@@ -557,6 +555,7 @@ UnitStyles["Party"] = function(self, unit, id, ...)
 	groupRoleIndicator.DAMAGER = db.GroupRoleDPSTexture
 	groupRoleIndicator.HEALER = db.GroupRoleHealerTexture
 	groupRoleIndicator.TANK = db.GroupRoleTankTexture
+	--groupRoleIndicator.NONE = groupRoleIndicator.DAMAGER -- fallback
 
 	local groupRoleBackdrop = groupRoleIndicator:CreateTexture(nil, "BACKGROUND", nil, 1)
 	groupRoleBackdrop:SetSize(unpack(db.GroupRoleBackdropSize))
