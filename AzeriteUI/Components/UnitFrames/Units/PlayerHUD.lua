@@ -313,12 +313,19 @@ UnitStyles["PlayerHUD"] = function(self, unit, id)
 		cast:DisableSmoothing(true)
 		cast.timeToHold = db.CastBarTimeToHoldFailed
 
-		local castBackdrop = cast:CreateTexture(nil, "BORDER", nil, -1)
+		local castBackdrop = cast:CreateTexture(nil, "BORDER", nil, -2)
 		castBackdrop:SetPoint(unpack(db.CastBarBackgroundPosition))
 		castBackdrop:SetSize(unpack(db.CastBarBackgroundSize))
 		castBackdrop:SetTexture(db.CastBarBackgroundTexture)
 		castBackdrop:SetVertexColor(unpack(db.CastBarBackgroundColor))
 		cast.Backdrop = castBackdrop
+
+		local castShield = cast:CreateTexture(nil, "BORDER", nil, -1)
+		castShield:SetPoint(unpack(db.CastBarShieldPosition))
+		castShield:SetSize(unpack(db.CastBarShieldSize))
+		castShield:SetTexture(db.CastBarShieldTexture)
+		castShield:SetVertexColor(unpack(db.CastBarShieldColor))
+		cast.Shield = castShield
 
 		local castSafeZone = cast:CreateTexture(nil, "ARTWORK", nil, 0)
 		castSafeZone:SetTexture(db.CastBarSpellQueueTexture)
