@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file. Be aware th
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased] 2022-11-29
+### Added
+- Added chat bubble styling. Untested.
+
 ## [4.0.9-Beta] 2022-11-28
 ### Fixed
 - Fixed inconsistent action button text element handling and positioning.
