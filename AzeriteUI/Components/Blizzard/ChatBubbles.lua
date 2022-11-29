@@ -33,6 +33,7 @@ local select = select
 -- WoW API
 local CreateFrame = CreateFrame
 local GetAllChatBubbles = C_ChatBubbles.GetAllChatBubbles
+local GetCVarBool = GetCVarBool
 local InCombatLockdown = InCombatLockdown
 local IsInInstance = IsInInstance
 local UnitAffectingCombat = UnitAffectingCombat
