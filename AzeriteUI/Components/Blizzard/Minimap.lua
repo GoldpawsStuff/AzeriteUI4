@@ -42,9 +42,7 @@ local string_upper = string.upper
 local unpack = unpack
 
 -- WoW API
-local C_Timer = C_Timer
 local CreateFrame = CreateFrame
-local GetBuildInfo = GetBuildInfo
 local GetCVar = GetCVar
 local GetLatestThreeSenders = GetLatestThreeSenders
 local GetMinimapZoneText = GetMinimapZoneText
