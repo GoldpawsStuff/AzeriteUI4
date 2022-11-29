@@ -2,6 +2,7 @@
 
 	<Script file="AlertFrames.lua"/>
 	<Script file="ChatFrames.lua"/>
+	<Script file="ChatBubbles.lua"/>
 	<Script file="Clutter.lua"/>
 	<Script file="Minimap.lua"/>
 	<Script file="TalkingHead.lua"/>

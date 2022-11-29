@@ -50,6 +50,15 @@ local defaults = {
 		chat = {
 			storedFrames = {}
 		},
+		chatbubbles = {
+			enableChatBubbles = true,
+			visibility = {
+				world = true,
+				worldcombat = true,
+				instance = true,
+				instancecombat = false
+			}
+		},
 		minimap = {
 			useServerTime = false,
 			useHalfClock = true
