@@ -41,66 +41,6 @@ local UnitAffectingCombat = UnitAffectingCombat
 local GetFont = ns.API.GetFont
 local SetObjectScale = ns.API.SetObjectScale
 
--- Enable custom bubble styling
-ChatBubbles.EnableBubbleStyling = function(self)
-	if (self.stylingEnabled or InCombatLockdown()) then return end
-
-	self.stylingEnabled = true
-
-	if (not self.bubbleParent) then
-		self.bubbleParent = SetObjectScale(CreateFrame("Frame", nil, UIParent))
-	end
-
-	self:UpdateBubbleFont()
-	self:UpdateVisibility()
-
-	self:SecureHook(ChatFrame1, "SetFont", "UpdateBubbleFont")
-	self:SecureHookScript(UIParent, "OnHide", "UpdateVisibility")
-	self:SecureHookScript(UIParent, "OnShow", "UpdateVisibility")
-	self:SecureHookScript(CinematicFrame, "OnHide", "UpdateVisibility")
-	self:SecureHookScript(CinematicFrame, "OnShow", "UpdateVisibility")
-	self:SecureHookScript(MovieFrame, "OnHide", "UpdateVisibility")
-	self:SecureHookScript(MovieFrame, "OnShow", "UpdateVisibility")
-
-	self:RegisterEvent("PLAYER_ENTERING_WORLD", "OnEvent")
-	self:RegisterEvent("PLAYER_REGEN_DISABLED", "OnEvent")
-	self:RegisterEvent("PLAYER_REGEN_ENABLED", "OnEvent")
-	self:RegisterEvent("UPDATE_CHAT_WINDOWS", "OnEvent")
-	self:RegisterEvent("UPDATE_FLOATING_CHAT_WINDOWS", "OnEvent")
-	self:RegisterEvent("VARIABLES_LOADED", "OnEvent")
-
-	self:OnEvent("PLAYER_ENTERING_WORLD")
-end
-
--- Disable custom bubble styling
-ChatBubbles.DisableBubbleStyling = function(self)
-	if (not self.stylingEnabled or InCombatLockdown()) then return end
-
-	self.stylingEnabled = nil
-
-	if (self.bubbleTimer) then
-		self:CancelTimer(self.bubbleTimer)
-	end
-
-	self.bubbleParent:Hide()
-
-	self:UnHook(ChatFrame1, "SetFont")
-	self:Unhook(UIParent, "OnHide")
-	self:Unhook(UIParent, "OnShow")
-	self:Unhook(CinematicFrame, "OnHide")
-	self:Unhook(CinematicFrame, "OnShow")
-	self:Unhook(MovieFrame, "OnHide")
-	self:Unhook(MovieFrame, "OnShow")
-
-	self:UnregisterEvent("PLAYER_ENTERING_WORLD", "OnEvent")
-	self:UnregisterEvent("PLAYER_REGEN_DISABLED", "OnEvent")
-	self:UnregisterEvent("PLAYER_REGEN_ENABLED", "OnEvent")
-	self:UnregisterEvent("UPDATE_CHAT_WINDOWS", "OnEvent")
-	self:UnregisterEvent("UPDATE_FLOATING_CHAT_WINDOWS", "OnEvent")
-	self:UnregisterEvent("VARIABLES_LOADED", "OnEvent")
-
-end
-
 -- Create a custom bubble.
 ChatBubbles.CreateCustomBubble = function(self, blizzBubble)
 	self.numBubbles = self.numBubbles + 1
@@ -344,12 +284,75 @@ ChatBubbles.UpdateSettings = function(self)
 	self.showInInstances = db.visibility.instance
 	self.showInInstancesInCombat = db.visibility.instancecombat
 
-	if (db.enableChatBubbles and not self.stylingEnabled) then
-		self:EnableBubbleStyling()
-
+	if (db.enableChatBubbles) then
+		if (self.stylingEnabled) then
+			self:UpdateConsoleVars()
+		else
+			self:EnableBubbleStyling()
+		end
 	elseif (not db.enableChatBubbles and self.stylingEnabled) then
 		self:DisableBubbleStyling()
 	end
+
+end
+
+-- Enable custom bubble styling
+ChatBubbles.EnableBubbleStyling = function(self)
+	if (self.stylingEnabled or InCombatLockdown()) then return end
+
+	self.stylingEnabled = true
+
+	if (not self.bubbleParent) then
+		self.bubbleParent = SetObjectScale(CreateFrame("Frame", nil, UIParent))
+	end
+
+	self:UpdateBubbleFont()
+	self:UpdateVisibility()
+
+	self:SecureHook(ChatFrame1, "SetFont", "UpdateBubbleFont")
+	self:SecureHookScript(UIParent, "OnHide", "UpdateVisibility")
+	self:SecureHookScript(UIParent, "OnShow", "UpdateVisibility")
+	self:SecureHookScript(CinematicFrame, "OnHide", "UpdateVisibility")
+	self:SecureHookScript(CinematicFrame, "OnShow", "UpdateVisibility")
+	self:SecureHookScript(MovieFrame, "OnHide", "UpdateVisibility")
+	self:SecureHookScript(MovieFrame, "OnShow", "UpdateVisibility")
+
+	self:RegisterEvent("PLAYER_ENTERING_WORLD", "OnEvent")
+	self:RegisterEvent("PLAYER_REGEN_DISABLED", "OnEvent")
+	self:RegisterEvent("PLAYER_REGEN_ENABLED", "OnEvent")
+	self:RegisterEvent("UPDATE_CHAT_WINDOWS", "OnEvent")
+	self:RegisterEvent("UPDATE_FLOATING_CHAT_WINDOWS", "OnEvent")
+	self:RegisterEvent("VARIABLES_LOADED", "OnEvent")
+
+	self:OnEvent("PLAYER_ENTERING_WORLD")
+end
+
+-- Disable custom bubble styling
+ChatBubbles.DisableBubbleStyling = function(self)
+	if (not self.stylingEnabled or InCombatLockdown()) then return end
+
+	self.stylingEnabled = nil
+
+	if (self.bubbleTimer) then
+		self:CancelTimer(self.bubbleTimer)
+	end
+
+	self.bubbleParent:Hide()
+
+	self:UnHook(ChatFrame1, "SetFont")
+	self:Unhook(UIParent, "OnHide")
+	self:Unhook(UIParent, "OnShow")
+	self:Unhook(CinematicFrame, "OnHide")
+	self:Unhook(CinematicFrame, "OnShow")
+	self:Unhook(MovieFrame, "OnHide")
+	self:Unhook(MovieFrame, "OnShow")
+
+	self:UnregisterEvent("PLAYER_ENTERING_WORLD", "OnEvent")
+	self:UnregisterEvent("PLAYER_REGEN_DISABLED", "OnEvent")
+	self:UnregisterEvent("PLAYER_REGEN_ENABLED", "OnEvent")
+	self:UnregisterEvent("UPDATE_CHAT_WINDOWS", "OnEvent")
+	self:UnregisterEvent("UPDATE_FLOATING_CHAT_WINDOWS", "OnEvent")
+	self:UnregisterEvent("VARIABLES_LOADED", "OnEvent")
 
 end
 
@@ -363,28 +366,31 @@ ChatBubbles.DisableBubbles = function(self)
 	self:UpdateSettings()
 end
 
+ChatBubbles.UpdateConsoleVars = function(self)
+	if (InCombatLockdown()) then return end
+
+	local bubblesShouldShow
+	local bubblesShown = GetCVarBool("chatBubbles")
+	local _, instanceType = IsInInstance()
+
+	if (instanceType == "none" and self.showInWorld) then
+		bubblesShouldShow = self.showInWorldInCombat or not UnitAffectingCombat("player")
+	elseif (instanceType ~= "none" and self.showInInstances) then
+		bubblesShouldShow = self.showInInstancesInCombat or not UnitAffectingCombat("player")
+	end
+
+	if (bubblesShouldShow and not bubblesShown) then
+		SetCVar("chatBubbles", 1)
+	elseif (not bubblesShouldShow and bubblesShown) then
+		SetCVar("chatBubbles", 0)
+	end
+end
+
 ChatBubbles.OnEvent = function(self, event, ...)
 	if (event == "UPDATE_CHAT_WINDOWS" or event == "UPDATE_FLOATING_CHAT_WINDOWS") then
 		self:UpdateBubbleFont()
 	else
-		if (InCombatLockdown()) then return end
-
-		local bubblesShouldShow
-		local bubblesShown = GetCVarBool("chatBubbles")
-		local _, instanceType = IsInInstance()
-
-		if (instanceType == "none" and self.showInWorld) then
-			bubblesShouldShow = self.showInWorldInCombat or not UnitAffectingCombat("player")
-		elseif (instanceType ~= "none" and self.showInInstances) then
-			bubblesShouldShow = self.showInInstancesInCombat or not UnitAffectingCombat("player")
-		end
-
-		if (bubblesShouldShow and not bubblesShown) then
-			SetCVar("chatBubbles", 1)
-		elseif (not bubblesShouldShow and bubblesShown) then
-			SetCVar("chatBubbles", 0)
-		end
-
+		self:UpdateConsoleVars()
 		self:UpdateVisibility()
 	end
 end
