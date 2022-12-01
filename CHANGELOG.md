@@ -4,9 +4,13 @@ All notable changes to this project will be documented in this file. Be aware th
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased] 2022-11-29
+## [Unreleased] 2022-12-01
 ### Added
 - Added chat bubble styling. Untested.
+
+## [4.0.10-Beta] 2022-12-01
+### Fixed
+- Fixed minimap left clicks in retail.
 
 ## [4.0.9-Beta] 2022-11-28
 ### Fixed

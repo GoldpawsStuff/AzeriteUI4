@@ -119,7 +119,10 @@ local Minimap_OnMouseUp = function(self, button)
 			end
 		end
 	else
-		Minimap_OnClick(self)
+		local func = Minimap.OnClick or Minimap_OnClick
+		if (func) then
+			func(self)
+		end
 	end
 end
 
