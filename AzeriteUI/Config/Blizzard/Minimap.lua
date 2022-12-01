@@ -95,7 +95,14 @@ Config.Minimap = {
 	EyeGroupStatusFramePosition = { "TOPRIGHT", QueueStatusMinimapButton, "BOTTOMLEFT", 0, 0 },
 
 	-- MBB Integration
-	MBBPlace = { "BOTTOMRIGHT", -244, 35 },
+	MBBPosition = { "BOTTOMRIGHT", -244, 35 },
 	MBBSize = { 32, 32 },
 	MBBTexture = GetMedia("plus"),
+
+	-- Narcissus Integragtion
+	NarciPosition = { "CENTER", Minimap, "TOP", 0, 8 },
+	NarciSize = { 56, 56 },
+	NarciColor = { .85, .85, .85, 1 },
+	NarciBackgroundSize = { 46, 46 },
+	NarciBackgroundColor = { .75, .75, .75, 1 },
 }

@@ -632,7 +632,7 @@ MinimapMod.InitializeMBB = function(self)
 
 	local button = CreateFrame("Frame", nil, Minimap)
 	button:SetFrameLevel(button:GetFrameLevel() + 10)
-	button:SetPoint(unpack(db.MBBPlace))
+	button:SetPoint(unpack(db.MBBPosition))
 	button:SetSize(unpack(db.MBBSize))
 	button:SetFrameStrata("LOW") -- MEDIUM collides with Immersion
 
@@ -709,18 +709,20 @@ MinimapMod.InitializeNarcissus = function(self)
 		return
 	end
 
+	local db = ns.Config.Minimap
+
 	Narci_MinimapButton:SetScript("OnDragStart", nil)
 	Narci_MinimapButton:SetScript("OnDragStop", nil)
-	Narci_MinimapButton:SetSize(56,56) -- 36,36
-	Narci_MinimapButton.Color:SetVertexColor(.85, .85, .85, 1)
+	Narci_MinimapButton:SetSize(unpack(db.NarciSize))
+	Narci_MinimapButton.Color:SetVertexColor(unpack(db.NarciColor))
 	Narci_MinimapButton.Background:SetScale(1)
-	Narci_MinimapButton.Background:SetSize(46,46) -- 42,42
-	Narci_MinimapButton.Background:SetVertexColor(.75, .75, .75, 1)
+	Narci_MinimapButton.Background:SetSize(unpack(db.NarciBackgroundSize))
+	Narci_MinimapButton.Background:SetVertexColor(unpack(db.NarciBackgroundColor))
 	Narci_MinimapButton.InitPosition = function(self)
 		local p, a, rp, x, y = self:GetPoint()
-		if (rp ~= "BOTTOM") then
+		if (rp ~= db.NarciPosition[3]) then
 			Narci_MinimapButton:ClearAllPoints()
-			Narci_MinimapButton:SetPoint("CENTER", Minimap, "BOTTOM", 0, 0)
+			Narci_MinimapButton:SetPoint(unpack(db.NarciPosition))
 		end
 	end
 	Narci_MinimapButton.OnDragStart = noop
@@ -729,8 +731,6 @@ MinimapMod.InitializeNarcissus = function(self)
 	Narci_MinimapButton:InitPosition()
 
 	hooksecurefunc(Narci_MinimapButton, "SetPoint", Narci_MinimapButton.InitPosition)
-
-	--Narci_SetActiveBorderTexture
 
 end
 

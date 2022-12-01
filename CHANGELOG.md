@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - Added chat bubble styling. Untested.
 
+### Changed
+- Updated Narcissus minimap button to match how it was in AzeriteUI3.
+
 ## [4.0.10-Beta] 2022-12-01
 ### Fixed
 - Fixed minimap left clicks in retail.
