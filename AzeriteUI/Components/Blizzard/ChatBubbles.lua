@@ -27,6 +27,7 @@ local Addon, ns = ...
 local ChatBubbles = ns:NewModule("ChatBubbles", "LibMoreEvents-1.0", "AceHook-3.0", "AceConsole-3.0", "AceTimer-3.0")
 
 -- Lua API
+local math_floor = math.floor
 local next = next
 local select = select
 
@@ -161,10 +162,13 @@ ChatBubbles.UpdateBubbles = function(self)
 			customBubble = self.customBubbles[blizzBubble]
 		end
 
+
 		if (blizzBubble:IsShown()) then
 
 			local msg = customBubble.blizzardText:GetText()
 			if (msg) then
+
+				local text = customBubble.text
 
 				customBubble:SetFrameLevel(blizzBubble:GetFrameLevel())
 				if (not customBubble:IsShown()) then
@@ -177,7 +181,6 @@ ChatBubbles.UpdateBubbles = function(self)
 					local color = customBubble.color
 					color[1], color[2], color[3] = customBubble.blizzardText:GetTextColor()
 
-					local text = customBubble.text
 					text:SetText(msg or "")
 					text:SetTextColor(color[1], color[2], color[3])
 
@@ -185,7 +188,7 @@ ChatBubbles.UpdateBubbles = function(self)
 					text:SetWidth(rawWidth > maxWidth and maxWidth or rawWidth)
 				end
 
-				customBubble:SetSize(text:GetHeight() + self.backdropPadding*2, text:GetWidth() + self.backdropPadding*2)
+				customBubble:SetSize(text:GetWidth() + self.backdropPadding*2, text:GetHeight() + self.backdropPadding*2)
 
 			else
 				if (customBubble:IsShown()) then
@@ -195,7 +198,7 @@ ChatBubbles.UpdateBubbles = function(self)
 				end
 			end
 
-			blizzText:SetAlpha(0)
+			customBubble.blizzardText:SetAlpha(0)
 
 		else
 
@@ -218,7 +221,14 @@ end
 
 -- Update all custom bubble fonts.
 ChatBubbles.UpdateBubbleFont = function(self)
-	local fontSize = select(2, ChatFrame1:GetFont()) or self.fontSizeDefault
+	local fontSize = select(2, ChatFrame1:GetFont())
+	if (fontSize) then
+		local ourscale = self.bubbleParent:GetEffectiveScale()
+		local chatscale = ChatFrame1:GetEffectiveScale()
+		fontSize = math_floor(fontSize * (ourscale / chatscale) + .5)
+	else
+		fontSize = self.fontSizeDefault
+	end
 
 	if (fontSize > self.fontSizeMax) then
 		fontSize = self.fontSizeMax
@@ -228,13 +238,19 @@ ChatBubbles.UpdateBubbleFont = function(self)
 
 	if (fontSize and fontSize ~= self.fontSize) then
 		self.fontsize = fontSize
-		self.fontObject = GetFont(fontSize, true)
+		self.fontObject = GetFont(fontSize, true, "Chat")
 
 		for blizzBubble,customBubble in next,self.customBubbles do
 			customBubble.text:SetFontObject(self.fontObject)
 		end
 	end
 
+end
+
+ChatBubbles.UpdateChatWindowFontSize = function(self, _, chatFrame, fontSize)
+	if (not chatFrame or chatFrame == ChatFrame1) then
+		self:UpdateBubbleFont()
+	end
 end
 
 -- Update all bubble visibility according to settings.
@@ -310,6 +326,7 @@ ChatBubbles.EnableBubbleStyling = function(self)
 	self:UpdateBubbleFont()
 	self:UpdateVisibility()
 
+	self:SecureHook("FCF_SetChatWindowFontSize", "UpdateChatWindowFontSize")
 	self:SecureHook(ChatFrame1, "SetFont", "UpdateBubbleFont")
 	self:SecureHookScript(UIParent, "OnHide", "UpdateVisibility")
 	self:SecureHookScript(UIParent, "OnShow", "UpdateVisibility")
@@ -340,6 +357,7 @@ ChatBubbles.DisableBubbleStyling = function(self)
 
 	self.bubbleParent:Hide()
 
+	self:UnHook("FCF_SetChatWindowFontSize")
 	self:UnHook(ChatFrame1, "SetFont")
 	self:Unhook(UIParent, "OnHide")
 	self:Unhook(UIParent, "OnShow")
