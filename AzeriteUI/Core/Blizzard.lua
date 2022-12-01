@@ -102,17 +102,6 @@ local hideActionButton = function(button)
 	button:SetAttribute("statehidden", true)
 end
 
--- Dragonflight. Removes a frame from the layout system
-local hideManagedFrame = function(self, frame)
-	if (frame and frame.layoutParent) then
-		frame:SetScript("OnShow", nil) -- prevents the frame from being added
-		frame:OnHide() -- calls the script to remove the frame
-		-- The following is called by the method above,
-		-- with a little luck, this will be true for all managed frames.
-		--frame.layoutParent:RemoveManagedFrame(frame)
-	end
-end
-
 -- Wrath, Classic
 local hideActionBar = function(frame, clearEvents, reanchor, noAnchorChanges)
 	if (frame) then
@@ -389,91 +378,6 @@ BlizzKill.KillActionBars = function(self)
 
 end
 
-BlizzKill.KillChatFrames = function(self, event, ...)
-	-- If no event was fired, we assume this is the initial call,
-	-- and thus we register the relevant events and bail out.
-	if (not event) then
-		self:RegisterEvent("VARIABLES_LOADED", "KillChatFrames")
-		self:RegisterEvent("PLAYER_ENTERING_WORLD", "KillChatFrames")
-		return
-	else
-		local shouldSet
-		self:UnregisterEvent(event, "KillChatFrames")
-		if (event == "VARIABLES_LOADED") then
-			-- This is when CVars and Keybinds are loaded,
-			-- but it can occur before our ADDON_LOADED event, thus not being registered,
-			-- or even after the PLAYER_ENTERING_WORLD event, overwriting anything we did there.
-			-- So we need it both places.
-			if (not self.isVariablesLoaded) then
-				self.isVariablesLoaded = true
-				shouldSet = true
-			end
-		elseif (event == "PLAYER_ENTERING_WORLD") then
-			-- We need this, since VARIABLES_LOADED might have fired before our init events.
-			if (not self.hasEnteredWorld) then
-				self.hasEnteredWorld = true
-				shouldSet = true
-			end
-		end
-		if (shouldSet) then
-			SetCVar("showToastBroadcast", "0")
-			SetCVar("showToastConversation", "0")
-			SetCVar("showToastFriendRequest", "0")
-			SetCVar("showToastOffline", "0")
-			SetCVar("showToastOnline", "0")
-			SetCVar("showToastWindow", "0")
-		end
-	end
-
-	local UIHider = UIHider
-	for _,frameName in pairs(CHAT_FRAMES) do
-		local frame = _G[frameName]
-		if (frame) then
-			frame:SetParent(UIHider)
-
-			for _,elementName in next,{
-				"ButtonFrame",
-				"EditBox",
-				"ClickAnywhereButton",
-				"ButtonFrameMinimizeButton"
-			} do
-				local element = _G[frameName..elementName]
-				if (element and element.SetParent) then
-					element:SetParent(UIHider)
-				end
-			end
-
-		end
-	end
-	if (GeneralDockManager and GeneralDockManager.SetParent) then
-		GeneralDockManager:SetParent(UIHider)
-	end
-
-	hideFrame(ChatFrameMenuButton)
-	hideFrame(ChatFrameChannelButton)
-	hideFrame(ChatFrameToggleVoiceDeafenButton)
-	hideFrame(ChatFrameToggleVoiceMuteButton)
-	hideFrame(GetChatWindowFriendsButton)
-	hideFrame(ChatFrameMenuButton)
-
-	-- This was called FriendsMicroButton pre-Legion.
-	-- *Note that the classics are using this new name.
-	if (QuickJoinToastButton) then
-		local killQuickToast = function(self, event, ...)
-			QuickJoinToastButton:UnregisterAllEvents()
-			QuickJoinToastButton:Hide()
-			QuickJoinToastButton:SetAlpha(0)
-			QuickJoinToastButton:EnableMouse(false)
-			QuickJoinToastButton:SetParent(UIHider)
-		end
-		killQuickToast()
-
-		-- This pops back up on zoning sometimes, so keep removing it
-		self:RegisterEvent("PLAYER_ENTERING_WORLD", killQuickToast)
-	end
-
-end
-
 BlizzKill.KillFloaters = function(self)
 
 	if (AlertFrame) then
@@ -512,21 +416,20 @@ BlizzKill.KillFloaters = function(self)
 	end
 
 	-- Player's castbar
-	if (CastingBarFrame) then
-		hideManagedFrame(CastingBarFrame)
-		CastingBarFrame:SetScript("OnEvent", nil)
-		CastingBarFrame:SetScript("OnUpdate", nil)
-		CastingBarFrame:SetParent(UIHider)
-		CastingBarFrame:UnregisterAllEvents()
-	end
+	--if (CastingBarFrame) then
+	--	CastingBarFrame:SetScript("OnEvent", nil)
+	--	CastingBarFrame:SetScript("OnUpdate", nil)
+	--	CastingBarFrame:SetParent(UIHider)
+	--	CastingBarFrame:UnregisterAllEvents()
+	--end
 
 	-- Player's pet's castbar
-	if (PetCastingBarFrame) then
-		PetCastingBarFrame:SetScript("OnEvent", nil)
-		PetCastingBarFrame:SetScript("OnUpdate", nil)
-		PetCastingBarFrame:SetParent(UIHider)
-		PetCastingBarFrame:UnregisterAllEvents()
-	end
+	--if (PetCastingBarFrame) then
+	--	PetCastingBarFrame:SetScript("OnEvent", nil)
+	--	PetCastingBarFrame:SetScript("OnUpdate", nil)
+	--	PetCastingBarFrame:SetParent(UIHider)
+	--	PetCastingBarFrame:UnregisterAllEvents()
+	--end
 
 	if (DurabilityFrame) then
 		DurabilityFrame:UnregisterAllEvents()
@@ -559,10 +462,13 @@ BlizzKill.KillFloaters = function(self)
 	end
 
 	if (PlayerPowerBarAlt) then
-		hideManagedFrame(PlayerPowerBarAlt)
-		PlayerPowerBarAlt.ignoreFramePositionManager = true
-		PlayerPowerBarAlt:UnregisterAllEvents()
-		PlayerPowerBarAlt:SetParent(UIHider)
+		--hideManagedFrame(PlayerPowerBarAlt)
+		PlayerPowerBarAlt:UnregisterEvent("UNIT_POWER_BAR_SHOW")
+		PlayerPowerBarAlt:UnregisterEvent("UNIT_POWER_BAR_HIDE")
+		PlayerPowerBarAlt:UnregisterEvent("PLAYER_ENTERING_WORLD")
+		--PlayerPowerBarAlt.ignoreFramePositionManager = true
+		--PlayerPowerBarAlt:UnregisterAllEvents()
+		--PlayerPowerBarAlt:SetParent(UIHider)
 	end
 
 	if (QuestTimerFrame) then
@@ -597,11 +503,11 @@ BlizzKill.KillFloaters = function(self)
 		TotemFrame:SetScript("OnHide", nil)
 	end
 
-	if (TutorialFrame) then
-		TutorialFrame:UnregisterAllEvents()
-		TutorialFrame:Hide()
-		TutorialFrame.Show = TutorialFrame.Hide
-	end
+	--if (TutorialFrame) then
+	--	TutorialFrame:UnregisterAllEvents()
+	--	TutorialFrame:Hide()
+	--	TutorialFrame.Show = TutorialFrame.Hide
+	--end
 
 	if (ZoneTextFrame) then
 		ZoneTextFrame:SetParent(UIHider)
