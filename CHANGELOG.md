@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file. Be aware th
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased] 2022-12-01
+## [4.0.11-Beta] 2022-12-01
 ### Added
 - Added chat bubble styling.
 
