@@ -48,7 +48,6 @@ local FCFDock_GetInsertIndex = FCFDock_GetInsertIndex
 local FCFDock_HideInsertHighlight = FCFDock_HideInsertHighlight
 local FCFDock_PlaceInsertHighlight = FCFDock_PlaceInsertHighlight
 local GetCursorPosition = GetCursorPosition
-local hooksecurefunc = hooksecurefunc
 local IsMouseButtonDown = IsMouseButtonDown
 local UIFrameFadeRemoveFrame = UIFrameFadeRemoveFrame
 
@@ -530,10 +529,10 @@ ChatFrames.StyleChat = function(self, frame)
 		editBox:SetPoint("TOP", frame, "BOTTOM", 0, -1)
 	end
 
-	ChatFrames:UpdateChatFont(frame)
+	self:UpdateChatFont(frame)
 
-	hooksecurefunc(frame, "SetFont", function(...) ChatFrames:UpdateChatFont(...) end) -- blizzard use this
-	hooksecurefunc(frame, "SetFontObject", function(...) ChatFrames:UpdateChatFont(...) end) -- not blizzard
+	self:SecureHook(frame, "SetFont", "UpdateChatFont")
+	self:SecureHook(frame, "SetFontObject", "UpdateChatFont")
 
 	Elements[frame].styled = true
 
@@ -610,17 +609,42 @@ ChatFrames.SetupDockingLocks = function(self)
 	--end
 end
 
+ChatFrames.UpdateChatFrame1Position = function(self, frame, ...)
+	ChatFrame1:ClearAllPoints()
+
+	local db = ns.db.global.chat.storedFrames[1]
+	if (db) then
+		ChatFrame1:SetPointBase(unpack(db.Place))
+	else
+		ChatFrame1:SetPointBase(self:GetDefaultChatFramePosition())
+	end
+
+	FCF_UpdateButtonSide(ChatFrame1)
+end
+
 ChatFrames.UpdateChatPositions = function(self)
 
 	-- Put the primary frame in its default position
 	-- if no saved position is found for it.
 	if (not ns.db.global.chat.storedFrames[1]) then
 		local frame = _G.ChatFrame1
-		frame:SetUserPlaced(false)
+		--if (ns.IsRetail) then
+			--frame:SetUserPlaced(true)
+		--else
+			frame:SetUserPlaced(false)
+		--end
+
 		frame:ClearAllPoints()
 		frame:SetSize(self:GetDefaultChatFrameSize())
-		frame:SetPoint(self:GetDefaultChatFramePosition())
+
+		if (ns.IsRetail) then
+			frame:SetPointBase(self:GetDefaultChatFramePosition())
+		else
+			frame:SetPoint(self:GetDefaultChatFramePosition())
+		end
+
 		frame.ignoreFramePositionManager = true
+
 		FCF_SetLocked(frame, true)
 		FCF_UpdateButtonSide(frame)
 	end
@@ -632,6 +656,12 @@ ChatFrames.UpdateChatPositions = function(self)
 
 	-- Restore all saved frames
 	ChatFrames:RestoreAllFrames()
+
+	if (ns.IsRetail) then
+		if (not self:IsHooked(ChatFrame1, "SetPoint")) then
+			self:SecureHook(ChatFrame1, "SetPoint", "UpdateChatFrame1Position")
+		end
+	end
 end
 
 ChatFrames.UpdateChatFont = function(self, ...)

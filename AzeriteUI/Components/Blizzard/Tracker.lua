@@ -24,7 +24,7 @@
 
 --]]
 local Addon, ns = ...
-local Tracker = ns:NewModule("Tracker", "LibMoreEvents-1.0")
+local Tracker = ns:NewModule("Tracker", "LibMoreEvents-1.0", "AceHook-3.0")
 
 -- WoW API
 local hooksecurefunc = hooksecurefunc
@@ -349,7 +349,7 @@ Tracker.InitializeTracker = function(self, event, addon)
 	ObjectiveTrackerFrame:SetAlpha(.9)
 
 	-- Prevent managed frame system from repositioning
-	ObjectiveTrackerFrame.IsInDefaultPosition = noop
+	--ObjectiveTrackerFrame.IsInDefaultPosition = noop
 
 	ObjectiveTrackerUIWidgetContainer:SetFrameStrata("BACKGROUND")
 	ObjectiveTrackerFrame:SetFrameStrata("BACKGROUND")
@@ -442,26 +442,38 @@ Tracker.UpdateWrathTracker = function(self)
 
 end
 
+Tracker.UpdatePositionBase = function(self)
+	ObjectiveTrackerFrame:ClearAllPoints()
+	ObjectiveTrackerFrame:SetPointBase("TOP", self.holder)
+end
+
 Tracker.UpdatePosition = function(self)
 	if (InCombatLockdown()) then
 		return self:RegisterEvent("PLAYER_REGEN_ENABLED", "OnEvent")
 	end
 
 	-- Opt out of the movement system
-	ObjectiveTrackerFrame.layoutParent = nil
-	ObjectiveTrackerFrame.isRightManagedFrame = nil
-	ObjectiveTrackerFrame.ignoreFramePositionManager = true
-	UIParentRightManagedFrameContainer:RemoveManagedFrame(ObjectiveTrackerFrame)
+	--ObjectiveTrackerFrame.layoutParent = nil
+	--ObjectiveTrackerFrame.isRightManagedFrame = nil
+	--ObjectiveTrackerFrame.ignoreFramePositionManager = true
+	--UIParentRightManagedFrameContainer:RemoveManagedFrame(ObjectiveTrackerFrame)
 
-	ObjectiveTrackerFrame.IsInDefaultPosition = noop -- taint?
+	--ObjectiveTrackerFrame.IsInDefaultPosition = noop -- taint?
+
+	local db = ns.Config.Tracker
 
 	ObjectiveTrackerFrame:SetFrameStrata("LOW")
 	ObjectiveTrackerFrame:SetFrameLevel(50)
 	ObjectiveTrackerFrame:SetClampedToScreen(false)
 	ObjectiveTrackerFrame:ClearAllPoints()
 	ObjectiveTrackerFrame:SetPoint("TOP", self.holder, "TOP")
-	ObjectiveTrackerFrame:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, ns.Config.Tracker.BottomOffset)
+	ObjectiveTrackerFrame:SetHeight(db.TrackerHeight)
 
+	if (not self:IsHooked(ObjectiveTrackerFrame, "SetPoint")) then
+		self:SecureHook(ObjectiveTrackerFrame, "SetPoint", "UpdatePositionBase")
+	end
+
+	--ObjectiveTrackerFrame:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, db.BottomOffset)
 	--ObjectiveTrackerFrame:SetPoint("TOP", UIParent, "TOP", 0, ns.Config.Tracker.TopOffset)
 	--ObjectiveTrackerFrame:SetPoint("BOTTOMRIGHT", self.holder, "BOTTOMRIGHT")
 

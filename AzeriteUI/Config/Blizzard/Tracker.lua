@@ -38,6 +38,7 @@ Config.Tracker = {
 	Size = { 213, 22 },
 	Position = { "TOPRIGHT", UIParent, "TOPRIGHT", ns.IsWrath and -90 or -60, -240 }, -- might need to adjust
 	BottomOffset = 380,
+	TrackerHeight = 1080 - 380 - 240,
 	WrathScale = 1.0625,
 	WrathTitleFont = GetFont(12,true),
 }
