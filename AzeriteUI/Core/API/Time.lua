@@ -108,12 +108,13 @@ local GetTime = function(useStandardTime, useServerTime)
 end
 
 local IsWinterVeil = function()
-	if (ns.IsRetail and dateInRange(16,12,2022,2,1,2023)) then
-		return true
-	else
-		local year = tonumber(date("%Y"))
-		return dateInRange(15,12,year-1,5,1,year) or dateInRange(15,12,year,5,1,year+1)
-	end
+	return dateInRange(2,12,2022,9,1,2023) -- be happy
+	--if (ns.IsRetail and dateInRange(16,12,2022,2,1,2023)) then
+	--	return true
+	--else
+	--	local year = tonumber(date("%Y"))
+	--	return dateInRange(15,12,year-1,5,1,year) or dateInRange(15,12,year,5,1,year+1)
+	--end
 end
 
 local IsLoveFestival = function()

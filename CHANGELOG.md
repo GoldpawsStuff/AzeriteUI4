@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file. Be aware th
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [4.0.13-Beta] 2022-12-02
+### Changed
+- We need some cheering up.
+
 ## [4.0.12-Beta] 2022-12-01
 ### Changed
 - Updated TaintLess.xml to 22-11-27.
