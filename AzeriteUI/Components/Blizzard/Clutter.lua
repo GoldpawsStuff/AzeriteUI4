@@ -41,7 +41,7 @@ local UnitExists = UnitExists
 local GetFont = ns.API.GetFont
 local SetObjectScale = ns.API.SetObjectScale
 
--- We're not curretnly using a blacklist for on-screen messages,
+-- We're not currently using a blacklist for on-screen messages,
 -- leaving it here for referece though, as I might need it later.
 local blackList = {
 	msgTypes = {
