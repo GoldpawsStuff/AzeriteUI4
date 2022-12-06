@@ -29,9 +29,7 @@ local ChatFrames = ns:NewModule("ChatFrames", "LibMoreEvents-1.0", "AceHook-3.0"
 -- Lua API
 local _G = _G
 local ipairs = ipairs
-local math_floor = math.floor
 local pairs = pairs
-local string_format = string.format
 local string_lower = string.lower
 
 -- WoW API
