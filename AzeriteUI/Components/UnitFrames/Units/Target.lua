@@ -285,8 +285,14 @@ end
 -- Toggle cast info and health info when castbar is visible.
 local Cast_UpdateTexts = function(element)
 	local health = element.__owner.Health
+	local currentStyle = element.__owner.currentStyle
 
-	if (element:IsShown()) then
+	if (currentStyle == "Critter") then
+		element.Text:Hide()
+		element.Time:Hide()
+		health.Value:Hide()
+		health.Percent:Hide()
+	elseif (element:IsShown()) then
 		element.Text:Show()
 		element.Time:Show()
 		health.Value:Hide()
@@ -437,6 +443,7 @@ local UnitFrame_UpdateTextures = function(self)
 		return
 	end
 
+	local currentStyle = self.currentStyle
 	local level = UnitIsUnit(unit, "player") and playerLevel or UnitEffectiveLevel(unit)
 
 	local key
@@ -445,14 +452,16 @@ local UnitFrame_UpdateTextures = function(self)
 	else
 		if (UnitClassification(unit) == "worldboss") or (level < 1 and IsLevelAtEffectiveMaxLevel(playerLevel)) then
 			key = "Boss"
-		elseif (level == 1 and UnitHealthMax(unit) < 10) then
+		elseif (UnitCreatureType("target") == "Critter") or (level == 1 and UnitHealthMax(unit) < 30) then
 			key = "Critter"
 		else
 			key = IsLevelAtEffectiveMaxLevel(level) and "Seasoned" or level < hardenedLevel and "Novice" or "Hardened"
 		end
 	end
 
-	if (key == self.currentStyle) then
+	self.currentStyle = key
+
+	if (key == currentStyle) then
 		return
 	end
 
@@ -516,14 +525,24 @@ local UnitFrame_UpdateTextures = function(self)
 	portraitBorder:SetTexture(db.PortraitBorderTexture)
 	portraitBorder:SetVertexColor(unpack(db.PortraitBorderColor))
 
-	if (key == "Boss" and self.currentStyle ~= "Boss") then
+	if (key == "Critter" and currentStyle ~= "Critter") then
+		health.Value:Hide()
+		health.Percent:Hide()
+		cast:ForceUpdate()
+	elseif (key ~= "Critter" and currentStyle == "Critter") then
+		health.Value:Show()
+		health.Percent:Show()
+		cast:ForceUpdate()
+	end
+
+	if (key == "Boss" and currentStyle ~= "Boss") then
 		local db = ns.Config.Target
 		local auras = self.Auras
 		auras.numTotal = db.AurasNumTotalBoss
 		auras:SetSize(unpack(db.AurasSizeBoss))
 		auras:ForceUpdate()
 
-	elseif (key ~= "Boss" and self.currentStyle == "Boss") then
+	elseif (key ~= "Boss" and currentStyle == "Boss") then
 		local db = ns.Config.Target
 		local auras = self.Auras
 		auras.numTotal = db.AurasNumTotal

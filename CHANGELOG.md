@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file. Be aware th
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [4.0.14-Beta] 2022-12-06
+### Fixed
+- Critter target frames should look less horrible now.
+- Added a missing upvalue that would cause a nameplate bug each time you targeted something.
+- The target highlight outline on the party frames are properly attached to the health bar now, and not the middle of the portrait.
+
 ## [4.0.13-Beta] 2022-12-02
 ### Changed
 - We need some cheering up.

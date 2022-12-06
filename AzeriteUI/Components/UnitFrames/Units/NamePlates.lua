@@ -226,6 +226,7 @@ local Power_PostUpdate = function(element, unit, cur, min, max)
 		return
 	end
 
+	local db = ns.Config.NamePlates
 	local shouldShow
 
 	if (self.isPRD) then

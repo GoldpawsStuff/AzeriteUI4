@@ -59,6 +59,22 @@ local bigBarSparkMap = {
 	}
 }
 
+local tinyBarSparkMap = {
+	top = {
+		{ keyPercent =  0/64, offset = -30/64 },
+		{ keyPercent = 14/64, offset =  -1/64 },
+		{ keyPercent = 49/64, offset =  -1/64 },
+		{ keyPercent = 64/64, offset = -34/64 }
+	},
+	bottom = {
+		{ keyPercent =  0/64, offset = -30/64 },
+		{ keyPercent = 15/64, offset =   0/64 },
+		{ keyPercent = 32/64, offset =  -1/64 },
+		{ keyPercent = 50/64, offset =  -4/64 },
+		{ keyPercent = 64/64, offset = -27/64 }
+	}
+}
+
 Config.Target = {
 
 	-- General Settings
@@ -226,9 +242,9 @@ Config.Target = {
 		HealthBarTexture = GetMedia("hp_critter_bar"),
 		HealthBarColor = { Colors.health[1], Colors.health[2], Colors.health[3] },
 		HealthBarOrientation = "LEFT",
-		HealthBarSparkMap = barSparkMap,
-		HealthBackdropSize = { 716, 188 },
-		HealthBackdropPosition = { "CENTER", -1, -.5 },
+		HealthBarSparkMap = tinyBarSparkMap,
+		HealthBackdropSize = { 98,96 },
+		HealthBackdropPosition = { "CENTER", 0, 1 },
 		HealthBackdropTexture = GetMedia("hp_critter_case"),
 		HealthBackdropColor = { Colors.ui[1], Colors.ui[2], Colors.ui[3] },
 		HealthAbsorbColor = { 1, 1, 1, .35 },
