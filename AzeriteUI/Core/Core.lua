@@ -31,6 +31,11 @@ ns.Hider = CreateFrame("Frame"); ns.Hider:Hide()
 ns.Noop = function() end
 _G[Addon] = ns
 
+ns.PetHider = CreateFrame("Frame", Addon.."_PetBattleFrameHider", UIParent, "SecureHandlerStateTemplate")
+ns.PetHider:SetAllPoints()
+ns.PetHider:SetFrameStrata("LOW")
+RegisterStateDriver(ns.PetHider, "visibility", "[petbattle] hide; show")
+
 -- Default settings
 local defaults = {
 	char = {
@@ -48,7 +53,8 @@ local defaults = {
 			enableStanceBar = true
 		},
 		chat = {
-			storedFrames = {}
+			storedFrames = {},
+			enableChat = true
 		},
 		chatbubbles = {
 			enableChatBubbles = true,

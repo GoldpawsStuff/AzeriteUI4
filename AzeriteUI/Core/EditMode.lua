@@ -24,31 +24,11 @@
 
 --]]
 local Addon, ns = ...
-if (not ns.IsRetail) then
+if (not ns.IsRetail or not EditModeManagerFrame) then
 	return
 end
 
-local noop = ns.Noop
+EditModeManagerFrame:UnregisterAllEvents()
+EditModeManagerFrame:RegisterEvent("EDIT_MODE_LAYOUTS_UPDATED")
 
-EditModeManagerFrame:SetParent(ns.Hider)
-
-local removeAllRegisteredSystemFrames = function()
-	for i,frame in pairs(EditModeManagerFrame.registeredSystemFrames) do
-		table.remove(EditModeManagerFrame.registeredSystemFrames, i)
-	end
-end
-
--- Taints, but stops our stuff from breaking.
-EditModeManagerFrame.UpdateActionBarLayout = noop
-EditModeManagerFrame.UpdateActionBarPositions = noop
-EditModeManagerFrame.UpdateBottomActionBarPositions = noop
-
--- Hell yeah we're doing this!
-_G.INTERFACE_ACTION_BLOCKED = ""
-
-hooksecurefunc(EditModeManagerFrame, "RegisterSystemFrame", removeAllRegisteredSystemFrames)
-hooksecurefunc(EditModeManagerFrameMixin, "RegisterSystemFrame", removeAllRegisteredSystemFrames)
-
-hooksecurefunc(EditModeManagerFrame, "EnterEditMode", function()
-	HideUIPanel(EditModeManagerFrame)
-end)
+hooksecurefunc(EditModeManagerFrame, "EnterEditMode", HideUIPanel)

@@ -24,6 +24,10 @@
 
 --]]
 local Addon, ns = ...
+if (not ns.IsRetail) then
+	return
+end
+
 local Tracker = ns:NewModule("Tracker", "LibMoreEvents-1.0", "AceHook-3.0")
 
 -- WoW API
@@ -62,19 +66,25 @@ local UpdateObjectiveTracker = function()
 				msg:SetDrawLayer("OVERLAY", 7)
 				msg:SetParent(header)
 
-				local blocks = module:GetActiveBlocks()
-				for id,block in pairs(blocks) do
-					-- Quest/Objective title
-					if (block.HeaderText) then
-						block.HeaderText:SetFontObject(GetFont(13,true))
-						block.HeaderText:SetSpacing(2)
-					end
-					-- Quest/Objective text/objectives
-					for objectiveKey,line in pairs(block.lines) do
-						line.Text:SetFontObject(GetFont(13,true))
-						line.Text:SetSpacing(2)
-						if (line.Dash) then
-							line.Dash:SetParent(UIHider)
+				-- Calling module:GetActiveBlocks() would create an empty table,
+				-- which in turn renders the whole tracker and the editmode tainted.
+				local blocks = module.blockTemplate and module.usedBlocks and module.usedBlocks[module.blockTemplate]
+				if (blocks) then
+					for id,block in pairs(blocks) do
+
+						-- Quest/Objective title
+						if (block.HeaderText) then
+							block.HeaderText:SetFontObject(GetFont(13,true))
+							block.HeaderText:SetSpacing(2)
+						end
+
+						-- Quest/Objective text/objectives
+						for objectiveKey,line in pairs(block.lines) do
+							line.Text:SetFontObject(GetFont(13,true))
+							line.Text:SetSpacing(2)
+							if (line.Dash) then
+								line.Dash:SetParent(UIHider)
+							end
 						end
 					end
 				end
@@ -173,14 +183,6 @@ local UpdateProgressBar = function(_, _, line)
 	end
 end
 
--- Something is tainting the Wrath WatchFrame,
--- let's just work around it for now.
-local LinkButton_OnClick = function(self, ...)
-	if (not InCombatLockdown()) then
-		WatchFrameLinkButtonTemplate_OnClick(self:GetParent(), ...)
-	end
-end
-
 local UpdateQuestItemButton = function(button)
 	local name = button:GetName()
 	local icon = button.icon or _G[name.."IconTexture"]
@@ -255,48 +257,6 @@ local UpdateQuestItem = function(_, block)
 	end
 end
 
-local UpdateWrathTrackerLinkButtons = function()
-	for i,linkButton in pairs(WATCHFRAME_LINKBUTTONS) do
-		if (linkButton and not Handled[linkButton]) then
-			local clickFrame = CreateFrame("Button", nil, linkButton)
-			clickFrame:RegisterForClicks("LeftButtonUp", "RightButtonUp")
-			clickFrame:SetAllPoints()
-			clickFrame:SetScript("OnClick", LinkButton_OnClick)
-			Handled[linkButton] = true
-		end
-	end
-end
-
-local UpdateWrathWatchFrameLine = function(line)
-	if (not Handled[line]) then
-		line.text:SetFontObject(GetFont(12,true)) -- default size is 12
-		line.text:SetWordWrap(false)
-		line.dash:SetParent(UIHider)
-		Handled[line] = true
-	end
-end
-
-local UpdateWrathTrackerLines = function()
-	for _, timerLine in pairs(WATCHFRAME_TIMERLINES) do
-		UpdateWrathWatchFrameLine(timerLine)
-	end
-	for _, achievementLine in pairs(WATCHFRAME_ACHIEVEMENTLINES) do
-		UpdateWrathWatchFrameLine(achievementLine)
-	end
-	for _, questLine in pairs(WATCHFRAME_QUESTLINES) do
-		UpdateWrathWatchFrameLine(questLine)
-	end
-end
-
-local UpdateWrathQuestItemButtons = function()
-	local i,item = 1,WatchFrameItem1
-	while (item) do
-		UpdateQuestItemButton(item)
-		i = i + 1
-		item = _G["WatchFrameItem" .. i]
-	end
-end
-
 local AutoHider_OnHide = function()
 	if (ns.IsRetail) then
 		if (not ObjectiveTrackerFrame.collapsed) then
@@ -313,50 +273,40 @@ local AutoHider_OnShow = function()
 	end
 end
 
-Tracker.InitializeAutoHider = function(self)
-	if (not ns.IsRetail) then return end
-
-	local tracker = ObjectiveTrackerFrame or WatchFrame
-
-	tracker.autoHider = CreateFrame("Frame", nil, tracker, "SecureHandlerStateTemplate")
-	tracker.autoHider:SetAttribute("_onstate-vis", [[ if (newstate == "hide") then self:Hide() else self:Show() end ]])
-	tracker.autoHider:SetScript("OnHide", AutoHider_OnHide)
-	tracker.autoHider:SetScript("OnShow", AutoHider_OnShow)
-
-	local driver = "hide;show"
-	driver = "[@arena1,exists][@arena2,exists][@arena3,exists][@arena4,exists][@arena5,exists]" .. driver
-	driver = "[@boss1,exists][@boss2,exists][@boss3,exists][@boss4,exists][@boss5,exists]" .. driver
-
-	RegisterStateDriver(tracker.autoHider, "vis", driver)
+Tracker.UpdatePositionBase = function(self)
+	ObjectiveTrackerFrame:ClearAllPoints()
+	ObjectiveTrackerFrame:SetPointBase("TOP", self.holder)
 end
 
 Tracker.InitializeTracker = function(self, event, addon)
 	if (event == "ADDON_LOADED") then
-		if (addon ~= "Blizzard_ObjectiveTracker") then
-			return
-		end
+		if (addon ~= "Blizzard_ObjectiveTracker") then return end
 		self:UnregisterEvent("ADDON_LOADED", "OnEvent")
 	end
 
 	local db = ns.Config.Tracker
 
-	self.holder = SetObjectScale(CreateFrame("Frame", ns.Prefix.."WatchFrameAnchor", WatchFrame))
+	self.holder = SetObjectScale(CreateFrame("Frame", ns.Prefix.."ObjectivesTrackerAnchor", ObjectiveTrackerFrame))
 	self.holder:SetPoint(unpack(db.Position))
 	self.holder:SetSize(unpack(db.Size))
 
-	local ObjectiveTrackerFrame = SetObjectScale(ObjectiveTrackerFrame, 1.1)
-	ObjectiveTrackerFrame:SetHeight(480 / 1.1)
-	ObjectiveTrackerFrame:SetAlpha(.9)
-
-	-- Prevent managed frame system from repositioning
-	--ObjectiveTrackerFrame.IsInDefaultPosition = noop
+	SetObjectScale(ObjectiveTrackerFrame, 1.1)
 
 	ObjectiveTrackerUIWidgetContainer:SetFrameStrata("BACKGROUND")
 	ObjectiveTrackerFrame:SetFrameStrata("BACKGROUND")
+	ObjectiveTrackerFrame:SetFrameLevel(50)
+	ObjectiveTrackerFrame:SetAlpha(.9)
+	ObjectiveTrackerFrame:SetClampedToScreen(false)
+	ObjectiveTrackerFrame:ClearAllPoints()
+	ObjectiveTrackerFrame:SetPoint("TOP", self.holder)
+	ObjectiveTrackerFrame:SetHeight(db.TrackerHeight)
+
+	self:SecureHook(ObjectiveTrackerFrame, "SetPoint", "UpdatePositionBase")
 
 	hooksecurefunc("ObjectiveTracker_Update", UpdateObjectiveTracker)
 
 	hooksecurefunc(QUEST_TRACKER_MODULE, "SetBlockHeader", UpdateQuestItem)
+
 	hooksecurefunc(WORLD_QUEST_TRACKER_MODULE, "AddObjective", UpdateQuestItem)
 	hooksecurefunc(CAMPAIGN_QUEST_TRACKER_MODULE, "AddObjective", UpdateQuestItem)
 
@@ -367,153 +317,29 @@ Tracker.InitializeTracker = function(self, event, addon)
 	hooksecurefunc(WORLD_QUEST_TRACKER_MODULE, "AddProgressBar", UpdateProgressBar)
 	hooksecurefunc(SCENARIO_TRACKER_MODULE, "AddProgressBar", UpdateProgressBar)
 
-	local toggleButton = CreateFrame("Button", ns.Prefix.."_ObjectiveTrackerToggleButton", UIParent, "SecureActionButtonTemplate")
-	toggleButton:SetScript("OnClick", function()
-		if (ObjectiveTrackerFrame:IsVisible()) then
-			ObjectiveTrackerFrame:Hide()
-		else
-			ObjectiveTrackerFrame:Show()
-		end
-	end)
-	SetOverrideBindingClick(toggleButton, true, "SHIFT-O", toggleButton:GetName())
+	ObjectiveTrackerFrame.autoHider = CreateFrame("Frame", nil, ObjectiveTrackerFrame, "SecureHandlerStateTemplate")
+	ObjectiveTrackerFrame.autoHider:SetAttribute("_onstate-vis", [[ if (newstate == "hide") then self:Hide() else self:Show() end ]])
+	ObjectiveTrackerFrame.autoHider:SetScript("OnHide", AutoHider_OnHide)
+	ObjectiveTrackerFrame.autoHider:SetScript("OnShow", AutoHider_OnShow)
 
-	self:InitializeAutoHider()
-	self:UpdatePosition()
-end
+	local driver = "hide;show"
+	driver = "[@arena1,exists][@arena2,exists][@arena3,exists][@arena4,exists][@arena5,exists]" .. driver
+	driver = "[@boss1,exists][@boss2,exists][@boss3,exists][@boss4,exists][@boss5,exists]" .. driver
 
-Tracker.InitializeWrathTracker = function(self)
-	if (not ns.IsWrath) then
-		return
-	end
-
-	local db = ns.Config.Tracker
-
-	self.holder = SetObjectScale(CreateFrame("Frame", ns.Prefix.."WatchFrameAnchor", WatchFrame))
-	self.holder:SetPoint(unpack(db.Position))
-	self.holder:SetSize(unpack(db.Size))
-
-	SetObjectScale(WatchFrame, db.WrathScale)
-
-	-- UIParent.lua overrides the position if this is false
-	WatchFrame.IsUserPlaced = function() return true end
-	WatchFrame:SetAlpha(.9)
-	WatchFrameTitle:SetFontObject(db.WrathTitleFont)
-
-	-- The local function WatchFrame_GetLinkButton creates the buttons,
-	-- and it's only ever called from these two global functions.
-	UpdateWrathTrackerLinkButtons()
-	hooksecurefunc("WatchFrame_Update", UpdateWrathTrackerLines)
-	hooksecurefunc("WatchFrame_DisplayTrackedAchievements", UpdateWrathTrackerLinkButtons)
-	hooksecurefunc("WatchFrame_DisplayTrackedQuests", UpdateWrathTrackerLinkButtons)
-	hooksecurefunc("WatchFrameItem_OnShow", UpdateQuestItemButton)
-
-	local toggleButton = CreateFrame("Button", ns.Prefix.."_ObjectiveTrackerToggleButton", UIParent, "SecureActionButtonTemplate")
-	toggleButton:SetScript("OnClick", function()
-		if (WatchFrame:IsVisible()) then
-			WatchFrame:Hide()
-		else
-			WatchFrame:Show()
-		end
-	end)
-	SetOverrideBindingClick(toggleButton, true, "SHIFT-O", toggleButton:GetName())
-
-	self:InitializeAutoHider()
-	self:UpdateWrathTracker()
-end
-
-Tracker.UpdateWrathTracker = function(self)
-	if (not ns.IsWrath) then
-		return
-	end
-
-	SetCVar("watchFrameWidth", "1") -- 306 or 204
-
-	WatchFrame:SetFrameStrata("LOW")
-	WatchFrame:SetFrameLevel(50)
-	WatchFrame:SetClampedToScreen(false)
-	WatchFrame:ClearAllPoints()
-	WatchFrame:SetPoint("TOP", self.holder, "TOP")
-	WatchFrame:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, ns.Config.Tracker.BottomOffset)
-	--WatchFrame:SetPoint("TOP", UIParent, "TOP", 0, ns.Config.Tracker.TopOffset)
-	--WatchFrame:SetPoint("BOTTOMRIGHT", self.holder, "BOTTOMRIGHT")
-
-	UpdateWrathQuestItemButtons()
-	UpdateWrathTrackerLines()
-
-end
-
-Tracker.UpdatePositionBase = function(self)
-	ObjectiveTrackerFrame:ClearAllPoints()
-	ObjectiveTrackerFrame:SetPointBase("TOP", self.holder)
-end
-
-Tracker.UpdatePosition = function(self)
-	if (InCombatLockdown()) then
-		return self:RegisterEvent("PLAYER_REGEN_ENABLED", "OnEvent")
-	end
-
-	-- Opt out of the movement system
-	--ObjectiveTrackerFrame.layoutParent = nil
-	--ObjectiveTrackerFrame.isRightManagedFrame = nil
-	--ObjectiveTrackerFrame.ignoreFramePositionManager = true
-	--UIParentRightManagedFrameContainer:RemoveManagedFrame(ObjectiveTrackerFrame)
-
-	--ObjectiveTrackerFrame.IsInDefaultPosition = noop -- taint?
-
-	local db = ns.Config.Tracker
-
-	ObjectiveTrackerFrame:SetFrameStrata("LOW")
-	ObjectiveTrackerFrame:SetFrameLevel(50)
-	ObjectiveTrackerFrame:SetClampedToScreen(false)
-	ObjectiveTrackerFrame:ClearAllPoints()
-	ObjectiveTrackerFrame:SetPoint("TOP", self.holder, "TOP")
-	ObjectiveTrackerFrame:SetHeight(db.TrackerHeight)
-
-	if (not self:IsHooked(ObjectiveTrackerFrame, "SetPoint")) then
-		self:SecureHook(ObjectiveTrackerFrame, "SetPoint", "UpdatePositionBase")
-	end
-
-	--ObjectiveTrackerFrame:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, db.BottomOffset)
-	--ObjectiveTrackerFrame:SetPoint("TOP", UIParent, "TOP", 0, ns.Config.Tracker.TopOffset)
-	--ObjectiveTrackerFrame:SetPoint("BOTTOMRIGHT", self.holder, "BOTTOMRIGHT")
-
+	RegisterStateDriver(ObjectiveTrackerFrame.autoHider, "vis", driver)
 end
 
 Tracker.OnEvent = function(self, event, ...)
 	if (event == "PLAYER_ENTERING_WORLD") then
-
-		local tracker = ObjectiveTrackerFrame or WatchFrame
-		if (tracker) then tracker:SetAlpha(.9) end
-
+		if (ObjectiveTrackerFrame) then
+			ObjectiveTrackerFrame:SetAlpha(.9)
+		end
 		if (self.queueImmersionHook) then
 			local frame = ImmersionFrame
 			if (frame) then
 				self.queueImmersionHook = nil
-				ImmersionFrame:HookScript("OnShow", function() (ObjectiveTrackerFrame or WatchFrame):SetAlpha(0) end)
-				ImmersionFrame:HookScript("OnHide", function() (ObjectiveTrackerFrame or WatchFrame):SetAlpha(.9) end)
-			end
-		end
-
-		if (ns.IsWrath) then
-			self:UpdateWrathTracker()
-		else
-			self:UpdatePosition()
-		end
-
-	elseif (event == "VARIABLES_LOADED") or (event == "SETTINGS_LOADED") then
-		if (ns.IsWrath) then
-			self:UpdateWrathTracker()
-		else
-			self:UpdatePosition()
-		end
-
-	elseif (event == "PLAYER_REGEN_ENABLED") then
-		if (not InCombatLockdown()) then
-			self:UnregisterEvent("PLAYER_REGEN_ENABLED", "OnEvent")
-			if (ns.IsWrath) then
-				self:UpdateWrathTracker()
-			else
-				self:UpdatePosition()
+				ImmersionFrame:HookScript("OnShow", function() ObjectiveTrackerFrame:SetAlpha(0) end)
+				ImmersionFrame:HookScript("OnHide", function() ObjectiveTrackerFrame:SetAlpha(.9) end)
 			end
 		end
 	end
@@ -521,21 +347,10 @@ end
 
 Tracker.OnInitialize = function(self)
 	self.queueImmersionHook = IsAddOnEnabled("Immersion")
-
-	if (ns.IsWrath) then
-		self:InitializeWrathTracker()
-		self:RegisterEvent("VARIABLES_LOADED", "OnEvent")
+	if (IsAddOnLoaded("Blizzard_ObjectiveTracker")) then
+		self:InitializeTracker()
 	else
-		if (IsAddOnLoaded("Blizzard_ObjectiveTracker")) then
-			self:InitializeTracker()
-		else
-			self:RegisterEvent("ADDON_LOADED", "InitializeTracker")
-		end
+		self:RegisterEvent("ADDON_LOADED", "InitializeTracker")
 	end
-
 	self:RegisterEvent("PLAYER_ENTERING_WORLD", "OnEvent")
-
-	if (ns.IsRetail) then
-		self:RegisterEvent("SETTINGS_LOADED", "OnEvent")
-	end
 end
