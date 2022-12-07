@@ -396,7 +396,6 @@ ChatFrames.SetChatFramePosition = function(self, frame)
 	local id = frame:GetID()
 
 	if (id == 1) then
-		frame:SetParent(UIParent)
 		frame:SetUserPlaced(false)
 		frame:SetSize(self:GetDefaultChatFrameSize())
 		frame:ClearAllPoints()
