@@ -24,7 +24,7 @@
 
 --]]
 local Addon, ns = ...
-local UnitFrames = ns:NewModule("UnitFrames", "LibMoreEvents-1.0")
+local UnitFrames = ns:NewModule("UnitFrames", "LibMoreEvents-1.0", "AceHook-3.0")
 local oUF = ns.oUF
 
 -- Globally available registries
@@ -471,7 +471,7 @@ UnitFrames.SpawnNamePlates = function(self)
 	oUF:Factory(function(oUF)
 		oUF:SetActiveStyle(ns.Prefix.."NamePlates")
 		oUF:SpawnNamePlates(ns.Prefix, NamePlate_Callback, NamePlate_Cvars)
-		self:KillNamePlateClutter()
+
 
 		local current
 
@@ -513,15 +513,6 @@ UnitFrames.SpawnNamePlates = function(self)
 	end)
 end
 
-UnitFrames.SetNamePlateSizes = function()
-	if (InCombatLockdown()) then return end
-
-	local w,h = unpack(ns.Config.NamePlates.Size)
-	C_NamePlate.SetNamePlateFriendlySize(w,h)
-	C_NamePlate.SetNamePlateEnemySize(w,h)
-	C_NamePlate.SetNamePlateSelfSize(w,h)
-end
-
 UnitFrames.SetNamePlateScales = function(self)
 	for namePlate in pairs(ns.NamePlates) do
 		SetEffectiveObjectScale(namePlate)
@@ -529,15 +520,6 @@ UnitFrames.SetNamePlateScales = function(self)
 end
 
 UnitFrames.KillNamePlateClutter = function(self)
-	local NamePlateDriverFrame = _G.NamePlateDriverFrame
-	if (not NamePlateDriverFrame) then
-		return
-	end
-
-	--local BlizzPlateManaBar = ClassNameplateManaBarFrame -- NamePlateDriverFrame.classNamePlatePowerBar
-	--if (BlizzPlateManaBar) then
-	--	BlizzPlateManaBar:SetAlpha(0)
-	--end
 
 	if (NamePlateDriverFrame.classNamePlatePowerBar) then
 		NamePlateDriverFrame.classNamePlatePowerBar:Hide()
@@ -545,24 +527,28 @@ UnitFrames.KillNamePlateClutter = function(self)
 	end
 
 	if (NamePlateDriverFrame.SetupClassNameplateBars) then
-		hooksecurefunc(NamePlateDriverFrame, "SetupClassNameplateBars", function(nameplate)
-			if (not nameplate or nameplate:IsForbidden()) then
+		hooksecurefunc(NamePlateDriverFrame, "SetupClassNameplateBars", function(frame)
+			if (not frame or frame:IsForbidden()) then
 				return
 			end
-
-			if (nameplate.classNamePlateMechanicFrame) then
-				nameplate.classNamePlateMechanicFrame:Hide()
+			if (frame.classNamePlateMechanicFrame) then
+				frame.classNamePlateMechanicFrame:Hide()
 			end
-
-			if (nameplate.classNamePlatePowerBar) then
-				nameplate.classNamePlatePowerBar:Hide()
-				nameplate.classNamePlatePowerBar:UnregisterAllEvents()
+			if (frame.classNamePlatePowerBar) then
+				frame.classNamePlatePowerBar:Hide()
+				frame.classNamePlatePowerBar:UnregisterAllEvents()
 			end
 		end)
 	end
 
 	if (NamePlateDriverFrame.UpdateNamePlateOptions) then
-		hooksecurefunc(NamePlateDriverFrame, "UpdateNamePlateOptions", self.SetNamePlateSizes)
+		hooksecurefunc(NamePlateDriverFrame, "UpdateNamePlateOptions", function()
+			if (InCombatLockdown()) then return end
+			local w,h = unpack(ns.Config.NamePlates.Size)
+			C_NamePlate.SetNamePlateFriendlySize(w,h)
+			C_NamePlate.SetNamePlateEnemySize(w,h)
+			C_NamePlate.SetNamePlateSelfSize(w,h)
+		end)
 	end
 
 end
@@ -648,6 +634,7 @@ UnitFrames.OnEvent = function(self, event, ...)
 		if (isInitialLogin or isReloadingUi) then
 			-- There are no guarantees any frames are spawned here,
 			-- since they too are created on this event by the oUF factory.
+			self:KillNamePlateClutter()
 		end
 		self:SetNamePlateScales()
 	elseif (event == "VARIABLES_LOADED") then

@@ -108,6 +108,13 @@ local UpdateObjectiveTracker = function()
 	end
 end
 
+-- This taints when switching stances in combat
+local UpdateObjectiveTrackerPositionBase = function()
+	if (InCombatLockdown()) then return end
+	ObjectiveTrackerFrame:ClearAllPoints()
+	ObjectiveTrackerFrame:SetPointBase("TOP", _G[ns.Prefix.."ObjectivesTrackerAnchor"])
+end
+
 local UpdateProgressBar = function(_, _, line)
 
 	local progress = line.ProgressBar
@@ -273,11 +280,6 @@ local AutoHider_OnShow = function()
 	end
 end
 
-Tracker.UpdatePositionBase = function(self)
-	ObjectiveTrackerFrame:ClearAllPoints()
-	ObjectiveTrackerFrame:SetPointBase("TOP", self.holder)
-end
-
 Tracker.InitializeTracker = function(self, event, addon)
 	if (event == "ADDON_LOADED") then
 		if (addon ~= "Blizzard_ObjectiveTracker") then return end
@@ -286,7 +288,7 @@ Tracker.InitializeTracker = function(self, event, addon)
 
 	local db = ns.Config.Tracker
 
-	self.holder = SetObjectScale(CreateFrame("Frame", ns.Prefix.."ObjectivesTrackerAnchor", ObjectiveTrackerFrame))
+	self.holder = SetObjectScale(CreateFrame("Frame", ns.Prefix.."ObjectivesTrackerAnchor", UIParent))
 	self.holder:SetPoint(unpack(db.Position))
 	self.holder:SetSize(unpack(db.Size))
 
@@ -296,20 +298,18 @@ Tracker.InitializeTracker = function(self, event, addon)
 	ObjectiveTrackerFrame:SetFrameStrata("BACKGROUND")
 	ObjectiveTrackerFrame:SetFrameLevel(50)
 	ObjectiveTrackerFrame:SetAlpha(.9)
-	ObjectiveTrackerFrame:SetClampedToScreen(false)
 	ObjectiveTrackerFrame:ClearAllPoints()
-	ObjectiveTrackerFrame:SetPoint("TOP", self.holder)
+	ObjectiveTrackerFrame:SetPoint("TOP", _G[ns.Prefix.."ObjectivesTrackerAnchor"])
 	ObjectiveTrackerFrame:SetHeight(db.TrackerHeight)
+	ObjectiveTrackerFrame:SetClampedToScreen(false)
 
-	self:SecureHook(ObjectiveTrackerFrame, "SetPoint", "UpdatePositionBase")
+	ObjectiveTrackerFrame.OnPositionChange = UpdateObjectiveTrackerPositionBase
 
+	hooksecurefunc(ObjectiveTrackerFrame, "SetPoint", ObjectiveTrackerFrame.OnPositionChange)
 	hooksecurefunc("ObjectiveTracker_Update", UpdateObjectiveTracker)
-
 	hooksecurefunc(QUEST_TRACKER_MODULE, "SetBlockHeader", UpdateQuestItem)
-
 	hooksecurefunc(WORLD_QUEST_TRACKER_MODULE, "AddObjective", UpdateQuestItem)
 	hooksecurefunc(CAMPAIGN_QUEST_TRACKER_MODULE, "AddObjective", UpdateQuestItem)
-
 	hooksecurefunc(CAMPAIGN_QUEST_TRACKER_MODULE, "AddProgressBar", UpdateProgressBar)
 	hooksecurefunc(QUEST_TRACKER_MODULE, "AddProgressBar", UpdateProgressBar)
 	hooksecurefunc(DEFAULT_OBJECTIVE_TRACKER_MODULE, "AddProgressBar", UpdateProgressBar)

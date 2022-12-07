@@ -380,18 +380,6 @@ ChatFrames.StyleTempFrame = function(self)
 	self:StyleFrame(frame)
 end
 
-ChatFrames.SetChatFrame1Position = function(self)
-	ChatFrame1:ClearAllPoints()
-	ChatFrame1:SetPointBase(self:GetDefaultChatFramePosition())
-
-	--local db = ns.db.global.chat.storedFrames[1]
-	--if (db) then
-	--	ChatFrame1:SetPointBase(unpack(db.Place))
-	--else
-	--	ChatFrame1:SetPointBase(self:GetDefaultChatFramePosition())
-	--end
-end
-
 ChatFrames.SetChatFramePosition = function(self, frame)
 	local id = frame:GetID()
 
@@ -401,8 +389,11 @@ ChatFrames.SetChatFramePosition = function(self, frame)
 		frame:ClearAllPoints()
 		frame:SetPoint(self:GetDefaultChatFramePosition())
 
-		if (ns.IsRetail and not self:IsHooked(frame, "SetPoint")) then
-			self:SecureHook(frame, "SetPoint", "SetChatFrame1Position")
+		if (ns.IsRetail) then
+			hooksecurefunc(frame, "SetPoint", function(frame)
+				frame:ClearAllPoints()
+				frame:SetPointBase(self:GetDefaultChatFramePosition())
+			end)
 		end
 
 	else
