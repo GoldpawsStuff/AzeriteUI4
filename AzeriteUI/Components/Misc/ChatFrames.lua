@@ -541,11 +541,13 @@ ChatFrames.OnEvent = function(self, event, ...)
 			self:SecureHook("FCF_OpenTemporaryWindow", "StyleTempFrame")
 			self:ScheduleRepeatingTimer("UpdateClutter", 1/10)
 
-			QuickJoinToastButton:UnregisterAllEvents()
-			QuickJoinToastButton:SetParent(UIHider)
-			QuickJoinToastButton:Hide()
+			if (ns.IsRetail) then
+				QuickJoinToastButton:UnregisterAllEvents()
+				QuickJoinToastButton:SetParent(UIHider)
+				QuickJoinToastButton:Hide()
+			end
 
-			--ChatFrame1:Clear()
+			ChatFrame1:Clear()
 		end
 	end
 end
