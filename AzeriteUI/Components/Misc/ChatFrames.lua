@@ -384,6 +384,10 @@ ChatFrames.SetChatFramePosition = function(self, frame)
 	local id = frame:GetID()
 
 	if (id == 1) then
+		if (not ns.IsRetail) then
+			frame.ignoreFramePositionManager = true
+		end
+
 		frame:SetUserPlaced(false)
 		frame:SetSize(self:GetDefaultChatFrameSize())
 		frame:ClearAllPoints()
@@ -538,6 +542,8 @@ ChatFrames.OnEvent = function(self, event, ...)
 				self:SetChatFramePosition(chatFrame)
 			end
 
+			self:UpdateButtons(event, ...)
+
 			self:SecureHook("FCF_OpenTemporaryWindow", "StyleTempFrame")
 			self:ScheduleRepeatingTimer("UpdateClutter", 1/10)
 
@@ -547,7 +553,18 @@ ChatFrames.OnEvent = function(self, event, ...)
 				QuickJoinToastButton:Hide()
 			end
 
+			if (not ns.IsRetail) then
+				self:RegisterEvent("UPDATE_FLOATING_CHAT_WINDOWS", "OnEvent")
+				self:RegisterEvent("UPDATE_CHAT_WINDOWS", "OnEvent")
+				self:RegisterEvent("VARIABLES_LOADED", "OnEvent")
+			end
+
 			ChatFrame1:Clear()
+		end
+	elseif (event == "VARIABLES_LOADED" or event == "UPDATE_CHAT_WINDOWS" or event == "UPDATE_FLOATING_CHAT_WINDOWS") then
+		for i = 1, NUM_CHAT_WINDOWS do
+			local chatFrame = _G["ChatFrame"..i]
+			self:SetChatFramePosition(chatFrame)
 		end
 	end
 end
