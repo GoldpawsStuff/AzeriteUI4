@@ -76,15 +76,15 @@ end
 
 Bartender.HandleBartender = function(self, event, addon)
 	if (InCombatLockdown()) then
-		return self:RegisterEvent("PLAYER_REGEN_ENABLED", "OnEvent")
+		return self:RegisterEvent("PLAYER_REGEN_ENABLED", "HandleBartender")
 
 	elseif (event == "ADDON_LOADED") then
 		if (addon ~= "Bartender4") then return end
-		self:UnregisterEvent("ADDON_LOADED", "OnEvent")
+		self:UnregisterEvent("ADDON_LOADED", "HandleBartender")
 
 	elseif (event == "PLAYER_REGEN_ENABLED") then
 		if (InCombatLockdown()) then return end
-		self:UnregisterEvent("PLAYER_REGEN_ENABLED", "OnEvent")
+		self:UnregisterEvent("PLAYER_REGEN_ENABLED", "HandleBartender")
 	end
 
 	self:HandleMicroMenu()
