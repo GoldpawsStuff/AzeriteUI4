@@ -304,9 +304,9 @@ end
 -- Toggle cast text color on protected casts.
 local Cast_PostCastInterruptible = function(element, unit)
 	if (element.notInterruptible) then
-		element.Text:SetTextColor(unpack(element.color))
+		element.Text:SetTextColor(unpack(element.Text.colorProtected))
 	else
-		element.Text:SetTextColor(unpack(element.colorProtected))
+		element.Text:SetTextColor(unpack(element.Text.color))
 	end
 end
 
