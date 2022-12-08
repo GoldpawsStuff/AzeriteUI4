@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file. Be aware th
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [4.0.18-Release] 2022-12-08
+### Changed
+- The chat module will now auto-disable if the addons Prat or Glass are enabled.
+
+### Fixed
+- Fixed an issue with retail warlock class resource points like soul shards where the backdrop and point textures had been accidentally switched causing a rather ugly result.
+
 ## [4.0.17-Release] 2022-12-08
 ### Fixed
 - Fixed faulty text color references when switching between protected and interruptable casts on the player- and target unitframes.
