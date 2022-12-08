@@ -52,6 +52,7 @@ local UIFrameFadeRemoveFrame = UIFrameFadeRemoveFrame
 -- Addon API
 local GetFont = ns.API.GetFont
 local GetPosition = ns.API.GetPosition
+local IsAddOnEnabled = ns.API.IsAddOnEnabled
 local SetObjectScale = ns.API.SetObjectScale
 local UIHider = ns.Hider
 
@@ -570,6 +571,9 @@ ChatFrames.OnEvent = function(self, event, ...)
 end
 
 ChatFrames.OnInitialize = function(self)
+	if (IsAddOnEnabled("Prat-3.0") or IsAddOnEnabled("Glass")) then
+		return self:Disable()
+	end
 
 	local scaffold = SetObjectScale(CreateFrame("Frame", nil, UIParent))
 	scaffold:SetSize(self:GetDefaultChatFrameSize())
