@@ -216,31 +216,31 @@ Config.PlayerHUD = {
 			[1] = {
 				Position = { "CENTER", UIParent, "CENTER", -203, -137 },
 				Size = { 12, 12 }, BackdropSize = { 54, 54 },
-				Texture = GetMedia("point_plate"),  BackdropTexture = GetMedia("point_crystal"),
+				Texture = GetMedia("point_crystal"),  BackdropTexture = GetMedia("point_plate"),
 				Rotation = degreesToRadians(6)
 			},
 			[2] = {
 				Position = { "CENTER", UIParent, "CENTER", -221, -111 },
 				Size = { 13, 13 }, BackdropSize = { 60, 60 },
-				Texture = GetMedia("point_plate"),  BackdropTexture = GetMedia("point_crystal"),
+				Texture = GetMedia("point_crystal"),  BackdropTexture = GetMedia("point_plate"),
 				Rotation = degreesToRadians(5)
 			},
 			[3] = {
 				Position = { "CENTER", UIParent, "CENTER", -235, -80 },
 				Size = { 11, 15 }, BackdropSize = { 65, 60 },
-				Texture = GetMedia("point_diamond"),  BackdropTexture = GetMedia("point_crystal"),
+				Texture = GetMedia("point_crystal"),  BackdropTexture = GetMedia("point_diamond"),
 				Rotation = degreesToRadians(3)
 			},
 			[4] = {
 				Position = { "CENTER", UIParent, "CENTER", -227, -44 },
 				Size = { 12, 18 }, BackdropSize = { 78, 79 },
-				Texture = GetMedia("point_diamond"),  BackdropTexture = GetMedia("point_crystal"),
+				Texture = GetMedia("point_crystal"),  BackdropTexture = GetMedia("point_diamond"),
 				Rotation = degreesToRadians(3)
 			},
 			[5] = {
 				Position = { "CENTER", UIParent, "CENTER", -203, -11 },
 				Size = { 14, 21 }, BackdropSize = { 82, 96 },
-				Texture = GetMedia("point_diamond"),  BackdropTexture = GetMedia("point_crystal"),
+				Texture = GetMedia("point_crystal"),  BackdropTexture = GetMedia("point_diamond"),
 				Rotation = degreesToRadians(1)
 			}
 		},
