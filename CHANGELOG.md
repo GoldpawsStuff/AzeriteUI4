@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file. Be aware th
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [4.0.17-Release] 2022-12-08
+### Fixed
+- Fixed faulty text color references when switching between protected and interruptable casts on the player- and target unitframes.
+
 ## [4.0.16-Release] 2022-12-07
 ### Fixed
 - Fixed a fuckload of EditMode problems in retail.
