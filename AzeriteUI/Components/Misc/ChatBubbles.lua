@@ -47,7 +47,7 @@ local SetObjectScale = ns.API.SetObjectScale
 ChatBubbles.CreateCustomBubble = function(self, blizzBubble)
 	self.numBubbles = self.numBubbles + 1
 
-	local customBubble = CreateFrame("Frame", nil, bubbleParent, ns.BackdropTemplate)
+	local customBubble = CreateFrame("Frame", nil, self.bubbleParent, ns.BackdropTemplate)
 	customBubble:Hide()
 	customBubble:SetFrameStrata("BACKGROUND")
 	customBubble:SetPoint("BOTTOM", blizzBubble, "BOTTOM", 0, 0)
@@ -66,7 +66,7 @@ ChatBubbles.CreateCustomBubble = function(self, blizzBubble)
 	end
 
 	customBubble.text = customBubble:CreateFontString()
-	customBubble.text:SetPoint("BOTTOMLEFT", self.backdropPadding, self.backdropPadding)
+	customBubble.text:SetPoint("BOTTOMLEFT", self.backdropPadding*1.5, self.backdropPadding)
 	customBubble.text:SetFontObject(self.fontObject)
 
 	for i = 1, blizzBubble:GetNumRegions() do
@@ -188,7 +188,7 @@ ChatBubbles.UpdateBubbles = function(self)
 					text:SetWidth(rawWidth > maxWidth and maxWidth or rawWidth)
 				end
 
-				customBubble:SetSize(text:GetWidth() + self.backdropPadding*2, text:GetHeight() + self.backdropPadding*2)
+				customBubble:SetSize(text:GetWidth() + self.backdropPadding*3, text:GetHeight() + self.backdropPadding*2)
 
 			else
 				if (customBubble:IsShown()) then
@@ -225,7 +225,7 @@ ChatBubbles.UpdateBubbleFont = function(self)
 	if (fontSize) then
 		local ourscale = self.bubbleParent:GetEffectiveScale()
 		local chatscale = ChatFrame1:GetEffectiveScale()
-		fontSize = math_floor(fontSize * (ourscale / chatscale) + .5)
+		fontSize = math_floor(fontSize * (ourscale / chatscale) + 2.5)
 	else
 		fontSize = self.fontSizeDefault
 	end

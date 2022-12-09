@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file. Be aware th
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [4.0.21-Release] 2022-12-09
+### Fixed
+- Chat bubble font sizes should now be more sane.
+
 ## [4.0.20-Release] 2022-12-09
 ### Changed
 - Empty action buttons will remain invisible by default now. Their backdrops will become visible when an item or action is placed on the cursor.
