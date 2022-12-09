@@ -86,9 +86,37 @@ end
 
 ActionBars.UpdateFadeButtons = function(self)
 	if (not self.inWorld) then return end
-	local show = not self.enableBarFading or self.inCombat
-	for button in next,self.fadeButtons do
-		button_mt.SetAlpha(button, (show or (self.hoverCount[self.fadeGroups[button]] > 0)) and 1 or 0)
+
+	-- Something is forcing the buttons to be shown,
+	-- like an item currently on the cursor.
+	if (self.gridCounter >= 1) then
+		for button in next,self.fadeButtons do
+			button_mt.SetAlpha(button, 1)
+		end
+
+	-- Bar fading is disabled, just copying the default settings here.
+	elseif (not self.enableBarFading) then
+		for button in next,self.fadeButtons do
+			button_mt.SetAlpha(button, button:HasAction() or (button.config and button.config.showGrid) or (button.parent and button.parent.config.showGrid) and 1 or 0)
+		end
+	else
+		-- Bar fading is enabled.
+		for button in next,self.fadeButtons do
+
+			-- The group is visible.
+			if (self.hoverCount[self.fadeGroups[button]] > 0) then
+
+				-- The button has an action or grid set to visible.
+				if (button:HasAction()) or (button.config and button.config.showGrid) or (button.parent and button.parent.config.showGrid) then
+					button_mt.SetAlpha(button, 1)
+				else
+					button_mt.SetAlpha(button, 0)
+				end
+			else
+				-- Group is hidden, hide this.
+				button_mt.SetAlpha(button, 0)
+			end
+		end
 	end
 end
 
@@ -224,6 +252,20 @@ ActionBars.OnEvent = function(self, event, ...)
 	elseif (event == "PLAYER_REGEN_ENABLED") then
 		self.inCombat = nil
 
+	elseif (event == "ACTIONBAR_SHOWGRID") then
+		self.gridCounter = self.gridCounter + 1
+		if (self.gridCounter >= 1) then
+			return self:UpdateFadeButtons()
+		end
+
+	elseif (event == "ACTIONBAR_HIDEGRID") then
+		if (self.gridCounter > 0) then
+			self.gridCounter = self.gridCounter - 1
+		end
+		if (self.gridCounter == 0) then
+			return self:UpdateFadeButtons()
+		end
+
 	elseif (event == "ActionButton_FadeButton_Entering") then
 		local button, fadeGroup = ...
 		self.hoverCount[fadeGroup] = self.hoverCount[fadeGroup] + 1
@@ -238,6 +280,7 @@ end
 ActionBars.OnInitialize = function(self)
 	self.fadeButtons = {}
 	self.fadeGroups = {}
+	self.gridCounter = 0
 	self.hoverCount = { default = 0 }
 	self.enableBarFading = ns.db.global.actionbars.enableBarFading
 
@@ -260,6 +303,8 @@ ActionBars.OnEnable = function(self)
 	self:RegisterEvent("PLAYER_ENTERING_WORLD", "OnEvent")
 	self:RegisterEvent("PLAYER_REGEN_DISABLED", "OnEvent")
 	self:RegisterEvent("PLAYER_REGEN_ENABLED", "OnEvent")
+	self:RegisterEvent("ACTIONBAR_SHOWGRID", "OnEvent")
+	self:RegisterEvent("ACTIONBAR_HIDEGRID", "OnEvent")
 
 	ns.RegisterCallback(self, "ActionButton_FadeButton_Entering", "OnEvent")
 	ns.RegisterCallback(self, "ActionButton_FadeButton_Leaving", "OnEvent")

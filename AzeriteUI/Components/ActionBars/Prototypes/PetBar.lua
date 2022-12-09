@@ -143,7 +143,7 @@ PetBar.Create = function(self, name, parent)
 	]])
 	bar.buttons = {}
 	bar.config = {
-		showgrid = true,
+		showgrid = false,
 		hidehotkey = true
 	}
 

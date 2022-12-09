@@ -166,6 +166,10 @@ PetButton.Update = function(self)
 	self:UpdateHotkeys()
 end
 
+PetButton.HasAction = function(self)
+	return GetPetActionInfo(self.id)
+end
+
 PetButton.UpdateCooldown = function(self)
 	local start, duration, enable = GetPetActionCooldown(self.id)
 	CooldownFrame_Set(self.cooldown, start, duration, enable)
