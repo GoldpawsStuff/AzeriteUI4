@@ -345,6 +345,9 @@ MicroMenu.OnEvent = function(self, event, ...)
 end
 
 MicroMenu.OnInitialize = function(self)
+	if (IsAddOnEnabled("ConsolePort")) then
+		return self:Disable()
+	end
 	if (IsAddOnEnabled("Bartender4") and not ns.BartenderHandled) then
 		ns.RegisterCallback(self, "Bartender_Handled", "InitializeMicroMenu")
 	else
