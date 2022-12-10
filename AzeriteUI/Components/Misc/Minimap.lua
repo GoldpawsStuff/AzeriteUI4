@@ -61,6 +61,8 @@ local ToggleDropDownMenu = ToggleDropDownMenu
 local Colors = ns.Colors
 local GetFont = ns.API.GetFont
 local GetMedia = ns.API.GetMedia
+local KillEditMode = ns.API.KillEditMode
+local RegisterFrameForMovement = ns.Widgets.RegisterFrameForMovement
 local SetObjectScale = ns.API.SetObjectScale
 local GetTime = ns.API.GetTime
 local GetLocalTime = ns.API.GetLocalTime
@@ -372,7 +374,7 @@ MinimapMod.UpdatePosition = function(self)
 	local db = ns.Config.Minimap
 	Minimap:SetParent(PetHider)
 	Minimap:ClearAllPoints()
-	Minimap:SetPoint(unpack(db.Position))
+	Minimap:SetPoint(unpack(ns.db.global.minimap.storedFrames.Minimap or db.Position))
 	Minimap:SetMovable(true)
 end
 
@@ -424,8 +426,11 @@ MinimapMod.StyleMinimap = function(self)
 	SetObjectScale(MinimapCluster)
 	SetObjectScale(Minimap)
 
+	KillEditMode(MinimapCluster)
+
 	Minimap:SetFrameStrata("MEDIUM")
 	Minimap:SetSize(unpack(db.Size))
+	Minimap:SetPoint(unpack(db.Position))
 	Minimap:SetMaskTexture(db.MaskTexture)
 	Minimap:EnableMouseWheel(true)
 	Minimap:SetScript("OnMouseWheel", Minimap_OnMouseWheel)
@@ -626,6 +631,11 @@ MinimapMod.StyleMinimap = function(self)
 		end
 
 	end
+
+	-- Movable frame
+	local db = ns.db.global.minimap.storedFrames
+	db.Minimap = RegisterFrameForMovement(Minimap, db.Minimap, ns.Config.Minimap.Size[1], ns.Config.Minimap.Size[2], "Minimap")
+
 end
 
 MinimapMod.InitializeMBB = function(self)
