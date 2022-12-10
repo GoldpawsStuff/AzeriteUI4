@@ -188,6 +188,10 @@ Tracker.InitializeWatchFrame = function(self)
 	hooksecurefunc("WatchFrame_DisplayTrackedQuests", UpdateWatchFrameLinkButtons)
 	hooksecurefunc("WatchFrameItem_OnShow", UpdateQuestItemButton)
 
+	-- Movable frame
+	local db = ns.db.global.tracker.storedFrames
+	db.Tracker = RegisterFrameForMovement(self.holder, db.Tracker, 306, ns.Config.Tracker.TrackerHeight, "Tracker")
+
 	self:UpdateWatchFrame()
 end
 
@@ -200,7 +204,8 @@ Tracker.UpdateWatchFrame = function(self)
 	WatchFrame:SetClampedToScreen(false)
 	WatchFrame:ClearAllPoints()
 	WatchFrame:SetPoint("TOP", self.holder, "TOP")
-	WatchFrame:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, ns.Config.Tracker.BottomOffset)
+	WatchFrame:SetPoint("BOTTOM", self.holder, "TOP", 0, -ns.Config.Tracker.TrackerHeight)
+	--WatchFrame:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, ns.Config.Tracker.BottomOffset)
 
 	UpdateQuestItemButtons()
 	UpdateWatchFrameLines()
