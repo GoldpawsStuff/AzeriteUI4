@@ -53,6 +53,7 @@ local UIFrameFadeRemoveFrame = UIFrameFadeRemoveFrame
 local GetFont = ns.API.GetFont
 local GetPosition = ns.API.GetPosition
 local IsAddOnEnabled = ns.API.IsAddOnEnabled
+local KillEditMode = ns.API.KillEditMode
 local SetObjectScale = ns.API.SetObjectScale
 local UIHider = ns.Hider
 
@@ -309,6 +310,7 @@ ChatFrames.StyleFrame = function(self, frame)
 	end
 
 	SetObjectScale(frame)
+	KillEditMode(frame)
 
 	-- Kill frame textures.
 	for tex in frame:GetFrameTextures() do
