@@ -61,16 +61,21 @@ local UpdateTooltip = function(self)
 	GameTooltip:SetPetAction(self.id)
 end
 
-local PetButton = CreateFrame("CheckButton")
-local PetButton_MT = { __index = PetButton }
+local PetButton = {}
 ns.PetButton = PetButton
 
 PetButton.Create = function(self, id, name, parent)
 
-	local button = setmetatable(CreateFrame("CheckButton", name, parent, "PetActionButtonTemplate"), PetButton_MT)
+	local button = CreateFrame("CheckButton", name, parent, "PetActionButtonTemplate")
 	button.showgrid = 0
 	button.id = id
 	button.parent = parent
+
+	-- Retail has a new mixin that overrides some of our meta methods,
+	-- so we're doing hard embedding now instead.
+	for method,func in next,PetButton do
+		button[method] = func
+	end
 
 	button:SetID(id)
 	button:SetAttribute("type", "pet")
