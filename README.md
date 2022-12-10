@@ -34,7 +34,7 @@ Toggle movable frames. *(Frames can be reset to default position when they are u
 
 ### Scale
 Change the relative scale of the custom user interface elements created by the addon.
-- **/setscale n** - Set the scale to `n`. *(n = [0.75 to 1.25])*
+- **/setscale n** - Set the scale to `n`. *(n = [0.5 to 1.5])*
 - **/resetscale** - Resets the relative scale.
 
 ### Minimap Clock
