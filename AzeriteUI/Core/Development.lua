@@ -29,7 +29,7 @@ local Development = ns:NewModule("Development", "AceConsole-3.0", "LibMoreEvents
 -- Addon API
 local Colors = ns.Colors
 local GetFont = ns.API.GetFont
-local GetScale = ns.API.GetScale
+local GetDefaultScale = ns.API.GetDefaultScale
 
 Development.ToggleDevMode = function(self)
 	ns.db.global.core.enableDevelopmentMode = not ns.db.global.core.enableDevelopmentMode
@@ -42,7 +42,7 @@ Development.OnInitialize = function(self)
 	if (showVersion) then
 		local versionLabel = UIParent:CreateFontString()
 		versionLabel:SetIgnoreParentScale(true)
-		versionLabel:SetScale(GetScale())
+		versionLabel:SetScale(GetDefaultScale())
 		versionLabel:SetDrawLayer("OVERLAY", 1)
 		versionLabel:SetFontObject(GetFont(12,true))
 		versionLabel:SetTextColor(unpack(Colors.offwhite))
@@ -59,7 +59,7 @@ Development.OnInitialize = function(self)
 	if (ns.db.global.core.enableDevelopmentMode) then
 		local devLabel = UIParent:CreateFontString()
 		devLabel:SetIgnoreParentScale(true)
-		devLabel:SetScale(GetScale())
+		devLabel:SetScale(GetDefaultScale())
 		devLabel:SetDrawLayer("OVERLAY", 1)
 		devLabel:SetFontObject(GetFont(12,true))
 		devLabel:SetTextColor(unpack(Colors.gray))
