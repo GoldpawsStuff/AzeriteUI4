@@ -399,11 +399,11 @@ UnitFrames.SpawnUnitFrames = function(self)
 
 		-- This both updates and creates the saved position entries.
 		local db = ns.db.global.unitframes.storedFrames
-		db.Player = RegisterFrameForMovement(Spawn("player", "Player"), db.Player)
-		db.Pet = RegisterFrameForMovement(Spawn("pet", "Pet"), db.Pet)
-		db.Focus = RegisterFrameForMovement(Spawn("focus", "Focus"), db.Focus)
-		db.Target = RegisterFrameForMovement(Spawn("target", "Target"), db.Target)
-		db.ToT = RegisterFrameForMovement(Spawn("targettarget", "ToT"), db.ToT)
+		db.Player = RegisterFrameForMovement(Spawn("player", "Player"), db.Player, nil, nil, "Player")
+		db.Pet = RegisterFrameForMovement(Spawn("pet", "Pet"), db.Pet, nil, nil, "Pet")
+		db.Focus = RegisterFrameForMovement(Spawn("focus", "Focus"), db.Focus, nil, nil, "Focus")
+		db.Target = RegisterFrameForMovement(Spawn("target", "Target"), db.Target, nil, nil, "Target")
+		db.ToT = RegisterFrameForMovement(Spawn("targettarget", "ToT"), db.ToT, nil, nil, "ToT")
 
 		-- Spawn boss frames
 		local config = ns.Config.Boss
@@ -416,7 +416,7 @@ UnitFrames.SpawnUnitFrames = function(self)
 
 		-- Set up movable frame system for boss anchor.
 		local db = ns.db.global.unitframes.storedFrames
-		db.Boss = RegisterFrameForMovement(boss, db.Boss)
+		db.Boss = RegisterFrameForMovement(boss, db.Boss, nil, nil, "Boss")
 
 		self:UpdateSettings()
 	end)
@@ -447,7 +447,7 @@ UnitFrames.SpawnGroupFrames = function(self)
 
 		-- Set up movable frame
 		local db = ns.db.global.unitframes.storedFrames
-		db.Party = RegisterFrameForMovement(anchor, db.Party)
+		db.Party = RegisterFrameForMovement(anchor, db.Party, nil, nil, "Party")
 
 	end)
 end
