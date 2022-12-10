@@ -39,6 +39,8 @@ local SetOverrideBindingClick = SetOverrideBindingClick
 local Colors = ns.Colors
 local GetFont = ns.API.GetFont
 local GetMedia = ns.API.GetMedia
+local KillEditMode = ns.API.KillEditMode
+local RegisterFrameForMovement = ns.Widgets.RegisterFrameForMovement
 local SetObjectScale = ns.API.SetObjectScale
 local IsAddOnEnabled = ns.API.IsAddOnEnabled
 local UIHider = ns.Hider
@@ -288,24 +290,33 @@ Tracker.InitializeTracker = function(self, event, addon)
 
 	local db = ns.Config.Tracker
 
-	self.holder = SetObjectScale(CreateFrame("Frame", ns.Prefix.."ObjectivesTrackerAnchor", UIParent))
+	self.holder = SetObjectScale(CreateFrame("Frame", ns.Prefix.."ObjectivesTrackerAnchor", ObjectiveTrackerFrame))
 	self.holder:SetPoint(unpack(db.Position))
 	self.holder:SetSize(unpack(db.Size))
 
 	SetObjectScale(ObjectiveTrackerFrame, 1.1)
 
+	--KillEditMode(ObjectiveTrackerFrame)
+
+	-- This little experiment kills edit mode taint,
+	-- but reverts the tracker to its default position in combat.
+	--ObjectiveTrackerFrame:Hide()
+	--ObjectiveTrackerFrame:SetScript("OnShow", nil)
+	--ObjectiveTrackerFrame:SetScript("OnHide", nil)
+	--ObjectiveTrackerFrame:Show()
+
 	ObjectiveTrackerUIWidgetContainer:SetFrameStrata("BACKGROUND")
 	ObjectiveTrackerFrame:SetFrameStrata("BACKGROUND")
 	ObjectiveTrackerFrame:SetFrameLevel(50)
 	ObjectiveTrackerFrame:SetAlpha(.9)
-	ObjectiveTrackerFrame:ClearAllPoints()
-	ObjectiveTrackerFrame:SetPoint("TOP", _G[ns.Prefix.."ObjectivesTrackerAnchor"])
-	ObjectiveTrackerFrame:SetHeight(db.TrackerHeight)
-	ObjectiveTrackerFrame:SetClampedToScreen(false)
+	--ObjectiveTrackerFrame:SetClampedToScreen(false)
+	--ObjectiveTrackerFrame:ClearAllPoints()
+	--ObjectiveTrackerFrame:SetPoint("TOP", _G[ns.Prefix.."ObjectivesTrackerAnchor"])
+	--ObjectiveTrackerFrame:SetHeight(db.TrackerHeight)
 
-	ObjectiveTrackerFrame.OnPositionChange = UpdateObjectiveTrackerPositionBase
+	--ObjectiveTrackerFrame.OnPositionChange = UpdateObjectiveTrackerPositionBase
 
-	hooksecurefunc(ObjectiveTrackerFrame, "SetPoint", ObjectiveTrackerFrame.OnPositionChange)
+	--hooksecurefunc(ObjectiveTrackerFrame, "SetPoint", ObjectiveTrackerFrame.OnPositionChange)
 	hooksecurefunc("ObjectiveTracker_Update", UpdateObjectiveTracker)
 	hooksecurefunc(QUEST_TRACKER_MODULE, "SetBlockHeader", UpdateQuestItem)
 	hooksecurefunc(WORLD_QUEST_TRACKER_MODULE, "AddObjective", UpdateQuestItem)
@@ -327,30 +338,27 @@ Tracker.InitializeTracker = function(self, event, addon)
 	driver = "[@boss1,exists][@boss2,exists][@boss3,exists][@boss4,exists][@boss5,exists]" .. driver
 
 	RegisterStateDriver(ObjectiveTrackerFrame.autoHider, "vis", driver)
+
+	-- Movable frame
+	--local db = ns.db.global.tracker.storedFrames
+	--db.Tracker = RegisterFrameForMovement(self.holder, db.Tracker, ObjectiveTrackerFrame:GetWidth(), ObjectiveTrackerFrame:GetHeight(), "Tracker")
+
 end
 
-Tracker.OnEvent = function(self, event, ...)
+Tracker.HookImmersion = function(self, event, ...)
 	if (event == "PLAYER_ENTERING_WORLD") then
-		if (ObjectiveTrackerFrame) then
-			ObjectiveTrackerFrame:SetAlpha(.9)
+		local frame = ImmersionFrame
+		if (frame) then
+			ImmersionFrame:HookScript("OnShow", function() ObjectiveTrackerFrame:SetAlpha(0) end)
+			ImmersionFrame:HookScript("OnHide", function() ObjectiveTrackerFrame:SetAlpha(.9) end)
 		end
-		if (self.queueImmersionHook) then
-			local frame = ImmersionFrame
-			if (frame) then
-				self.queueImmersionHook = nil
-				ImmersionFrame:HookScript("OnShow", function() ObjectiveTrackerFrame:SetAlpha(0) end)
-				ImmersionFrame:HookScript("OnHide", function() ObjectiveTrackerFrame:SetAlpha(.9) end)
-			end
-		end
+		self:UnregisterEvent("PLAYER_ENTERING_WORLD", "HookImmersion")
 	end
 end
 
 Tracker.OnInitialize = function(self)
-	self.queueImmersionHook = IsAddOnEnabled("Immersion")
-	if (IsAddOnLoaded("Blizzard_ObjectiveTracker")) then
-		self:InitializeTracker()
-	else
-		self:RegisterEvent("ADDON_LOADED", "InitializeTracker")
+	self:InitializeTracker() -- force enabled by the editmode
+	if (IsAddOnEnabled("Immersion")) then
+		self:RegisterEvent("PLAYER_ENTERING_WORLD", "HookImmersion")
 	end
-	self:RegisterEvent("PLAYER_ENTERING_WORLD", "OnEvent")
 end
