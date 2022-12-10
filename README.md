@@ -5,6 +5,8 @@
 
 Work in progress. You probably have questions. I'll answer a few:
 
+- No, there won't be a garrison/order hall/covenant/dragon thingie button on the minimap.
+- Yes, you can middle-click the minimap to open the garrison/order hall/covenant/dragon thingie window.
 - Yes, I killed the EditMode on purpose.
 - Yes, the chat frames will be made movable in retail too.
 - Yes, I plan to make a config menu instead of these chat commands.
