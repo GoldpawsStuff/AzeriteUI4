@@ -24,7 +24,7 @@
 
 --]]
 local Addon, ns = ...
-ns = LibStub("AceAddon-3.0"):NewAddon(ns, Addon, "AceConsole-3.0", "LibMoreEvents-1.0")
+ns = LibStub("AceAddon-3.0"):NewAddon(ns, Addon, "AceConsole-3.0", "LibMoreEvents-1.0", "AceHook-3.0")
 ns.L = LibStub("AceLocale-3.0"):GetLocale(Addon) -- Addon localization
 ns.callbacks = LibStub("CallbackHandler-1.0"):New(ns, nil, nil, false) -- Addon callback handler
 ns.Hider = CreateFrame("Frame"); ns.Hider:Hide()
@@ -66,8 +66,13 @@ local defaults = {
 			}
 		},
 		minimap = {
+			storedFrames = {},
 			useServerTime = false,
 			useHalfClock = true
+		},
+		tracker = {
+			storedFrames = {},
+			enableTracker = true
 		},
 		unitframes = {
 			storedFrames = {},
@@ -80,7 +85,8 @@ local defaults = {
 			enableBoss = true,
 			enableParty = true,
 			enableRaid = true
-		}
+		},
+
 	}
 }
 
@@ -249,6 +255,11 @@ ns.OnInitialize = function(self)
 	self:RegisterChatCommand("lock", "LockMovableFrames")
 	self:RegisterChatCommand("unlock", "UnlockMovableFrames")
 	self:RegisterChatCommand("togglelock", "ToggleMovableFrames")
+
+	if (EditModeManagerFrame) then
+		hooksecurefunc(EditModeManagerFrame, "EnterEditMode", function() self:UnlockMovableFrames() end)
+		hooksecurefunc(EditModeManagerFrame, "ExitEditMode", function() self:LockMovableFrames() end)
+	end
 
 	-- In case some other jokers have disabled these, we add them back to avoid a World of Bugs.
 	-- RothUI used to remove the two first, and a lot of people missed his documentation on how to get them back.
