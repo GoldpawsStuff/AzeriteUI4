@@ -42,8 +42,10 @@ local SetActionBarToggles = SetActionBarToggles
 -- WoW Globals
 local CHAT_FRAMES = CHAT_FRAMES
 
--- Global hider frame
+-- Addon API
+local KillEditMode = ns.API.KillEditMode
 local UIHider = ns.Hider
+local noop = ns.Noop
 
 -- Utility
 ---------------------------------------------------------
@@ -128,20 +130,6 @@ local hideActionBar = function(frame, clearEvents, reanchor, noAnchorChanges)
 	end
 end
 
--- All
-local hideFrame = function(frame)
-	if (not frame) then
-		return
-	end
-	if (frame) then
-		frame:UnregisterAllEvents()
-		frame:SetParent(UIHider)
-	else
-		frame.Show = frame.Hide
-	end
-	frame:Hide()
-end
-
 BlizzKill.NPE_LoadUI = function(self)
 	if not (Tutorials and Tutorials.AddSpellToActionBar) then return end
 
@@ -161,7 +149,7 @@ BlizzKill.KillActionBars = function(self)
 	-- Dragonflight
 	if (ns.IsRetail) then
 
-		hideActionBarFrame(MainMenuBar, false)
+		hideActionBarFrame(MainMenuBar, true)
 		hideActionBarFrame(MultiBarBottomLeft, true)
 		hideActionBarFrame(MultiBarBottomRight, true)
 		hideActionBarFrame(MultiBarLeft, true)
@@ -188,12 +176,17 @@ BlizzKill.KillActionBars = function(self)
 		hideActionBarFrame(MultiCastActionBarFrame, false)
 		hideActionBarFrame(PetActionBar, true)
 		hideActionBarFrame(StatusTrackingBarManager, false)
+		--hideActionBarFrame(OverrideActionBar, true)
 
 		-- these events drive visibility, we want the MainMenuBar to remain invisible
-		MainMenuBar:UnregisterEvent("PLAYER_REGEN_ENABLED")
-		MainMenuBar:UnregisterEvent("PLAYER_REGEN_DISABLED")
-		MainMenuBar:UnregisterEvent("ACTIONBAR_SHOWGRID")
-		MainMenuBar:UnregisterEvent("ACTIONBAR_HIDEGRID")
+		--MainMenuBar:UnregisterEvent("PLAYER_REGEN_ENABLED")
+		--MainMenuBar:UnregisterEvent("PLAYER_REGEN_DISABLED")
+		--MainMenuBar:UnregisterEvent("ACTIONBAR_SHOWGRID")
+		--MainMenuBar:UnregisterEvent("ACTIONBAR_HIDEGRID")
+
+		ActionBarController:UnregisterAllEvents()
+		ActionBarController:RegisterEvent("SETTINGS_LOADED")
+		ActionBarController:RegisterEvent("UPDATE_EXTRA_ACTIONBAR")
 
 		if IsAddOnLoaded("Blizzard_NewPlayerExperience") then
 			self:NPE_LoadUI()
@@ -333,6 +326,9 @@ BlizzKill.KillActionBars = function(self)
 				slot:SetSize(slotSize,slotSize)
 				slot:SetFrameStrata(strata)
 				slot:SetFrameLevel(level)
+				if (slot.SetBarExpanded) then
+					slot.SetBarExpanded = noop
+				end
 
 				-- Remove that fugly outer border
 				local tex = _G[slotName.."NormalTexture"]
