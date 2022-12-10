@@ -32,6 +32,7 @@ local table_remove = table.remove
 local unpack = unpack
 
 -- Addon API
+local KillEditMode = ns.API.KillEditMode
 local SetObjectScale = ns.API.SetObjectScale
 
 local GroupLootContainer_PostUpdate = function(self)
@@ -150,6 +151,7 @@ AlertFrames.OnInitialize = function(self)
 	hooksecurefunc("GroupLootContainer_Update", GroupLootContainer_PostUpdate)
 
 	if (TalkingHeadFrame) then
+		KillEditMode(TalkingHeadFrame)
 		TalkingHeadFrame:HookScript("OnShow", AlertFrame_PostUpdateAnchors)
 		TalkingHeadFrame:HookScript("OnHide", AlertFrame_PostUpdateAnchors)
 	end
