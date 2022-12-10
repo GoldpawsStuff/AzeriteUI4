@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file. Be aware th
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [4.0.23-Release] 2022-12-10
+### Changed
+- We now allow the retail editmode to open, but have removed most of the blizzard frames from it.
+- Since any change whatsoever to the retail objectuves tracker appears to be tainting the edit mode, we are neither sizing nor moving this frame any more. You'll have to do this yourself using the edit mode.
+- Our own movable frame anchors now follow the retail editmode visibility.
+
+### Fixed
+- A lot more retail editmode taints were fixed.
+- Possibly fixed missing extra button textures in retail.
+
+## [4.0.22-Release] 2022-12-10
+### Fixed
+- Fixed actionbars SetAlpha issue related to mouseover visibility.
+- Fixed a retail issue where a blizzard mixin would override our own pet button meta methods.
+
 ## [4.0.21-Release] 2022-12-09
 ### Fixed
 - Chat bubble font sizes should now be more sane.
