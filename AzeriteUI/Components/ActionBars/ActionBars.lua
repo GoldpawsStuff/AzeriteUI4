@@ -97,7 +97,13 @@ ActionBars.UpdateFadeButtons = function(self)
 	-- Bar fading is disabled, just copying the default settings here.
 	elseif (not self.enableBarFading) then
 		for button in next,self.fadeButtons do
-			button_mt.SetAlpha(button, button:HasAction() or (button.config and button.config.showGrid) or (button.parent and button.parent.config.showGrid) and 1 or 0)
+
+			-- The button has an action or grid set to visible.
+			if (button:HasAction()) or (button.config and button.config.showGrid) or (button.parent and button.parent.config.showGrid) then
+				button_mt.SetAlpha(button, 1)
+			else
+				button_mt.SetAlpha(button, 0)
+			end
 		end
 	else
 		-- Bar fading is enabled.
