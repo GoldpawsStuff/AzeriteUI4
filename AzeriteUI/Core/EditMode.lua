@@ -24,11 +24,37 @@
 
 --]]
 local Addon, ns = ...
-if (not ns.IsRetail or not EditModeManagerFrame) then
-	return
+local API = ns.API or {}
+ns.API = API
+
+if (not EditModeManagerFrame) then
+	API.KillEditMode = function() end
+end
+
+local noop = function() end
+
+API.KillEditMode = function(frame)
+	frame.HighlightSystem = noop
+	frame.ClearHighlight = noop
 end
 
 EditModeManagerFrame:UnregisterAllEvents()
 EditModeManagerFrame:RegisterEvent("EDIT_MODE_LAYOUTS_UPDATED")
+--hooksecurefunc(EditModeManagerFrame, "EnterEditMode", function() HideUIPanel(EditModeManagerFrame) end)
 
-hooksecurefunc(EditModeManagerFrame, "EnterEditMode", HideUIPanel)
+-- These will get tainted on ExitEditMode
+local mixin = _G.EditModeManagerFrame.AccountSettings
+mixin.RefreshTargetAndFocus = noop
+mixin.RefreshPartyFrames = noop
+mixin.RefreshRaidFrames = noop
+mixin.RefreshActionBarShown = noop
+mixin.RefreshCastBar = noop
+mixin.RefreshEncounterBar = noop
+mixin.RefreshExtraAbilities = noop
+mixin.RefreshAuraFrame = noop
+mixin.RefreshTalkingHeadFrame = noop
+mixin.RefreshVehicleLeaveButton = noop
+mixin.RefreshBossFrames = noop
+mixin.RefreshArenaFrames = noop
+mixin.RefreshLootFrame = noop
+mixin.RefreshHudTooltip = noop
