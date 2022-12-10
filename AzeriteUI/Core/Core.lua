@@ -113,6 +113,10 @@ local ShowMovableFrameAnchors = ns.Widgets.ShowMovableFrameAnchors
 local HideMovableFrameAnchors = ns.Widgets.HideMovableFrameAnchors
 local ToggleMovableFrameAnchors = ns.Widgets.ToggleMovableFrameAnchors
 
+local LimitScale = function(scale)
+	return math_min(1.5, math_max(.5, scale))
+end
+
 -- Purge deprecated settings,
 -- translate to new where applicable,
 -- make sure important ones are within bounds.
@@ -122,8 +126,7 @@ local SanitizeSettings = function(db)
 	end
 	local scale = db.global.core.relativeScale
 	if (scale) then
-		scale = math_min(1.25, math_max(.75, scale))
-		db.global.core.relativeScale = scale
+		db.global.core.relativeScale = LimitScale(scale)
 	end
 	return db
 end
@@ -170,7 +173,7 @@ ns.SetScale = function(self, input)
 		local db = self.db
 		local oldScale = db.global.core.relativeScale
 		-- Sanitize it, don't want crazy values
-		scale = math_min(1.25, math_max(.75, scale))
+		scale = LimitScale(scale)
 		if (oldScale ~= scale) then
 			-- Store and apply new relative user scale
 			db.global.core.relativeScale = scale -- Store the saved setting
