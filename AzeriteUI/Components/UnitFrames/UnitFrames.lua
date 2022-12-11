@@ -51,6 +51,7 @@ local UnitIsUnit = UnitIsUnit
 
 -- Addon API
 local IsAddOnEnabled = ns.API.IsAddOnEnabled
+local KillEditMode = ns.API.KillEditMode
 local RegisterFrameForMovement = ns.Widgets.RegisterFrameForMovement
 local SetObjectScale = ns.API.SetObjectScale
 local SetEffectiveObjectScale = ns.API.SetEffectiveObjectScale
