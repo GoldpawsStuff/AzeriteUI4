@@ -43,6 +43,17 @@ EditModeManagerFrame:UnregisterAllEvents()
 EditModeManagerFrame:RegisterEvent("EDIT_MODE_LAYOUTS_UPDATED")
 --hooksecurefunc(EditModeManagerFrame, "EnterEditMode", function() HideUIPanel(EditModeManagerFrame) end)
 
+-- Can we do this?
+local hasrun
+hooksecurefunc(EditModeManagerFrame, "InitializeAccountSettings", function()
+	if (hasrun) then return end
+	EditModeManagerFrame.AccountSettings:SetExpandedState(false, true)
+	EditModeManagerFrame.AccountSettings.Expander:SetScript("OnMouseUp", nil)
+	EditModeManagerFrame.AccountSettings.Expander:SetScript("OnMouseDown", nil)
+	EditModeManagerFrame.AccountSettings.Expander:SetAlpha(0)
+	hasrun = true
+end)
+
 -- These will get tainted on ExitEditMode
 local mixin = _G.EditModeManagerFrame.AccountSettings
 mixin.RefreshTargetAndFocus = noop
