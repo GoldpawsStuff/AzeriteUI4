@@ -31,7 +31,7 @@ end
 local ActionBars = ns:GetModule("ActionBars", true)
 if (not ActionBars) then return end
 
-local Blizzard = ActionBars:NewModule("Blizzard", "LibMoreEvents-1.0")
+local Blizzard = ActionBars:NewModule("Blizzard", "LibMoreEvents-1.0", "AceHook-3.0")
 local UIHider = ns.Hider
 
 local purgeKey = function(t, k)
