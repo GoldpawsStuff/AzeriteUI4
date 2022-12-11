@@ -137,8 +137,10 @@ Tooltips.SetBackdropStyle = function(self, tooltip)
 
 	tooltip:DisableDrawLayer("BACKGROUND")
 	tooltip:DisableDrawLayer("BORDER")
-	tooltip.SetIgnoreParentScale = noop
-	tooltip.SetScale = noop
+
+	-- Probably taints the editmode. Everything does.
+	--tooltip.SetIgnoreParentScale = noop
+	--tooltip.SetScale = noop
 
 	-- Don't want or need the extra padding here,
 	-- as our current borders do not require them.
@@ -149,7 +151,18 @@ Tooltips.SetBackdropStyle = function(self, tooltip)
 		-- Currently the only one we know of that needs tweaking, is the aforementioned.
 		if (tooltip.SetPadding) then
 			tooltip:SetPadding(0, 0, 0, 0)
-			tooltip.SetPadding = noop
+
+			-- Don't replace method. In case editmode.
+			hooksecurefunc(tooltip, "SetPadding", function(self, ...)
+				local padding = 0
+				for i = 1, select("#", ...) do
+					padding = padding + tonumber((select(i, ...))) or 0
+				end
+				if (padding < .1) then
+					return
+				end
+				self:SetPadding(0, 0, 0, 0)
+			end)
 		end
 	end
 
