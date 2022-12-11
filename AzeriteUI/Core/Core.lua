@@ -105,7 +105,7 @@ local InCombatLockdown = InCombatLockdown
 local LoadAddOn = LoadAddOn
 local ReloadUI = ReloadUI
 
--- Private API
+-- Addon API
 local IsAddOnAvailable = ns.API.IsAddOnAvailable
 local SetRelativeScale = ns.API.SetRelativeScale
 local UpdateObjectScales = ns.API.UpdateObjectScales
