@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file. Be aware th
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased] 2022-12-11
+### Changed
+- Increased the size of most tooltips by roughly ten percent, to make font sizes more on par with the rest of the on-screen text in the user interface.
+
 ## [4.0.24-Release] 2022-12-11
 ### Changed
 - Increased the allowed scale range with `/setscale`. Was *(n = [0.75 to 1.25])*, now is *(n = [0.5 to 1.5])*.
