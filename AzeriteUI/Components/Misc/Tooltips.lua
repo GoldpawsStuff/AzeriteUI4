@@ -133,7 +133,7 @@ end })
 Tooltips.SetBackdropStyle = function(self, tooltip)
 	if (not tooltip) or (tooltip.IsEmbedded) or (tooltip:IsForbidden()) then return end
 
-	SetObjectScale(tooltip)
+	SetObjectScale(tooltip, 1.1)
 
 	tooltip:DisableDrawLayer("BACKGROUND")
 	tooltip:DisableDrawLayer("BORDER")
