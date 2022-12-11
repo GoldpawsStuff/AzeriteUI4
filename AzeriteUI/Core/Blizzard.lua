@@ -43,6 +43,7 @@ local SetActionBarToggles = SetActionBarToggles
 local CHAT_FRAMES = CHAT_FRAMES
 
 -- Addon API
+local IsAddOnEnabled = ns.API.IsAddOnEnabled
 local KillEditMode = ns.API.KillEditMode
 local UIHider = ns.Hider
 local noop = ns.Noop
@@ -283,82 +284,84 @@ BlizzKill.KillActionBars = function(self)
 
 	end
 
-	-- Attempt to hook the bag bar to the bags
-	-- Retrieve the first slot button and the backpack
-	local backpack = ContainerFrame1
-	local firstSlot = CharacterBag0Slot
-	local reagentSlot = CharacterReagentBag0Slot
+	if (not IsAddOnEnabled("Bagnon") and not IsAddOnEnabled("ArkInventory")) then
+		-- Attempt to hook the bag bar to the bags
+		-- Retrieve the first slot button and the backpack
+		local backpack = ContainerFrame1
+		local firstSlot = CharacterBag0Slot
+		local reagentSlot = CharacterReagentBag0Slot
 
-	-- Try to avoid the potential error with Shadowlands anima deposit animations.
-	-- Just give it a simplified version of the default position it is given,
-	-- it will be replaced by UpdateContainerFrameAnchors() later on anyway.
-	if (backpack and not backpack:GetPoint()) then
-		backpack:SetPoint("BOTTOMRIGHT", backpack:GetParent(), "BOTTOMRIGHT", -14, 93 )
-	end
-
-	-- These should always exist, but Blizz do have a way of changing things,
-	-- and I prefer having functionality not be applied in a future update
-	-- rather than having the UI break from nil bugs.
-	if (firstSlot and backpack) then
-		firstSlot:ClearAllPoints()
-		firstSlot:SetPoint("TOPRIGHT", backpack, "BOTTOMRIGHT", -6, 0)
-
-		local strata = backpack:GetFrameStrata()
-		local level = backpack:GetFrameLevel()
-
-		-- Rearrange slots
-		-- *Dragonflight features a reagent bag slot
-		local slotSize = reagentSlot and 24 or 30
-		local previous
-		for _,slotName in ipairs({
-			"CharacterBag0Slot",
-			"CharacterBag1Slot",
-			"CharacterBag2Slot",
-			"CharacterBag3Slot",
-			"CharacterReagentBag0Slot"
-		}) do
-
-			-- Always check for existence,
-			-- because nothing is ever guaranteed.
-			local slot = _G[slotName]
-			if (slot) then
-				slot:SetParent(backpack)
-				slot:SetSize(slotSize,slotSize)
-				slot:SetFrameStrata(strata)
-				slot:SetFrameLevel(level)
-				if (slot.SetBarExpanded) then
-					slot.SetBarExpanded = noop
-				end
-
-				-- Remove that fugly outer border
-				local tex = _G[slotName.."NormalTexture"]
-				if (tex) then
-					tex:SetTexture("")
-					tex:SetAlpha(0)
-				end
-
-				-- Re-anchor the slots to remove space
-				if (not previous) then
-					slot:ClearAllPoints()
-					slot:SetPoint("TOPRIGHT", backpack, "BOTTOMRIGHT", -6, 4)
-				else
-					slot:ClearAllPoints()
-					slot:SetPoint("RIGHT", previous, "LEFT", 0, 0)
-				end
-
-				previous = slot
-			end
+		-- Try to avoid the potential error with Shadowlands anima deposit animations.
+		-- Just give it a simplified version of the default position it is given,
+		-- it will be replaced by UpdateContainerFrameAnchors() later on anyway.
+		if (backpack and not backpack:GetPoint()) then
+			backpack:SetPoint("BOTTOMRIGHT", backpack:GetParent(), "BOTTOMRIGHT", -14, 93 )
 		end
 
-		local keyring = KeyRingButton
-		if (keyring) then
-			keyring:SetParent(backpack)
-			keyring:SetHeight(slotSize)
-			keyring:SetFrameStrata(strata)
-			keyring:SetFrameLevel(level)
-			keyring:ClearAllPoints()
-			keyring:SetPoint("RIGHT", previous, "LEFT", 0, 0)
-			previous = keyring
+		-- These should always exist, but Blizz do have a way of changing things,
+		-- and I prefer having functionality not be applied in a future update
+		-- rather than having the UI break from nil bugs.
+		if (firstSlot and backpack) then
+			firstSlot:ClearAllPoints()
+			firstSlot:SetPoint("TOPRIGHT", backpack, "BOTTOMRIGHT", -6, 0)
+
+			local strata = backpack:GetFrameStrata()
+			local level = backpack:GetFrameLevel()
+
+			-- Rearrange slots
+			-- *Dragonflight features a reagent bag slot
+			local slotSize = reagentSlot and 24 or 30
+			local previous
+			for _,slotName in ipairs({
+				"CharacterBag0Slot",
+				"CharacterBag1Slot",
+				"CharacterBag2Slot",
+				"CharacterBag3Slot",
+				"CharacterReagentBag0Slot"
+			}) do
+
+				-- Always check for existence,
+				-- because nothing is ever guaranteed.
+				local slot = _G[slotName]
+				if (slot) then
+					slot:SetParent(backpack)
+					slot:SetSize(slotSize,slotSize)
+					slot:SetFrameStrata(strata)
+					slot:SetFrameLevel(level)
+					if (slot.SetBarExpanded) then
+						slot.SetBarExpanded = noop
+					end
+
+					-- Remove that fugly outer border
+					local tex = _G[slotName.."NormalTexture"]
+					if (tex) then
+						tex:SetTexture("")
+						tex:SetAlpha(0)
+					end
+
+					-- Re-anchor the slots to remove space
+					if (not previous) then
+						slot:ClearAllPoints()
+						slot:SetPoint("TOPRIGHT", backpack, "BOTTOMRIGHT", -6, 4)
+					else
+						slot:ClearAllPoints()
+						slot:SetPoint("RIGHT", previous, "LEFT", 0, 0)
+					end
+
+					previous = slot
+				end
+			end
+
+			local keyring = KeyRingButton
+			if (keyring) then
+				keyring:SetParent(backpack)
+				keyring:SetHeight(slotSize)
+				keyring:SetFrameStrata(strata)
+				keyring:SetFrameLevel(level)
+				keyring:ClearAllPoints()
+				keyring:SetPoint("RIGHT", previous, "LEFT", 0, 0)
+				previous = keyring
+			end
 		end
 	end
 

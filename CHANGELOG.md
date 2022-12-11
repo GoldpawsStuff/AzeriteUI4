@@ -4,9 +4,13 @@ All notable changes to this project will be documented in this file. Be aware th
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased] 2022-12-10
+## [4.0.24-Release] 2022-12-11
 ### Changed
 - Increased the allowed scale range with `/setscale`. Was *(n = [0.75 to 1.25])*, now is *(n = [0.5 to 1.5])*.
+
+### Fixed
+- The minimap shouldn't require a position reset to return to where it lives anymore.
+- The editmode files will no longer wrongfully attempt to load themselves in wrath. Bad editmode files! Bad!
 
 ## [4.0.23-Release] 2022-12-10
 ### Changed

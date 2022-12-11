@@ -76,7 +76,7 @@ Anchor.Create = function(self, frame, savedPosition, ...)
 	-- Populate the saved position table if it's empty,
 	-- to avoid bugs if the calling module tries to
 	-- manually position the element using it.
-	if (not next(savedPosition)) then
+	if (savedPosition and not next(savedPosition)) then
 		local parsed = { GetPosition(frame) }
 		for i,j in ipairs(parsed) do
 			savedPosition[i] = j

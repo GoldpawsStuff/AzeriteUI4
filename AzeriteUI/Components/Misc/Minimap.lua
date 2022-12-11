@@ -374,7 +374,7 @@ MinimapMod.UpdatePosition = function(self)
 	local db = ns.Config.Minimap
 	Minimap:SetParent(PetHider)
 	Minimap:ClearAllPoints()
-	Minimap:SetPoint(unpack(ns.db.global.minimap.storedFrames.Minimap or db.Position))
+	Minimap:SetPoint(unpack(ns.db.global.minimap.storedPosition or db.Position))
 	Minimap:SetMovable(true)
 end
 
@@ -632,9 +632,29 @@ MinimapMod.StyleMinimap = function(self)
 
 	end
 
-	-- Movable frame
-	local db = ns.db.global.minimap.storedFrames
-	db.Minimap = RegisterFrameForMovement(Minimap, db.Minimap, ns.Config.Minimap.Size[1], ns.Config.Minimap.Size[2], "Minimap")
+	-- Movable Frame
+	--------------------------------------------------------
+	-- Let's use a fake anchor for this since the minimap
+	-- refuses to stay in one spot until various events are loaded,
+	-- and this seriously messes with our default positioning.
+	local anchor = SetObjectScale(CreateFrame("Frame", nil, UIParent))
+	anchor:SetPoint(unpack(db.Position))
+	anchor:SetSize(unpack(db.Size))
+
+	-- This is called by the movable frame widget.
+	anchor.PostUpdateAnchoring = function(self, width, height, ...)
+		if (InCombatLockdown()) then return end
+		local db = ns.db.global.minimap
+		if (db.storedPosition) then
+			local point, x, y = unpack(db.storedPosition)
+			Minimap:ClearAllPoints()
+			Minimap:SetPoint(point, UIParent, point, x, y)
+		end
+	end
+
+	local db = ns.db.global.minimap
+	db.storedFrames = nil -- reset the faulty setting from previous builds
+	db.storedPosition = RegisterFrameForMovement(anchor, db.storedPosition, nil, nil, "Minimap")
 
 end
 

@@ -29,6 +29,7 @@ ns.API = API
 
 if (not EditModeManagerFrame) then
 	API.KillEditMode = function() end
+	return
 end
 
 local noop = function() end
