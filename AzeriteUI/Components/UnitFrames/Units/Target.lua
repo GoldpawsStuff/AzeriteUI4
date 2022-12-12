@@ -587,6 +587,7 @@ UnitStyles["Target"] = function(self, unit, id)
 	self:SetPoint(unpack(db.Position))
 	self:SetHitRectInsets(unpack(db.HitRectInsets))
 	self:SetFrameLevel(self:GetFrameLevel() + 2)
+	self:SetIgnoreParentAlpha(true)
 
 	-- Overlay for icons and text
 	--------------------------------------------
