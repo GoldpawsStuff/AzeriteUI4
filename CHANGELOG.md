@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased] 2022-12-11
 ### Changed
 - Increased the size of most tooltips by roughly ten percent, to make font sizes more on par with the rest of the on-screen text in the user interface.
+- The target frame can no longer forcefully be faded out by immersion.
 
 ## [4.0.24-Release] 2022-12-11
 ### Changed
