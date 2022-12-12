@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Increased the size of most tooltips by roughly ten percent, to make font sizes more on par with the rest of the on-screen text in the user interface.
 - The target frame can no longer forcefully be faded out by immersion.
 
+### Fixed
+- The plus icon for MBB users have come out of hiding.
+
 ## [4.0.24-Release] 2022-12-11
 ### Changed
 - Increased the allowed scale range with `/setscale`. Was *(n = [0.75 to 1.25])*, now is *(n = [0.5 to 1.5])*.
