@@ -255,7 +255,8 @@ ns.OnInitialize = function(self)
 	-- Fully experimental
 	self:RegisterChatCommand("setscale", "SetScale")
 	self:RegisterChatCommand("resetscale", "ResetScale")
-	self:RegisterChatCommand("lock", "LockMovableFrames")
+	--self:RegisterChatCommand("lock", "LockMovableFrames")
+	self:RegisterChatCommand("lock", "ToggleMovableFrames")
 	self:RegisterChatCommand("unlock", "UnlockMovableFrames")
 	self:RegisterChatCommand("togglelock", "ToggleMovableFrames")
 
