@@ -41,6 +41,7 @@ local GetFont = ns.API.GetFont
 local GetMedia = ns.API.GetMedia
 local SetObjectScale = ns.API.SetObjectScale
 local IsAddOnEnabled = ns.API.IsAddOnEnabled
+local RegisterFrameForMovement = ns.Widgets.RegisterFrameForMovement
 local UIHider = ns.Hider
 local noop = ns.Noop
 
@@ -189,8 +190,8 @@ Tracker.InitializeWatchFrame = function(self)
 	hooksecurefunc("WatchFrameItem_OnShow", UpdateQuestItemButton)
 
 	-- Movable frame
-	local db = ns.db.global.tracker.storedFrames
-	db.Tracker = RegisterFrameForMovement(self.holder, db.Tracker, 306, ns.Config.Tracker.TrackerHeight, "Tracker")
+	--local db = ns.db.global.tracker.storedFrames
+	--db.Tracker = RegisterFrameForMovement(self.holder, db.Tracker, 306, ns.Config.Tracker.TrackerHeight, "Tracker")
 
 	self:UpdateWatchFrame()
 end
