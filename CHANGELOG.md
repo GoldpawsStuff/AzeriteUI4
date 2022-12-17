@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file. Be aware th
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [4.0.26-Release] 2022-12-17
+- This update is for Wrath only.
+
+### Added
+- The Wrath quest tracker is now movable as intended.
+
+### Changed
+- The command `/lock` now will toggle movable frame anchors, not just hide them. Reason? It's shorter and easier to write than the other commands.
+
 ## [4.0.25-Release] 2022-12-17
 - This update is for Wrath only.
 
