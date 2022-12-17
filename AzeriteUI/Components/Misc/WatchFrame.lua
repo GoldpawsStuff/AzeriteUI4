@@ -190,8 +190,8 @@ Tracker.InitializeWatchFrame = function(self)
 	hooksecurefunc("WatchFrameItem_OnShow", UpdateQuestItemButton)
 
 	-- Movable frame
-	--local db = ns.db.global.tracker.storedFrames
-	--db.Tracker = RegisterFrameForMovement(self.holder, db.Tracker, 306, ns.Config.Tracker.TrackerHeight, "Tracker")
+	local db = ns.db.global.tracker.storedFrames
+	db.Tracker = RegisterFrameForMovement(self.holder, db.Tracker, 306, ns.Config.Tracker.TrackerHeight, "Tracker")
 
 	self:UpdateWatchFrame()
 end
