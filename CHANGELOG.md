@@ -4,7 +4,9 @@ All notable changes to this project will be documented in this file. Be aware th
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased] 2022-12-11
+## [4.0.25-Release] 2022-12-17
+- This update is for Wrath only.
+
 ### Changed
 - Increased the size of most tooltips by roughly ten percent, to make font sizes more on par with the rest of the on-screen text in the user interface.
 - The target frame can no longer forcefully be faded out by immersion.
