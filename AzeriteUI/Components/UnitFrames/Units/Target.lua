@@ -455,7 +455,7 @@ local UnitFrame_UpdateTextures = function(self)
 		elseif (UnitCreatureType("target") == "Critter") or (level == 1 and UnitHealthMax(unit) < 30) then
 			key = "Critter"
 		else
-			key = IsLevelAtEffectiveMaxLevel(level) and "Seasoned" or level < hardenedLevel and "Novice" or "Hardened"
+			key = (level < 1 or IsLevelAtEffectiveMaxLevel(level)) and "Seasoned" or level < 10 and "Novice" or "Hardened"
 		end
 	end
 
