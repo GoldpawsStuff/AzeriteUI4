@@ -4,9 +4,11 @@ All notable changes to this project will be documented in this file. Be aware th
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [4.0.26-Release] 2022-12-17
-- This update is for Wrath only.
+## [4.0.27-Release] 2022-12-20
+### Fixed
+- Bosses should no longer sometimes get a wooden target frame.
 
+## [4.0.26-Release] 2022-12-17
 ### Added
 - The Wrath quest tracker is now movable as intended.
 
@@ -14,8 +16,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - The command `/lock` now will toggle movable frame anchors, not just hide them. Reason? It's shorter and easier to write than the other commands.
 
 ## [4.0.25-Release] 2022-12-17
-- This update is for Wrath only.
-
 ### Changed
 - Increased the size of most tooltips by roughly ten percent, to make font sizes more on par with the rest of the on-screen text in the user interface.
 - The target frame can no longer forcefully be faded out by immersion.
