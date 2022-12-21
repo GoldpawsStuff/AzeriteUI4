@@ -3,16 +3,12 @@
 [![discord](https://www.goldpawsstuff.com/shared/img/common/dd-button.png)](https://discord.gg/MUSfWXd)
 [![twitter](https://www.goldpawsstuff.com/shared/img/common/tw-button.png)](https://twitter.com/GoldpawsStuff)
 
-Work in progress. You probably have questions. I'll answer a few:
+AzeriteUI4 is a custom user interface for World of Warcraft Wrath of the Lich King Classic. Issues related to the retail version can be reported and discussed at [github.com/GoldpawsStuff/AzeriteUI5](https://github.com/GoldpawsStuff/AzeriteUI5).
 
-- No, there won't be a garrison/order hall/covenant/dragon thingie button on the minimap.
-- Yes, you can middle-click the minimap to open the garrison/order hall/covenant/dragon thingie window.
-- Yes, I killed the EditMode on purpose.
-- Yes, the chat frames will be made movable in retail too.
+## FAQ
 - Yes, I plan to make a config menu instead of these chat commands.
 - Yes, the config menu will allow you to manually disable nearly every module in the UI.
 - Yes, I will be making raid- and arena frames.
-- No, I will not be adding `/go legacy`for the alternate theme. If anything I'll release a version of that as another standalone UI. But I will no longer attempt to integrate multiple UIs into a single addon.
 - Yes, I do accept donations and will love you for it. Links above.
 
 ## Chat Commands
