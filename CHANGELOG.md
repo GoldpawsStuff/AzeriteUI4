@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file. Be aware th
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [4.0.28-Release] 2022-12-29
+## [4.0.28-Release] 2022-12-29 (Wrath)
 ### Changed
 - Removed a lot of redundant retail code.
 
@@ -12,11 +12,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Fixed an issue that would cause the XP- and Reputation percentages on the minimap toggle button to never show up.
 - Fixed an issue that would prevent the minimap ring bar from ever showing when Reputation was currently tracked.
 
-## [4.0.27-Release] 2022-12-20
+## [4.0.27-Release] 2022-12-20 (Wrath)
 ### Fixed
 - Bosses should no longer sometimes get a wooden target frame.
 
-## [4.0.26-Release] 2022-12-17
+## [4.0.26-Release] 2022-12-17 (Wrath)
 ### Added
 - The Wrath quest tracker is now movable as intended.
 
