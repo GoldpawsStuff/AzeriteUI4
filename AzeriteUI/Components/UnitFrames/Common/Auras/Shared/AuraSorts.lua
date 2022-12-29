@@ -104,7 +104,7 @@ local Aura_Sort_Classic = function(a, b)
 	end
 end
 
-ns.AuraSorts.DefaultFunction = ns.IsRetail and Aura_Sort or Aura_Sort_Classic
+ns.AuraSorts.DefaultFunction = Aura_Sort_Classic
 ns.AuraSorts.Default = function(element, max)
 	table_sort(element, ns.AuraSorts.DefaultFunction)
 	return 1, #element

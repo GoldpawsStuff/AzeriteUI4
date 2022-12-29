@@ -59,7 +59,7 @@ local IsAddOnEnabled = ns.API.IsAddOnEnabled
 -- Constants
 local IsLoveFestival = ns.API.IsLoveFestival()
 local playerLevel = UnitLevel("player")
-local hardenedLevel = ns.IsRetail and 10 or ns.IsClassic and 40 or 30
+local hardenedLevel = 30
 
 -- Utility Functions
 --------------------------------------------
@@ -417,13 +417,6 @@ local PvPIndicator_Override = function(self, event, unit)
 	if (factionGroup ~= "Neutral") then
 		if (UnitIsPVPFreeForAll(unit)) then
 		elseif (UnitIsPVP(unit)) then
-			if (ns.IsRetail and UnitIsMercenary(unit)) then
-				if (factionGroup == "Horde") then
-					factionGroup = "Alliance"
-				elseif (factionGroup == "Alliance") then
-					factionGroup = "Horde"
-				end
-			end
 			status = factionGroup
 		end
 	end
@@ -693,11 +686,7 @@ UnitStyles["Target"] = function(self, unit, id)
 	healthValue:SetTextColor(unpack(db.HealthValueColor))
 	healthValue:SetJustifyH(db.HealthValueJustifyH)
 	healthValue:SetJustifyV(db.HealthValueJustifyV)
-	if (ns.IsRetail) then
-		self:Tag(healthValue, prefix("[*:Health]  [*:Absorb]"))
-	else
-		self:Tag(healthValue, prefix("[*:Health]"))
-	end
+	self:Tag(healthValue, prefix("[*:Health]"))
 
 	self.Health.Value = healthValue
 
@@ -712,16 +701,6 @@ UnitStyles["Target"] = function(self, unit, id)
 	self:Tag(healthPerc, prefix("[*:HealthPercent]"))
 
 	self.Health.Percent = healthPerc
-
-	-- Absorb Bar (Retail)
-	--------------------------------------------
-	if (ns.IsRetail) then
-		local absorb = self:CreateBar()
-		absorb:SetAllPoints(health)
-		absorb:SetFrameLevel(health:GetFrameLevel() + 3)
-
-		self.Health.Absorb = absorb
-	end
 
 	-- Portrait
 	--------------------------------------------

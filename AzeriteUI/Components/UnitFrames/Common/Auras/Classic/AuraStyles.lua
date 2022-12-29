@@ -24,9 +24,6 @@
 
 --]]
 local Addon, ns = ...
-if (ns.IsRetail) then
-	return
-end
 ns.AuraStyles = ns.AuraStyles or {}
 
 -- Addon API

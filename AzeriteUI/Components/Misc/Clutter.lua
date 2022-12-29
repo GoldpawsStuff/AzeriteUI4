@@ -269,50 +269,6 @@ Clutter.HandleMessageFrames = function(self)
 
 end
 
-Clutter.HandleArcheologyBar = function(self, event, ...)
-	-- Archeology was added in Cataclysm.
-	if (not ns.IsRetail) then
-		return
-	end
-
-	if (event == "ADDON_LOADED") then
-		local addon = ...
-		if (addon ~= "Blizzard_ArchaeologyUI") then
-			return
-		end
-		self:UnregisterEvent("ADDON_LOADED", "HandleArcheologyBar")
-	end
-
-	local bar = ArcheologyDigsiteProgressBar
-	if (not bar) then
-		return self:RegisterEvent("ADDON_LOADED", "HandleArcheologyBar")
-	end
-
-	local db = ns.Config.Clutter
-
-	bar:ClearAllPoints()
-	bar:SetPoint(unpack(db.ArcheologyDigsiteProgressBarPosition))
-end
-
-Clutter.HandleVehicleSeatIndicator = function(self)
-	-- No vehicle seat indicator in Wrath yet,
-	-- or at least not under this name.
-	if (not ns.IsRetail) then
-		return
-	end
-
-	local db = ns.Config.Clutter
-
-	local VehicleSeatIndicator = SetObjectScale(_G.VehicleSeatIndicator)
-	VehicleSeatIndicator:SetParent(UIParent)
-	VehicleSeatIndicator:SetFrameStrata("BACKGROUND")
-	VehicleSeatIndicator:ClearAllPoints()
-	VehicleSeatIndicator:SetPoint(unpack(db.VehicleSeatIndicatorPosition))
-
-	-- This will block UIParent_ManageFramePositions() from being executed
-	VehicleSeatIndicator.IsShown = function() return false end
-end
-
 Clutter.OnEvent = function(self, event, ...)
 	if (event == "UI_ERROR_MESSAGE") then
 		local messageType, msg = ...
@@ -354,7 +310,5 @@ end
 Clutter.OnInitialize = function(self)
 	self:HandleBelowMinimapWidgets()
 	self:HandleTopCenterWidgets()
-	self:HandleArcheologyBar()
-	self:HandleVehicleSeatIndicator()
 	self:HandleMessageFrames()
 end

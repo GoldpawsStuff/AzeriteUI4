@@ -90,12 +90,7 @@ VehicleExit.OnInitialize = function(self)
 	button:SetScript("OnEnter", ExitButton_OnEnter)
 	button:SetScript("OnLeave", ExitButton_OnLeave)
 	button:SetScript("PostClick", ExitButton_PostClick)
-
-	if (ns.IsRetail) then
-		button:SetAttribute("macrotext", "/leavevehicle [@vehicle,canexitvehicle]\n/dismount [mounted]")
-	else
-		button:SetAttribute("macrotext", "/dismount [mounted]\n/run if CanExitVehicle() then VehicleExit() end")
-	end
+	button:SetAttribute("macrotext", "/dismount [mounted]\n/run if CanExitVehicle() then VehicleExit() end")
 
 	RegisterStateDriver(button, "visibility", "[@vehicle,canexitvehicle][possessbar][mounted]show;hide")
 

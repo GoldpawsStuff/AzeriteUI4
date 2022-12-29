@@ -138,9 +138,7 @@ ChatBubbles.HideBlizzardBubble = function(self, bubble)
 	customBubble.blizzardText:SetAlpha(0)
 
 	for region,texture in next,customBubble.blizzardRegions do
-		if (not ns.IsRetail) then
-			region:SetTexture(nil)
-		end
+		region:SetTexture(nil)
 		region:SetAlpha(0)
 	end
 

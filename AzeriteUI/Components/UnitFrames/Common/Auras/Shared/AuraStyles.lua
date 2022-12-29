@@ -33,15 +33,7 @@ local GetMedia = ns.API.GetMedia
 
 local UpdateTooltip = function(self)
 	if (GameTooltip:IsForbidden()) then return end
-	if (not ns.IsRetail) then
-		GameTooltip:SetUnitAura(self:GetParent().__owner.unit, self:GetID(), self.filter)
-	else
-		if (self.isHarmful) then
-			GameTooltip:SetUnitDebuffByAuraInstanceID(self:GetParent().__owner.unit, self.auraInstanceID)
-		else
-			GameTooltip:SetUnitBuffByAuraInstanceID(self:GetParent().__owner.unit, self.auraInstanceID)
-		end
-	end
+	GameTooltip:SetUnitAura(self:GetParent().__owner.unit, self:GetID(), self.filter)
 end
 
 local OnEnter = function(self)

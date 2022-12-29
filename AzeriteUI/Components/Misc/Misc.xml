@@ -5,8 +5,6 @@
 	<Script file="ChatBubbles.lua"/>
 	<Script file="Clutter.lua"/>
 	<Script file="Minimap.lua"/>
-	<Script file="ObjectivesTracker.lua"/>
-	<Script file="TalkingHead.lua"/>
 	<Script file="Timers.lua"/>
 	<Script file="Tooltips.lua"/>
 	<Script file="WatchFrame.lua"/>

@@ -53,7 +53,6 @@ local UIFrameFadeRemoveFrame = UIFrameFadeRemoveFrame
 local GetFont = ns.API.GetFont
 local GetPosition = ns.API.GetPosition
 local IsAddOnEnabled = ns.API.IsAddOnEnabled
-local KillEditMode = ns.API.KillEditMode
 local SetObjectScale = ns.API.SetObjectScale
 local UIHider = ns.Hider
 
@@ -310,7 +309,6 @@ ChatFrames.StyleFrame = function(self, frame)
 	end
 
 	SetObjectScale(frame)
-	KillEditMode(frame)
 
 	-- Kill frame textures.
 	for tex in frame:GetFrameTextures() do
@@ -387,21 +385,12 @@ ChatFrames.SetChatFramePosition = function(self, frame)
 	local id = frame:GetID()
 
 	if (id == 1) then
-		if (not ns.IsRetail) then
-			frame.ignoreFramePositionManager = true
-		end
+		frame.ignoreFramePositionManager = true
 
 		frame:SetUserPlaced(false)
 		frame:SetSize(self:GetDefaultChatFrameSize())
 		frame:ClearAllPoints()
 		frame:SetPoint(self:GetDefaultChatFramePosition())
-
-		if (ns.IsRetail) then
-			hooksecurefunc(frame, "SetPoint", function(frame)
-				frame:ClearAllPoints()
-				frame:SetPointBase(self:GetDefaultChatFramePosition())
-			end)
-		end
 
 	else
 		-- add back code to fix scale and positions of other frames here. Ignore for now.
@@ -550,17 +539,9 @@ ChatFrames.OnEvent = function(self, event, ...)
 			self:SecureHook("FCF_OpenTemporaryWindow", "StyleTempFrame")
 			self:ScheduleRepeatingTimer("UpdateClutter", 1/10)
 
-			if (ns.IsRetail) then
-				QuickJoinToastButton:UnregisterAllEvents()
-				QuickJoinToastButton:SetParent(UIHider)
-				QuickJoinToastButton:Hide()
-			end
-
-			if (not ns.IsRetail) then
-				self:RegisterEvent("UPDATE_FLOATING_CHAT_WINDOWS", "OnEvent")
-				self:RegisterEvent("UPDATE_CHAT_WINDOWS", "OnEvent")
-				self:RegisterEvent("VARIABLES_LOADED", "OnEvent")
-			end
+			self:RegisterEvent("UPDATE_FLOATING_CHAT_WINDOWS", "OnEvent")
+			self:RegisterEvent("UPDATE_CHAT_WINDOWS", "OnEvent")
+			self:RegisterEvent("VARIABLES_LOADED", "OnEvent")
 
 			ChatFrame1:Clear()
 		end

@@ -24,30 +24,16 @@
 
 --]]
 local Addon, ns = ...
-if (not ns.IsRetail) then
-	return
-end
+local Config = ns.Config or {}
+ns.Config = Config
 
-local UnitFrames = ns:GetModule("UnitFrames", true)
-if (not UnitFrames) then return end
+Config.AlertFrames = {
 
-local Blizzard = UnitFrames:NewModule("Blizzard", "LibMoreEvents-1.0")
+	AlertFramesPosition = { "TOP", UIParent, "TOP", 0, -40 },
+	AlertFramesSize = { 180, 20 },
 
--- Addon API
-local KillEditMode = ns.API.KillEditMode
-local UIHider = ns.Hider
+	AlertFramesPoint = "TOP",
+	AlertFramesRelativePoint = "BOTTOM",
+	AlertFramesOffsetY = -10
 
-Blizzard.DisableBlizzard = function(self)
-	if (PlayerPowerBarAlt) then
-		PlayerPowerBarAlt:UnregisterEvent("UNIT_POWER_BAR_SHOW")
-		PlayerPowerBarAlt:UnregisterEvent("UNIT_POWER_BAR_HIDE")
-		PlayerPowerBarAlt:UnregisterEvent("PLAYER_ENTERING_WORLD")
-	end
-	if (EncounterBar) then
-		KillEditMode(EncounterBar)
-	end
-end
-
-Blizzard.OnEnable = function(self)
-	self:DisableBlizzard()
-end
+}

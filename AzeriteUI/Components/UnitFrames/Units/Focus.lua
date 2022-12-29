@@ -345,31 +345,6 @@ UnitStyles["Focus"] = function(self, unit, id)
 
 	self.Name = name
 
-	-- Absorb Bar (Retail)
-	--------------------------------------------
-	if (ns.IsRetail) then
-		local absorb = self:CreateBar()
-		absorb:SetAllPoints(health)
-		absorb:SetFrameLevel(health:GetFrameLevel() + 3)
-		absorb:SetStatusBarTexture(db.HealthBarTexture)
-		absorb:SetStatusBarColor(unpack(db.HealthAbsorbColor))
-		absorb:SetSparkMap(db.HealthBarSparkMap)
-
-		local orientation
-		if (db.HealthBarOrientation == "UP") then
-			orientation = "DOWN"
-		elseif (db.HealthBarOrientation == "DOWN") then
-			orientation = "UP"
-		elseif (db.HealthBarOrientation == "LEFT") then
-			orientation = "RIGHT"
-		else
-			orientation = "LEFT"
-		end
-		absorb:SetOrientation(orientation)
-
-		self.Health.Absorb = absorb
-	end
-
 	-- Target Highlight
 	--------------------------------------------
 	local targetHighlight = overlay:CreateTexture(nil, "BACKGROUND", nil, -2)

@@ -110,7 +110,6 @@ local style = function(button)
 	icon:ClearAllPoints()
 	icon:SetPoint(unpack(db.ButtonIconPosition))
 	icon:SetSize(unpack(db.ButtonIconSize))
-	if (ns.IsRetail) then icon:RemoveMaskTexture(button.IconMask) end
 	icon:SetMask(m)
 
 	-- Custom icon darkener
@@ -221,11 +220,9 @@ local style = function(button)
 	hooksecurefunc(cooldown, "SetHideCountdownNumbers", function(c,h) if not h then c:SetHideCountdownNumbers(true) end end)
 	hooksecurefunc(cooldown, "SetCooldown", function(c) c:SetAlpha(.75) end)
 
-	if (not ns.IsRetail) then
-		hooksecurefunc(button, "SetNormalTexture", function(b,...) if(...~="")then b:SetNormalTexture("") end end)
-		hooksecurefunc(button, "SetHighlightTexture", function(b,...) if(...~="")then b:SetHighlightTexture("") end end)
-		hooksecurefunc(button, "SetCheckedTexture", function(b,...) if(...~="")then b:SetCheckedTexture("") end end)
-	end
+	hooksecurefunc(button, "SetNormalTexture", function(b,...) if(...~="")then b:SetNormalTexture("") end end)
+	hooksecurefunc(button, "SetHighlightTexture", function(b,...) if(...~="")then b:SetHighlightTexture("") end end)
+	hooksecurefunc(button, "SetCheckedTexture", function(b,...) if(...~="")then b:SetCheckedTexture("") end end)
 
 	-- Disable masque for our buttons,
 	-- they are not compatible.

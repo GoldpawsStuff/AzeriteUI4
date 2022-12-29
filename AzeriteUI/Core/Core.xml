@@ -31,7 +31,6 @@
 	<Script file="Widgets\MovableFrames.lua"/>
 
 	<!-- Core -->
-	<Script file="EditMode.lua"/>
 	<Script file="Core.lua"/>
 	<Script file="Blizzard.lua"/>
 	<Script file="Development.lua"/>

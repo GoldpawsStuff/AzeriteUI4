@@ -24,9 +24,6 @@
 
 --]]
 local Addon, ns = ...
-if (ns.IsRetail) then
-	return
-end
 ns.AuraFilters = ns.AuraFilters or {}
 
 ns.AuraFilters.PlayerAuraFilter = function(element, unit, button, name, texture,

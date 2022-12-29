@@ -59,7 +59,7 @@ local IsWinterVeil = ns.API.IsWinterVeil()
 local playerClass = ns.PlayerClass
 local playerLevel = UnitLevel("player")
 local playerXPDisabled = IsXPUserDisabled()
-local hardenedLevel = ns.IsRetail and 10 or ns.IsClassic and 40 or 30
+local hardenedLevel = 30
 
 -- sourced from FrameXML/UnitPowerBarAlt.lua
 local ALTERNATE_POWER_INDEX = Enum.PowerType.Alternate or 10
@@ -343,13 +343,6 @@ local PvPIndicator_Override = function(self, event, unit)
 	if (factionGroup ~= "Neutral") then
 		if (UnitIsPVPFreeForAll(unit)) then
 		elseif (UnitIsPVP(unit)) then
-			if (ns.IsRetail and unit == "player" and UnitIsMercenary(unit)) then
-				if (factionGroup == "Horde") then
-					factionGroup = "Alliance"
-				elseif (factionGroup == "Alliance") then
-					factionGroup = "Horde"
-				end
-			end
 			status = factionGroup
 		end
 	end
@@ -603,23 +596,9 @@ UnitStyles["Player"] = function(self, unit, id)
 	healthValue:SetTextColor(unpack(db.HealthValueColor))
 	healthValue:SetJustifyH(db.HealthValueJustifyH)
 	healthValue:SetJustifyV(db.HealthValueJustifyV)
-	if (ns.IsRetail) then
-		self:Tag(healthValue, prefix("[*:Health]  [*:Absorb]"))
-	else
-		self:Tag(healthValue, prefix("[*:Health]"))
-	end
+	self:Tag(healthValue, prefix("[*:Health]"))
 
 	self.Health.Value = healthValue
-
-	-- Absorb Bar (Retail)
-	--------------------------------------------
-	if (ns.IsRetail) then
-		local absorb = self:CreateBar()
-		absorb:SetAllPoints(health)
-		absorb:SetFrameLevel(health:GetFrameLevel() + 3)
-
-		self.Health.Absorb = absorb
-	end
 
 	-- Power Crystal
 	--------------------------------------------
@@ -631,7 +610,7 @@ UnitStyles["Player"] = function(self, unit, id)
 	self.Power = power
 	self.Power.Override = ns.API.UpdatePower
 	self.Power.PostUpdate = Power_UpdateVisibility
-	self.Power.PostUpdateColor = ns.IsRetail and Power_PostUpdateColor
+	--self.Power.PostUpdateColor = Power_PostUpdateColor
 
 	local powerBackdrop = power:CreateTexture(nil, "BACKGROUND", nil, -2)
 	local powerCase = power:CreateTexture(nil, "ARTWORK", nil, 1)

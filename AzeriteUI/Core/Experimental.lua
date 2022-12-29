@@ -54,18 +54,3 @@ LibStub("AceConsole-3.0"):RegisterChatCommand("toggleblips", function()
 	f:SetShown(show)
 	g:SetShown(show)
 end)
-
--- Kill off the non-stop voice chat error 17 on retail.
-if (ns.IsRetail) then
-	if (ChannelFrame) then
-		ChannelFrame:UnregisterEvent("VOICE_CHAT_ERROR")
-	else
-		local frame = CreateFrame("Frame")
-		frame:RegisterEvent("ADDON_LOADED")
-		frame:SetScript("OnEvent", function(self, event, addon)
-			if (addon ~= "Blizzard_Channels") then return end
-			self:UnregisterEvent("ADDON_LOADED")
-			ChannelFrame:UnregisterEvent("VOICE_CHAT_ERROR")
-		end)
-	end
-end

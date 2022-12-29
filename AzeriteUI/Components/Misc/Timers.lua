@@ -90,61 +90,11 @@ Timers.UpdateMirrorTimers = function(self)
 	end
 end
 
-Timers.UpdateTimerTrackers = function(self, event, ...)
-
-	local db = ns.Config.Timers
-
-	for _,timer in pairs(TimerTracker.timerList) do
-		local bar = timer and timer.bar
-		if (bar) then
-			if (not Handled[bar]) then
-
-				SetObjectScale(timer)
-
-				for i = 1, bar:GetNumRegions() do
-					local region = select(i, bar:GetRegions())
-					if (region:GetObjectType() == "Texture") then
-						region:SetTexture(nil)
-					elseif (region:GetObjectType() == "FontString") then
-						-- Should only be one, and it's the time, not the label.
-						region:SetFontObject(db.MirrorTimerLabelFont)
-						region:SetTextColor(unpack(db.MirrorTimerLabelColor))
-						region:ClearAllPoints()
-						region:SetPoint(unpack(db.MirrorTimerLabelPosition))
-					end
-				end
-
-				bar:SetStatusBarTexture(db.MirrorTimerBarTexture)
-				bar:GetStatusBarTexture():SetDrawLayer("BORDER", 0)
-				bar:DisableDrawLayer("BACKGROUND")
-				bar:SetSize(unpack(db.MirrorTimerBarSize))
-				bar:ClearAllPoints()
-				bar:SetPoint(unpack(db.MirrorTimerBarPosition))
-
-				local backdrop = bar:CreateTexture(nil, "BACKGROUND", nil, -5)
-				backdrop:SetPoint(unpack(db.MirrorTimerBackdropPosition))
-				backdrop:SetSize(unpack(db.MirrorTimerBackdropSize))
-				backdrop:SetTexture(db.MirrorTimerBackdropTexture)
-				backdrop:SetVertexColor(unpack(db.MirrorTimerBackdropColor))
-
-				Handled[bar] = true
-			end
-			bar:SetStatusBarColor(unpack(db.MirrorTimerBarColor))
-		end
-	end
-end
-
 Timers.UpdateAll = function(self)
 	self:UpdateMirrorTimers("ForceUpdate")
-	if (ns.IsRetail) then
-		self:UpdateTimerTrackers("ForceUpdate")
-	end
 end
 
 Timers.OnInitialize = function(self)
-	if (ns.IsRetail) then
-		return self:Disable()
-	end
 
 	-- Reset scripts and events
 	for i = 1, MIRRORTIMER_NUMTIMERS do
@@ -159,11 +109,6 @@ Timers.OnInitialize = function(self)
 
 	-- Update mirror timers (breath/fatigue)
 	self:SecureHook("MirrorTimer_Show", "UpdateMirrorTimers")
-
-	-- Update timer trackers (instance/bg countdowns)
-	if (ns.IsRetail) then
-		self:RegisterEvent("START_TIMER", "UpdateTimerTrackers")
-	end
 
 	-- Update all on world entering
 	self:RegisterEvent("PLAYER_ENTERING_WORLD", "UpdateAll")

@@ -321,47 +321,11 @@ StatusBars.UpdateBars = function(self, event, ...)
 		local forced = bar.currentType ~= "reputation"
 		local gender = UnitSex("player")
 
-		-- Check for retail paragon factions
-		if (ns.IsRetail) then
-			if (factionID and IsFactionParagon(factionID)) then
-				local currentValue, threshold, _, hasRewardPending = GetFactionParagonInfo(factionID)
-				if (currentValue and threshold) then
-					min, max = 0, threshold
-					current = currentValue % threshold
-					if (hasRewardPending) then
-						current = current + threshold
-					end
-				end
-			end
-		end
-
 		-- Figure out the standingID of the watched faction
 		local standingID, standingLabel, standingDescription, isFriend, friendText
 		for i = 1, GetNumFactions() do
 			local factionName, description, standingId, barMin, barMax, barValue, atWarWith, canToggleAtWar, isHeader, isCollapsed, hasRep, isWatched, isChild, factionID, hasBonusRepGain, canBeLFGBonus = GetFactionInfo(i)
 			if (factionName == name) then
-
-				-- Check if the watched faction is a retail friendship
-				if (ns.IsRetail) then
-					local repInfo = C_GossipInfo_GetFriendshipReputation(factionID)
-					if (repInfo and repInfo.friendshipFactionID > 0) then
-						if (repInfo.friendshipFactionID) then
-							isFriend = true
-							if (repInfo.nextThreshold) then
-								min = repInfo.reactionThreshold
-								max = repInfo.nextThreshold
-								current = repInfo.standing
-							else
-								-- Make maxed friendships appear as a full bar.
-								min = 0
-								max = 1
-								current = 1
-							end
-							standingLabel = repInfo.reaction
-						end
-					end
-				end
-
 				standingDescription = description
 				standingID = standingId
 				break

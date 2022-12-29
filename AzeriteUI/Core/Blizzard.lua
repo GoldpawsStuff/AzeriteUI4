@@ -44,7 +44,6 @@ local CHAT_FRAMES = CHAT_FRAMES
 
 -- Addon API
 local IsAddOnEnabled = ns.API.IsAddOnEnabled
-local KillEditMode = ns.API.KillEditMode
 local UIHider = ns.Hider
 local noop = ns.Noop
 
@@ -293,14 +292,6 @@ end
 
 BlizzKill.KillTimerBars = function(self, event, ...)
 	local UIHider = UIHider
-	if (event == "ADDON_LOADED") then
-		local addon = ...
-		if (addon == "Blizzard_UIWidgets") then
-			self:UnregisterEvent("ADDON_LOADED", "KillTimerBars")
-			UIWidgetPowerBarContainerFrame:SetParent(UIHider)
-		end
-		return
-	end
 
 	for i = 1,MIRRORTIMER_NUMTIMERS do
 		local timer = _G["MirrorTimer"..i]
@@ -328,14 +319,6 @@ BlizzKill.KillTimerBars = function(self, event, ...)
 		end
 	end
 
-	if (ns.IsRetail) then
-		local bar = UIWidgetPowerBarContainerFrame
-		if (bar) then
-			bar:SetParent(UIHider)
-		else
-			return self:RegisterEvent("ADDON_LOADED", "KillTimerBars")
-		end
-	end
 end
 
 BlizzKill.KillTimeManager = function(self, event, ...)

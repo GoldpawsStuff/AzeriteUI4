@@ -32,7 +32,6 @@ local table_remove = table.remove
 local unpack = unpack
 
 -- Addon API
-local KillEditMode = ns.API.KillEditMode
 local SetObjectScale = ns.API.SetObjectScale
 
 local GroupLootContainer_PostUpdate = function(self)
@@ -106,7 +105,7 @@ local AlertFrame_PostUpdateAnchors = function()
 	local AlertFrameHolder = _G[ns.Prefix.."AlertFrameHolder"]
 
 	AlertFrameHolder:ClearAllPoints()
-	AlertFrameHolder:SetPoint(unpack(TalkingHeadFrame and TalkingHeadFrame:IsShown() and db.AlertFramesPositionTalkingHead or db.AlertFramesPosition))
+	AlertFrameHolder:SetPoint(unpack(db.AlertFramesPosition))
 
 	AlertFrame:ClearAllPoints()
 	AlertFrame:SetAllPoints(AlertFrameHolder)
@@ -134,26 +133,15 @@ AlertFrames.OnInitialize = function(self)
 
 	for index,alertFrameSubSystem in ipairs(AlertFrame.alertFrameSubSystems) do
 		AlertSubSystem_AdjustPosition(AlertFrame, alertFrameSubSystem)
-		if (TalkingHeadFrame and TalkingHeadFrame == alertFrameSubSystem.anchorFrame) then
-			table_remove(AlertFrame.alertFrameSubSystems, index)
-		end
 	end
 
 	local GroupLootContainer = SetObjectScale(GroupLootContainer, 1) -- might need to adjust
 	GroupLootContainer.ignoreFramePositionManager = true
 
-	if (not ns.IsRetail) then
-		UIPARENT_MANAGED_FRAME_POSITIONS["GroupLootContainer"] = nil
-	end
+	UIPARENT_MANAGED_FRAME_POSITIONS["GroupLootContainer"] = nil
 
 	hooksecurefunc(AlertFrame, "AddAlertFrameSubSystem", AlertSubSystem_AdjustPosition)
 	hooksecurefunc(AlertFrame, "UpdateAnchors", AlertFrame_PostUpdateAnchors)
 	hooksecurefunc("GroupLootContainer_Update", GroupLootContainer_PostUpdate)
-
-	if (TalkingHeadFrame) then
-		KillEditMode(TalkingHeadFrame)
-		TalkingHeadFrame:HookScript("OnShow", AlertFrame_PostUpdateAnchors)
-		TalkingHeadFrame:HookScript("OnHide", AlertFrame_PostUpdateAnchors)
-	end
 
 end

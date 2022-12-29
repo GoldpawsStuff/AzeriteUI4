@@ -24,10 +24,6 @@
 
 --]]
 local Addon, ns = ...
-if (ns.IsRetail) then
-	return
-end
-
 local Tracker = ns:NewModule("Tracker", "LibMoreEvents-1.0", "AceHook-3.0")
 
 -- WoW API

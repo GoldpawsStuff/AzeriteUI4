@@ -147,20 +147,6 @@ local UpdateUsable = function(self)
 			self.icon:SetVertexColor(unpack(buttonConfig.colors.disabled))
 		end
 	end
-
-	if (ns.IsRetail and self._state_type == "action") then
-		local isLevelLinkLocked = C_LevelLink.IsActionLocked(self._state_action)
-		if (not self.icon:IsDesaturated()) then
-			self.icon:SetDesaturated(isLevelLinkLocked)
-			if isLevelLinkLocked then
-				self.icon:SetVertexColor(unpack(buttonConfig.colors.disabled))
-			end
-		end
-		if (self.LevelLinkLockIcon) then
-			self.LevelLinkLockIcon:SetShown(isLevelLinkLocked)
-		end
-	end
-
 end
 
 ButtonMod.HandleMaxDps = function(self)

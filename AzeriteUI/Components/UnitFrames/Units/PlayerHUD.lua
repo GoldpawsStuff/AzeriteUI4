@@ -378,7 +378,7 @@ UnitStyles["PlayerHUD"] = function(self, unit, id)
 	if (not SCP) then
 
 		local classpower = CreateFrame("Frame", nil, self)
-		local maxPoints = (ns.IsRetail) and (playerClass == "MONK" or playerClass == "ROGUE") and 6 or 5
+		local maxPoints = 5
 		for i = 1,maxPoints do
 			classpower[i] = ClassPower_CreatePoint(classpower)
 		end
@@ -411,7 +411,7 @@ UnitStyles["PlayerHUD"] = function(self, unit, id)
 
 	-- Death Knight Runes
 	--------------------------------------------
-	if (playerClass == "DEATHKNIGHT") and (ns.IsWrath or (ns.IsRetail and not SCP)) then
+	if (playerClass == "DEATHKNIGHT") then
 
 		local runes = CreateFrame("Frame", nil, self)
 		runes.sortOrder = "ASC"

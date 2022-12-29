@@ -311,7 +311,7 @@ local UnitFrame_PostUpdatePositions = function(self)
 			end
 		end
 
-		local numAuras = (ns.IsRetail) and (#auras.sortedBuffs + #auras.sortedDebuffs) or (auras.visibleBuffs + auras.visibleDebuffs)
+		local numAuras = auras.visibleBuffs + auras.visibleDebuffs
 		local numRows = (numAuras > 0) and (math_floor(numAuras / auras.numPerRow)) or 0
 
 		if (numRows ~= auras.numRows or hasName ~= auras.usingNameOffset or auras.usingNameOffset == nil) then
@@ -392,10 +392,6 @@ local UnitFrame_PostUpdate = function(self, event, unit, ...)
 	self.Power:SetOrientation(main)
 	self.Health:SetOrientation(main)
 	self.Health.Preview:SetOrientation(main)
-
-	if (ns.IsRetail) then
-		self.Health.Absorb:SetOrientation(reverse)
-	end
 
 	TargetHighlight_Update(self, event, unit, ...)
 	UnitFrame_PostUpdateElements(self, event, unit, ...)
@@ -585,31 +581,6 @@ UnitStyles["NamePlate"] = function(self, unit, id)
 	self:Tag(name, prefix("[*:Name(32,nil,nil,true)]"))
 
 	self.Name = name
-
-	-- Absorb Bar (Retail)
-	--------------------------------------------
-	if (ns.IsRetail) then
-		local absorb = self:CreateBar()
-		absorb:SetAllPoints(health)
-		absorb:SetFrameLevel(health:GetFrameLevel() + 3)
-		absorb:SetStatusBarTexture(db.HealthBarTexture)
-		absorb:SetStatusBarColor(unpack(db.HealthAbsorbColor))
-		absorb:SetSparkMap(db.HealthBarSparkMap)
-
-		local orientation
-		if (db.HealthBarOrientation == "UP") then
-			orientation = "DOWN"
-		elseif (db.HealthBarOrientation == "DOWN") then
-			orientation = "UP"
-		elseif (db.HealthBarOrientation == "LEFT") then
-			orientation = "RIGHT"
-		else
-			orientation = "LEFT"
-		end
-		absorb:SetOrientation(orientation)
-
-		self.Health.Absorb = absorb
-	end
 
 	-- Target Highlight
 	--------------------------------------------

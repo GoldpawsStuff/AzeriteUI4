@@ -61,7 +61,6 @@ local ToggleDropDownMenu = ToggleDropDownMenu
 local Colors = ns.Colors
 local GetFont = ns.API.GetFont
 local GetMedia = ns.API.GetMedia
-local KillEditMode = ns.API.KillEditMode
 local RegisterFrameForMovement = ns.Widgets.RegisterFrameForMovement
 local SetObjectScale = ns.API.SetObjectScale
 local GetTime = ns.API.GetTime
@@ -106,21 +105,8 @@ end
 
 local Minimap_OnMouseUp = function(self, button)
 	if (button == "RightButton") then
-		if (ns.IsWrath) then
-			ToggleDropDownMenu(1, nil, MiniMapTrackingDropDown, "MiniMapTracking", 8, 5)
-			PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON, "SFX")
-		else
-			MinimapCluster.Tracking.Button:OnMouseDown()
-		end
-	elseif (button == "MiddleButton" and ns.IsRetail) then
-		local GLP = GarrisonLandingPageMinimapButton or ExpansionLandingPageMinimapButton
-		if (GLP and GLP:IsShown()) and (not InCombatLockdown()) then
-			if (GLP.ToggleLandingPage) then
-				GLP:ToggleLandingPage()
-			else
-				GarrisonLandingPage_Toggle()
-			end
-		end
+		ToggleDropDownMenu(1, nil, MiniMapTrackingDropDown, "MiniMapTracking", 8, 5)
+		PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON, "SFX")
 	else
 		local func = Minimap.OnClick or Minimap_OnClick
 		if (func) then
@@ -389,34 +375,14 @@ MinimapMod.DisableBlizzard = function(self)
 	MinimapBackdrop:SetParent(UIHider)
 	GameTimeFrame:SetParent(UIHider)
 	GameTimeFrame:UnregisterAllEvents()
-
-	if (ns.IsRetail) then
-		MinimapCluster.BorderTop:SetParent(UIHider)
-		MinimapCluster.InstanceDifficulty:SetParent(UIHider)
-		MinimapCluster.MailFrame:SetParent(UIHider)
-		MinimapCluster.Tracking:SetParent(UIHider)
-		MinimapCluster.ZoneTextButton:SetParent(UIHider)
-		Minimap.ZoomIn:SetParent(UIHider)
-		Minimap.ZoomIn:UnregisterAllEvents()
-		Minimap.ZoomOut:SetParent(UIHider)
-		Minimap.ZoomOut:UnregisterAllEvents()
-		Minimap:SetArchBlobRingAlpha(0)
-		Minimap:SetArchBlobRingScalar(0)
-		Minimap:SetQuestBlobRingAlpha(0)
-		Minimap:SetQuestBlobRingScalar(0)
-		ExpansionLandingPageMinimapButton:SetParent(UIHider)
-		ExpansionLandingPageMinimapButton:ClearAllPoints()
-		ExpansionLandingPageMinimapButton:SetPoint("CENTER")
-	else
-		MinimapBorderTop:SetParent(UIHider)
-		MiniMapInstanceDifficulty:SetParent(UIHider)
-		MiniMapInstanceDifficulty:UnregisterAllEvents()
-		MiniMapMailFrame:SetParent(UIHider)
-		MiniMapTracking:SetParent(UIHider)
-		MinimapZoneTextButton:SetParent(UIHider)
-		MinimapZoomIn:SetParent(UIHider)
-		MinimapZoomOut:SetParent(UIHider)
-	end
+	MinimapBorderTop:SetParent(UIHider)
+	MiniMapInstanceDifficulty:SetParent(UIHider)
+	MiniMapInstanceDifficulty:UnregisterAllEvents()
+	MiniMapMailFrame:SetParent(UIHider)
+	MiniMapTracking:SetParent(UIHider)
+	MinimapZoneTextButton:SetParent(UIHider)
+	MinimapZoomIn:SetParent(UIHider)
+	MinimapZoomOut:SetParent(UIHider)
 end
 
 MinimapMod.StyleMinimap = function(self)
@@ -425,8 +391,6 @@ MinimapMod.StyleMinimap = function(self)
 
 	SetObjectScale(MinimapCluster)
 	SetObjectScale(Minimap)
-
-	KillEditMode(MinimapCluster)
 
 	Minimap:SetFrameStrata("MEDIUM")
 	Minimap:SetSize(unpack(db.Size))
@@ -594,41 +558,6 @@ MinimapMod.StyleMinimap = function(self)
 
 		MiniMapBattlefieldBorder:Hide()
 		MiniMapBattlefieldIcon:SetAlpha(0)
-
-	else
-
-		-- This was the old retail, need to update for Shadowlands!
-		if (not ns.IsRetail) then
-
-			local eyeTexture = QueueStatusMinimapButton.Eye:CreateTexture(nil, "ARTWORK", nil, 1)
-			eyeTexture:SetPoint("CENTER", 0, 0)
-			eyeTexture:SetSize(unpack(db.EyeTextureSize))
-			eyeTexture:SetTexture(db.EyeTexture)
-			eyeTexture:SetVertexColor(unpackdb.EyeTextureColor)
-			self.eyeTexture = eyeTexture
-
-			QueueStatusMinimapButton:SetHighlightTexture("")
-
-			QueueStatusMinimapButtonBorder:SetAlpha(0)
-			QueueStatusMinimapButtonBorder:SetTexture(nil)
-			QueueStatusMinimapButtonGroupSize:SetFontObject(db.EyeGroupSizeFont)
-			QueueStatusMinimapButtonGroupSize:ClearAllPoints()
-			QueueStatusMinimapButtonGroupSize:SetPoint(unpack(db.EyeGroupSizePosition))
-
-			QueueStatusMinimapButton:SetParent(eyeFrame)
-			QueueStatusMinimapButton:ClearAllPoints()
-			QueueStatusMinimapButton:SetPoint("CENTER", 0, 0)
-
-			QueueStatusMinimapButton.Eye:SetSize(unpack(db.EyeTextureSize))
-			QueueStatusMinimapButton.Eye.texture:SetParent(UIHider)
-			QueueStatusMinimapButton.Eye.texture:SetAlpha(0)
-
-			QueueStatusMinimapButton.Highlight:SetAlpha(0)
-			QueueStatusMinimapButton.Highlight:SetTexture(nil)
-
-			QueueStatusFrame:ClearAllPoints()
-			QueueStatusFrame:SetPoint(unpack(db.EyeGroupStatusFramePosition))
-		end
 
 	end
 
@@ -828,11 +757,6 @@ MinimapMod.OnInitialize = function(self)
 	self:RegisterEvent("ZONE_CHANGED", "UpdateZone")
 	self:RegisterEvent("ZONE_CHANGED_INDOORS", "UpdateZone")
 	self:RegisterEvent("ZONE_CHANGED_NEW_AREA", "UpdateZone")
-
-	if (ns.IsRetail) then
-		self:RegisterEvent("EDIT_MODE_LAYOUTS_UPDATED", "UpdatePosition")
-		self:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED", "UpdatePosition")
-	end
 
 	self:RegisterChatCommand("setclock", "SetClock")
 

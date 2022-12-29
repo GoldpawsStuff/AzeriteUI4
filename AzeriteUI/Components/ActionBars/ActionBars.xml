@@ -2,7 +2,6 @@
 
 	<Script file="ActionBars.lua"/>
 	<Script file="HideBlizzard.lua"/>
-	<Script file="HideBlizzardClassic.lua"/>
 
 	<Script file="Prototypes\ActionButton.lua"/>
 	<Script file="Prototypes\ActionBar.lua"/>
