@@ -336,11 +336,11 @@ StatusBars.UpdateBars = function(self, event, ...)
 			local barMax = max - min
 			local barValue = current - min
 			if (barMax == 0) then
-				bar:SetMinMaxValues(0,1)
-				bar:SetValue(1)
+				bar:SetMinMaxValues(0, 1, forced)
+				bar:SetValue(1, forced)
 			else
-				bar:SetMinMaxValues(0, max-min)
-				bar:SetValue(current-min)
+				bar:SetMinMaxValues(0, max-min, forced)
+				bar:SetValue(current-min, forced)
 			end
 
 			local r, g, b = unpack(Colors[isFriend and "friendship" or "reaction"][standingID])
@@ -367,7 +367,7 @@ StatusBars.UpdateBars = function(self, event, ...)
 			bar.Value:SetTextColor(r, g, b)
 			bar.Percent:SetTextColor(r, g, b)
 
-			local perc = math_floor(barValue/barMax)
+			local perc = math_floor(barValue/barMax*100)
 			if (perc > 0) then
 				bar.Percent:SetFormattedText("%.0f", perc)
 			else
@@ -430,7 +430,7 @@ StatusBars.UpdateBars = function(self, event, ...)
 			bar.Value:SetTextColor(r, g, b)
 			bar.Percent:SetTextColor(r, g, b)
 
-			local perc = math_floor(min/max)
+			local perc = math_floor(min/max*100)
 			if (perc > 0) then
 				bar.Percent:SetFormattedText("%.0f", perc)
 			else

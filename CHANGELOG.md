@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 - Removed a lot of redundant retail code.
 
+### Fixed
+- Fixed an issue that would cause the XP- and Reputation percentages on the minimap toggle button to never show up.
+- Fixed an issue that would prevent the minimap ring bar from ever showing when Reputation was currently tracked.
+
 ## [4.0.27-Release] 2022-12-20
 ### Fixed
 - Bosses should no longer sometimes get a wooden target frame.
