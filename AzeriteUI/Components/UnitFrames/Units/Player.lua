@@ -737,6 +737,7 @@ UnitStyles["Player"] = function(self, unit, id)
 	auras.CustomFilter = ns.AuraFilters.PlayerAuraFilter
 	auras.PreSetPosition = ns.AuraSorts.Default -- only in classic
 	auras.SortAuras = ns.AuraSorts.DefaultFunction -- only in retail
+	auras.showDebuffType = true
 
 	self.Auras = auras
 
