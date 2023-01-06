@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file. Be aware th
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [4.0.29-Release] 2023-01-06 (Wrath)
+### Fixed
+- Fixed an issue with unit names in raid groups.
+
 ## [4.0.28-Release] 2022-12-29 (Wrath)
 ### Changed
 - Removed a lot of redundant retail code.
