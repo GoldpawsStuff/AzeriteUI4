@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file. Be aware th
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [4.0.30-Release] 2023-01-06 (Wrath)
+### Changed
+- Player buffs now have a dark gray border, while debuffs should be colored by school of magic, if any.
+
 ## [4.0.29-Release] 2023-01-06 (Wrath)
 ### Fixed
 - Fixed an issue with unit names in raid groups.
