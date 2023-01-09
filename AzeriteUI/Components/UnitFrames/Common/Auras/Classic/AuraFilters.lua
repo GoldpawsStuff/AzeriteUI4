@@ -79,11 +79,13 @@ ns.AuraFilters.NameplateAuraFilter = function(element, unit, button, name, textu
 		return true
 	elseif (isStealable) then
 		return true
+	elseif (button.noDuration) then
+		return
 	elseif (caster == "player" or caster == "pet" or caster == "vehicle") then
 		if (button.isDebuff) then
-			return (not button.noDuration and duration < 301) -- Faerie Fire is 5 mins
+			return (duration < 301) -- Faerie Fire is 5 mins
 		else
-			return (not button.noDuration and duration < 31) -- show short buffs, like HoTs
+			return (duration < 31) -- show short buffs, like HoTs
 		end
 	end
 end
