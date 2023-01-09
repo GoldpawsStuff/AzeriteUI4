@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file. Be aware th
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [4.0.31-Release] 2023-01-09 (Wrath)
+### Changed
+- Slightly adjusted the precision of nameplate health tags. The value display should now longer sometimes revert to percentage display when at 100 percent or almost.
+- Nameplates should no longer show no-duration auras.
+
 ## [4.0.30-Release] 2023-01-06 (Wrath)
 ### Changed
 - Player buffs now have a dark gray border, while debuffs should be colored by school of magic, if any.
